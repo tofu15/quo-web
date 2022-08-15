@@ -11,10 +11,58 @@
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap"
         rel="stylesheet">
     <title>ログイン</title>
+    <script>
+        // 检测字段是否为空
+        function validateForm() {
+            let result = true;
+            let eno = document.getElementById("eno").value.trim();
+            let pwd = document.getElementById("pwd").value.trim();
+            if (eno === "") {
+                document.querySelector("#eno").setAttribute("aria-invalid", "true");
+                document.getElementById("eno").value = "";
+                result = false;
+            } else {
+                document.querySelector("#eno").setAttribute("aria-invalid", "false");
+            }
+            if (pwd === "") {
+                document.querySelector("#pwd").setAttribute("aria-invalid", "true");
+                document.getElementById("pwd").value = "";
+                result = false;
+            } else {
+                document.querySelector("#pwd").setAttribute("aria-invalid", "false");
+            }
+            return result;
+        }
+    </script>
+
 </head>
 
 <body>
-    <div id="app"></div>
+    <header>
+        <a href="/"><img src="/images/logo.png" alt="logo"></a>
+
+    </header>
+    <main>
+        <div>
+            <p class="error"></p>
+            <h1>ログイン</h1>
+            <p>見積システムへようこそ</p>
+            <form name="login" action="/login" method="post" onsubmit="return validateForm()">
+                <label for="eno">ユーザーID</label>
+                <input type="text" id="eno" name="eno">
+                <small>ユーザーIDを入力してください</small>
+                <label for="pwd">パスワード</label>
+                <input type="password" id="pwd" name="pwd">
+                <small>パスワードを入力してください</small>
+                <label for="isremembered">
+                    <input type="checkbox" id="isremembered" name="isremembered" role="switch">
+                    次回から自動的にログイン
+                </label>
+                <button type="submit">ログイン</button>
+            </form>
+
+        </div>
+    </main>
     <script type="module" src="./main.js"></script>
 </body>
 
