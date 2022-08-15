@@ -1,47 +1,64 @@
 <script setup>
-import HelloWorld from '@/components/HelloWorld.vue'
-import TheWelcome from '@/components/TheWelcome.vue'
 </script>
 
 <template>
     <header>
-        <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+        <a href="/"><img src="/images/logo.png" alt="logo"></a>
 
-        <div class="wrapper">
-            <HelloWorld msg="You did it!" />
-        </div>
     </header>
-
     <main>
-        <TheWelcome />
+        <div>
+            <h1>ログイン</h1>
+            <p>見積システムへようこそ</p>
+            <form action="" method="post">
+                <label for="pid">ユーザーID</label>
+                <input type="text" id="pid" name="pid">
+                <label for="pw">パスワード</label>
+                <input type="password" id="pw" name="pw">
+                <label for="isremembered">
+                    <input type="checkbox" id="isremembered" name="isremembered" role="switch">
+                    次回から自動的にログイン
+                </label>
+                <button type="submit">ログイン</button>
+            </form>
+
+        </div>
     </main>
 </template>
 
-<style scoped>
-header {
-    line-height: 1.5;
-}
+<style lang="sass">
+#app
+    --font-size: 16px
+    background-repeat: no-repeat
+    background-size: cover
+    background-position: top
+    background-image: url(/images/login-background.jpg)
 
-.logo {
-    display: block;
-    margin: 0 auto 2rem;
-}
 
-@media (min-width: 1024px) {
-    header {
-        display: flex;
-        place-items: center;
-        padding-right: calc(var(--section-gap) / 2);
-    }
+header
+    padding: 20px 40px
+    img
+        height: 26px
+    a:hover
+        opacity: 0.7
+        transition: opacity var(--transition)
 
-    .logo {
-        margin: 0 2rem 0 0;
-    }
-
-    header .wrapper {
-        display: flex;
-        place-items: flex-start;
-        flex-wrap: wrap;
-    }
-}
+main
+    min-height: calc( 100vh - 70px )
+    display: flex
+    align-items: center
+    justify-content: center
+    >div
+        min-width: 480px
+        padding: 50px 50px 20px
+        border-radius: 15px
+        box-shadow: rgba(0, 0, 0, 0.16) 0px 8px 24px 0px
+        background-color: #fff
+        
+        h1
+            font-size: 1.7rem
+            margin-bottom: 0
+        
+        button
+            margin-top: 20px
 </style>

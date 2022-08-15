@@ -1,0 +1,123 @@
+// 全局基本样式
+::before,
+::after
+    text-decoration: inherit
+    vertical-align: inherit
+
+:root
+    -webkit-tap-highlight-color: transparent
+    -webkit-text-size-adjust: 100%
+    text-size-adjust: 100%
+    text-rendering: optimizeLegibility
+    background-color: var(--background-color)
+    color: var(--color)
+    font-weight: var(--font-weight)
+    font-size: var(--font-size)
+    line-height: var(--line-height)
+    font-family: var(--font-family)
+    overflow-wrap: break-word
+    cursor: default
+    tab-size: 4
+
+body
+    width: 100%
+    margin: 0
+
+b,
+strong
+    font-weight: bolder
+
+figure,
+form,
+ol,
+p,
+table,
+ul
+    margin-top: 0
+    margin-bottom: var(--typography-spacing-vertical)
+    color: var(--color)
+    font-style: normal
+    font-weight: var(--font-weight)
+    font-size: var(--font-size)
+
+a
+    --color: var(--primary)
+    --background-color: transparent
+    outline: none
+    background-color: var(--background-color)
+    color: var(--color)
+    text-decoration: var(--text-decoration)
+
+    transition: background-color var(--transition), color var(--transition), text-decoration var(--transition), box-shadow var(--transition)
+
+    &:is(:hover, :active, :focus)
+        --color: var(--primary-hover)
+        --text-decoration: underline
+
+    &:focus
+        --background-color: var(--primary-focus)
+
+// 标题
+h1,
+h2,
+h3,
+h4,
+h5,
+h6
+    margin-top: 0
+    margin-bottom: var(--typography-spacing-vertical)
+    color: var(--color)
+    font-weight: var(--font-weight)
+    font-size: var(--font-size)
+    font-family: var(--font-family)
+
+h1
+    --color: var(--h1-color)
+
+h2
+    --color: var(--h2-color)
+
+h3
+    --color: var(--h3-color)
+
+h4
+    --color: var(--h4-color)
+
+h5
+    --color: var(--h5-color)
+
+h6
+    --color: var(--h6-color)
+
+// 段落
+p
+    margin-bottom: var(--typography-spacing-vertical)
+
+// Small
+small
+    font-size: var(--font-size)
+
+// 列表
+:where(ol, ul)
+    padding-right: 0
+    padding-left: var(--spacing)
+    padding-inline-start: var(--spacing)
+    padding-inline-end: 0
+
+li
+    margin-bottom: calc(var(--typography-spacing-vertical) * 0.25)
+
+:where(dl, ol, ul)
+    :is(dl, ol, ul)
+        margin: 0 // 1
+        margin-top: calc(var(--typography-spacing-vertical) * 0.25)
+
+ul li
+    list-style: square
+
+// 高亮文本
+mark
+    padding: 0.125rem 0.25rem
+    background-color: var(--mark-background-color)
+    color: var(--mark-color)
+    vertical-align: baseline
