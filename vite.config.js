@@ -24,7 +24,7 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        // main: resolve(root, 'index.html'),
+        main: resolve(root, 'index.html'),
         login: resolve(root, 'login', 'index.html'),
         resetpw: resolve(root, 'resetpw', 'index.html')
       }
