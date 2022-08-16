@@ -1,2 +1,6 @@
+import { createApp } from 'vue'
+import App from '@/components/Login.vue'
+
 import '@/assets/sass/main.sass'
-import './style.sass'
+
+createApp(App).mount('#app')
