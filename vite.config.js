@@ -25,11 +25,9 @@ export default defineConfig({
     rollupOptions: {
       input: {
         // main: resolve(root, 'index.html'),
-        login: resolve(root, 'login', 'index.html')
+        login: resolve(root, 'login', 'index.html'),
+        resetpw: resolve(root, 'resetpw', 'index.html')
       }
     }
-  },
-  css: {
-    devSourcemap: true
   }
 })
