@@ -22,11 +22,6 @@ async function postData() {
     let response = await fetch('/login.do', {
         method: 'POST',
         body: new URLSearchParams(`eno=${form.eno}&pwd=${form.pwd}&flag=${flagdata}`)
-    }).then((response) => {
-        if (!response.ok) {
-            isLoading.value = false
-            errorMsg.value = "エラーが発生しました。"
-        }
     })
 
     if (response.ok) {
