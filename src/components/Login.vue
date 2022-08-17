@@ -10,27 +10,45 @@ const isPwdEmpty = ref("")
 const isLoading = ref(false)
 const errorMsg = ref("")
 
+let flagdata = 0
+if (form.flag) {
+    flagdata = "1"
+} else {
+    flagdata = "0"
+}
 async function postData() {
     isLoading.value = true
     const data = {
         eno: form.eno,
         pwd: form.pwd,
-        flag: form.flag
+        flag: flagdata
     }
-    const response = await fetch('/login.do', {
+    let response = await fetch('/login.do', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
+    }).then((response) => {
+        if (!response.ok) {
+            isLoading.value = false
+            errorMsg.value = "エラーが発生しました。"
+        }
     })
-    const json = await response.json()
-    isLoading.value = false
-    if (json.success) {
-        window.location.href = "/";
+
+    if (response.ok) {
+        let json = await response.json();
+        isLoading.value = false
+        if (json.success) {
+            window.location.href = "/";
+        } else {
+            errorMsg.value = json.errorMsg
+        }
     } else {
-        errorMsg.value = json.errorMsg
+        isLoading.value = false
+        errorMsg.value = "エラーが発生しました。"
     }
+
 }
 </script>
 
@@ -47,12 +65,14 @@ async function postData() {
                 <p>見積システムへようこそ</p>
                 <form>
                     <label for="eno">ユーザーID</label>
-                    <input :aria-invalid="isEnoEmpty" @focusout="isEnoEmpty = form.eno.length == 0" @input="isEnoEmpty = form.eno.length == 0" v-model.trim="form.eno"
-                        type="text" id="eno" name="eno">
+                    <input :aria-invalid="isEnoEmpty" @focusout="isEnoEmpty = form.eno.length == 0"
+                        @input="isEnoEmpty = form.eno.length == 0" v-model.trim="form.eno" type="text" id="eno"
+                        name="eno">
                     <small v-if="isEnoEmpty">ユーザーIDは入力必須です。</small>
                     <label for="pwd">パスワード</label>
-                    <input :aria-invalid="isPwdEmpty" @focusout="isPwdEmpty = form.pwd.length == 0" @input="isPwdEmpty = form.pwd.length == 0" v-model.trim="form.pwd"
-                        type="password" id="pwd" name="pwd">
+                    <input :aria-invalid="isPwdEmpty" @focusout="isPwdEmpty = form.pwd.length == 0"
+                        @input="isPwdEmpty = form.pwd.length == 0" v-model.trim="form.pwd" type="password" id="pwd"
+                        name="pwd">
                     <small v-if="isPwdEmpty">パスワードは入力必須です。</small>
                     <label for="isremembered">
                         <input v-model="form.flag" type="checkbox" id="flag" name="flag" role="switch">

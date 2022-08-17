@@ -1,11 +1,17 @@
 <script setup>
 import CommonNavItemVue from './CommonNavItem.vue';
+
+let item = {
+    moduleName: 'ログイン',
+    url: '/login',
+    haveSub: false
+}
 </script>
 
 <template>
     <nav>
         <div>
-            <CommonNavItemVue moduleName="製品管理" :haveSub="true" :subs="['製品一覧', '新規製品', '新規製品一括インポート']">
+            <CommonNavItemVue v-bind="item">
             </CommonNavItemVue>
         </div>
     </nav>

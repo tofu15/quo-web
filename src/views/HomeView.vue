@@ -1,6 +1,12 @@
+<script setup>
+import CommonHeader from '@/components/Common/CommonHeader.vue'
+import CommonNavVue from '@/components/Common/CommonNav.vue';
+</script>
+
 <template>
-    <h1>ホームページですわ〜</h1>
+    <CommonHeader></CommonHeader>
+    <CommonNavVue></CommonNavVue>
 </template>
 
-<style>
+<style lang="sass">
 </style>
