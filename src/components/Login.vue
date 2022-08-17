@@ -1,5 +1,7 @@
 <script setup>
 import { reactive, ref } from 'vue'
+import router from '/router';
+
 const form = reactive({
     eno: "",
     pwd: "",
@@ -10,16 +12,12 @@ const isPwdEmpty = ref("")
 const isLoading = ref(false)
 const errorMsg = ref("")
 
-let flagdata = 0
-if (form.flag) {
-    flagdata = "1"
-} else {
-    flagdata = "0"
-}
 async function postData() {
+
+    const flagdata = form.flag ? "1" : "0"
     isLoading.value = true
 
-    let response = await fetch('/login.do', {
+    let response = await fetch('/api/login', {
         method: 'POST',
         body: new URLSearchParams(`eno=${form.eno}&pwd=${form.pwd}&flag=${flagdata}`)
     })
@@ -28,7 +26,7 @@ async function postData() {
         let json = await response.json();
         isLoading.value = false
         if (json.success) {
-            window.location.href = "/";
+            router.push('/')
         } else {
             errorMsg.value = json.errorMsg
         }
