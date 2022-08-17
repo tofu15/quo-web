@@ -1,17 +1,26 @@
 <script setup>
 import CommonNavItemVue from './CommonNavItem.vue';
 
-let item = {
-    moduleName: 'ログイン',
-    url: '/login',
-    haveSub: false
-}
+const MAINMODULE = ['ホーム', '製品管理', '在庫管理', '見積管理', '注文管理', '顧客管理', 'データ分析', 'システム設定']
+
+let items = [
+    {
+        moduleName: 'ホーム',
+        url: '/',
+        haveSub: false
+    },
+    {
+        moduleName: '製品管理',
+        url: '/product',
+        haveSub: false
+    }
+]
 </script>
 
 <template>
     <nav>
         <div>
-            <CommonNavItemVue v-bind="item">
+            <CommonNavItemVue v-for="item in items" v-bind="item">
             </CommonNavItemVue>
         </div>
     </nav>
