@@ -19,14 +19,9 @@ if (form.flag) {
 async function postData() {
     isLoading.value = true
 
-    const formData = new FormData()
-    formData.append('eno', form.eno)
-    formData.append('pwd', form.pwd)
-    formData.append('flag', flagdata)
-
     let response = await fetch('/login.do', {
         method: 'POST',
-        body: formData,
+        body: new URLSearchParams(`eno=${form.eno}&pwd=${form.pwd}&flag=${flagdata}`)
     }).then((response) => {
         if (!response.ok) {
             isLoading.value = false
