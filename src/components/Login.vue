@@ -18,17 +18,15 @@ if (form.flag) {
 }
 async function postData() {
     isLoading.value = true
-    const data = {
-        eno: form.eno,
-        pwd: form.pwd,
-        flag: flagdata
-    }
+
+    const formData = new FormData()
+    formData.append('eno', form.eno)
+    formData.append('pwd', form.pwd)
+    formData.append('flag', flagdata)
+
     let response = await fetch('/login.do', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+        body: formData,
     }).then((response) => {
         if (!response.ok) {
             isLoading.value = false
