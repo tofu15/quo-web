@@ -28,4 +28,23 @@ const router = createRouter({
     ]
 })
 
+async function loginAuth(to, form) {
+    let isToLogin = to.name == 'login'
+    let json = await (await fetch('/api/islogin')).json()
+    // let json = {
+    //     isLogin: false
+    // }
+    if (json.isLogin && isToLogin) {
+        return { name: 'home' }
+    } else if (!json.isLogin && isToLogin) {
+        return true
+    } else if (json.isLogin && !isToLogin) {
+        return true
+    } else if (!json.isLogin && !isToLogin) {
+        return { name: 'login' }
+    }
+}
+
+router.beforeEach(router.beforeEach(loginAuth))
+
 export default router
