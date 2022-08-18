@@ -29,11 +29,11 @@ const router = createRouter({
 })
 
 async function loginAuth(to, form) {
+    if (to.name == 'resetpw') {
+        return true
+    }
     let isToLogin = to.name == 'login'
     let json = await (await fetch('/api/islogin')).json()
-    // let json = {
-    //     isLogin: false
-    // }
     if (json.isLogin && isToLogin) {
         return { name: 'home' }
     } else if (!json.isLogin && isToLogin) {
