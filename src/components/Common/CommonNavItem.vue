@@ -13,11 +13,7 @@ const props = defineProps({
 import { ref } from 'vue'
 const expanded = ref(false)
 function nav1Click() {
-    if (document.querySelector('.nav2Con>.router-link-active') !== null) {
-        return
-    } else {
-        expanded.value = !expanded.value
-    }
+    expanded.value = !expanded.value
 }
 
 </script>
@@ -63,7 +59,7 @@ svg.toggle
     color: rgb(0, 43, 103)
     position: absolute
     height: 40px
-    right: 5px
+    right: 10px
 
 .nav1, .sub
     color: inherit

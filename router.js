@@ -51,5 +51,4 @@ async function beforeAuth(to, form) {
 }
 
 router.beforeEach(router.beforeEach(beforeAuth))
-
 export default router

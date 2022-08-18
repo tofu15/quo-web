@@ -24,46 +24,66 @@ let items = [
     },
     {
         moduleName: '在庫管理',
-        url: '/product',
+        url: '/stock',
         haveSub: true,
         subs: [
-            { name: '製品一覧', url: '/li' },
-            { name: '新規製品', url: '/add' },
-            { name: '新規製品一括インポート', url: '/addall' },
-            { name: '生産計画確認申請承認', url: '/verify' },
-            { name: 'シリーズ一覧', url: '/listse' },
-            { name: '新規シリーズ', url: '/addse' }
+            { name: '在庫一覧', url: '/list' },
+            { name: '入出庫記入', url: '/record' },
+            { name: '入出庫履歴', url: '/history' }
         ]
     },
     {
         moduleName: '見積管理',
-        url: '/product',
-        haveSub: false
+        url: '/estimate',
+        haveSub: true,
+        subs: [
+            { name: '見積書一覧', url: '/list' },
+            { name: '見積書作成', url: '/add' },
+            { name: '承認待ち見積書', url: '/verify' }
+        ]
     },
     {
         moduleName: '注文管理',
-        url: '/product',
-        haveSub: false
+        url: '/order',
+        haveSub: true,
+        subs: [
+            { name: '注文一覧', url: '/list' },
+            { name: '出庫待ち注文', url: '/verify' }
+        ]
     },
     {
         moduleName: '顧客管理',
-        url: '/product',
-        haveSub: false
+        url: '/client',
+        haveSub: true,
+        subs: [
+            { name: '顧客一覧', url: '/list' },
+            { name: '新規見込み顧客', url: '/add' }
+        ]
     },
     {
         moduleName: 'データ分析',
-        url: '/product',
+        url: '/analysis',
         haveSub: false
     },
     {
         moduleName: '個人設定',
-        url: '/product',
-        haveSub: false
+        url: '/settings',
+        haveSub: true,
+        subs: [
+            { name: '個人情報', url: '/profile' },
+            { name: 'パスワード変更', url: '/pwd' }
+        ]
     },
     {
         moduleName: 'システム設定',
-        url: '/product',
-        haveSub: false
+        url: '/system',
+        haveSub: true,
+        subs: [
+            { name: '新規ユーザー', url: '/newuser' },
+            { name: 'ユーザー情報編集', url: '/user' },
+            { name: '権限設定', url: '/permission' },
+            { name: '業務設定', url: '/work' },
+        ]
     }
 ]
 </script>
@@ -79,6 +99,7 @@ let items = [
 
 <style lang="sass" scoped>
 nav
+    overflow-y: scroll
     user-select: none
     border-right: 1px solid rgb(217, 217, 217)
     position: fixed

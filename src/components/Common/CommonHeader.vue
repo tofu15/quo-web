@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { RouterLink } from 'vue-router'
 const expanded = ref(false)
 
 function userBtnClicked() {
@@ -9,7 +10,7 @@ function userBtnClicked() {
 
 <template>
     <header class="commonHeader">
-        <a class="logo" href="/"><img src="/images/logo.png" alt="logo"></a>
+        <RouterLink class="logo" to="/"><img src="/images/logo.png" alt="logo"></RouterLink>
         <div class="space"></div>
         <div class="name">営業部</div>
         <div class="name">部長</div>
