@@ -28,7 +28,6 @@ const errorMsg = ref("")
 // 是否隐藏密码 动态绑定
 const isHided = ref(true)
 
-// post请求函数
 function pwdInputed() {
     if (form.pwd.length == 0) {
         isError.pwd.isErr = true
@@ -66,6 +65,7 @@ function newpwd2Inputed() {
     }
 }
 
+// post请求函数
 async function postData() {
     isLoading.value = true
     const data = { pwd: form.newpwd1.trim() }

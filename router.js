@@ -24,11 +24,16 @@ const router = createRouter({
             path: '/resetpw',
             name: 'resetpw',
             component: ResetPwView
+        },
+        {
+            path: '/product/list',
+            name: 'product-list',
+            component: HomeView
         }
     ]
 })
 
-async function loginAuth(to, form) {
+async function beforeAuth(to, form) {
     if (to.name == 'resetpw') {
         return true
     }
@@ -45,6 +50,6 @@ async function loginAuth(to, form) {
     }
 }
 
-router.beforeEach(router.beforeEach(loginAuth))
+router.beforeEach(router.beforeEach(beforeAuth))
 
 export default router
