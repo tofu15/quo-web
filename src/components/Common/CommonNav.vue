@@ -99,7 +99,7 @@ let items = [
 
 <style lang="sass" scoped>
 nav
-    overflow-y: scroll
+    overflow-y: auto
     user-select: none
     border-right: 1px solid rgb(217, 217, 217)
     position: fixed
