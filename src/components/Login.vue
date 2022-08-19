@@ -18,9 +18,15 @@ async function postData() {
     const flagdata = form.flag ? "1" : "0"
     isLoading.value = true
 
+    let data = {
+        eno: form.eno,
+        pwd: form.pwd,
+        flag: flagdata
+    }
+
     let response = await fetch('/api/login', {
         method: 'POST',
-        body: new URLSearchParams(`eno=${form.eno}&pwd=${form.pwd}&flag=${flagdata}`)
+        body: JSON.stringify(data)
     })
 
     if (response.ok) {
