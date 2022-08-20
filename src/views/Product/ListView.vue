@@ -4,7 +4,7 @@ import CommonNavVue from '@/components/Common/CommonNav.vue';
 </script>
 
 <template>
-    <h1>HOME</h1>
+    <h1>製品一覧</h1>
 </template>
 
 <style lang="sass">

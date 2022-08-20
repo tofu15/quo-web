@@ -1,10 +1,13 @@
 <script setup>
+import { RouterView } from 'vue-router'
 import CommonHeader from '@/components/Common/CommonHeader.vue'
 import CommonNavVue from '@/components/Common/CommonNav.vue';
 </script>
 
 <template>
-    <h1>HOME</h1>
+    <CommonHeader></CommonHeader>
+    <CommonNavVue></CommonNavVue>
+    <RouterView class="main"></RouterView>
 </template>
 
 <style lang="sass">

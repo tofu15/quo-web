@@ -6,7 +6,7 @@ const MAINMODULE = ['ホーム', '製品管理', '在庫管理', '見積管理',
 let items = [
     {
         moduleName: 'ホーム',
-        url: '/',
+        url: '/home',
         haveSub: false
     },
     {
@@ -91,8 +91,8 @@ let items = [
 <template>
     <nav>
         <div>
-            <CommonNavItemVue v-for="item in items" v-bind="item">
-            </CommonNavItemVue>
+                <CommonNavItemVue v-for="item in items" v-bind="item">
+                </CommonNavItemVue>
         </div>
     </nav>
 </template>

@@ -36,7 +36,7 @@ async function postData() {
             if (json.isNewUser) {
                 router.push('/resetpw')
             } else {
-                router.push('/')
+                router.push('/home')
             }
         } else {
             errorMsg.value = json.errorMsg
