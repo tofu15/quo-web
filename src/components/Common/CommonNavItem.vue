@@ -78,6 +78,9 @@ svg.toggle
         background-color: rgb(233, 247, 251)
     >span
         padding-left: 15px
+
+.nav2Con
+    margin-bottom: 16px
 .sub
     margin-left: 40px
     font-size: 15px

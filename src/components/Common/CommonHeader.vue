@@ -40,6 +40,7 @@ function userBtnClicked() {
 
 <style lang="sass" scoped>
 header.commonHeader
+    background-color: #fbfbfc
     color: rgb(49, 49, 49)
     height: 60px
     border-bottom: 1px solid rgb(217, 217, 217)
@@ -88,6 +89,7 @@ header.commonHeader
     background-color: rgb(242, 242, 242)
     +.popup
         position: absolute
+        background-color: #fff
         display: flex
         flex-direction: column
         right: 10px

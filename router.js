@@ -6,6 +6,8 @@ import ResetPwView from '@/views/ResetPwView.vue'
 import HomeView from '@/views/HomeView.vue'
 import ProductListView from '@/views/Product/ListView.vue'
 
+import NewUser from '@/views/System/NewUser.vue'
+
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +46,14 @@ const router = createRouter({
                     path: '/product/list',
                     name: 'product-list',
                     component: ProductListView,
+                    meta: {
+                        title: "製品一覧"
+                    }
+                },
+                {
+                    path: '/system/newuser',
+                    name: 'system-newuser',
+                    component: NewUser,
                     meta: {
                         title: "製品一覧"
                     }

@@ -91,8 +91,8 @@ let items = [
 <template>
     <nav>
         <div>
-                <CommonNavItemVue v-for="item in items" v-bind="item">
-                </CommonNavItemVue>
+            <CommonNavItemVue v-for="item in items" v-bind="item">
+            </CommonNavItemVue>
         </div>
     </nav>
 </template>

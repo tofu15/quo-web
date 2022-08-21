@@ -7,8 +7,19 @@ import CommonNavVue from '@/components/Common/CommonNav.vue';
 <template>
     <CommonHeader></CommonHeader>
     <CommonNavVue></CommonNavVue>
-    <RouterView class="main"></RouterView>
+    <div class="mainCon">
+        <RouterView class="main"></RouterView>
+    </div>
 </template>
 
 <style lang="sass">
+.mainCon
+    background-color: #f6f6f6
+    min-height: calc( 100vh - 60px)
+    margin-left: 260px
+
+.main
+    max-width: 1024px
+    width: 90%
+    margin: 0 auto
 </style>
