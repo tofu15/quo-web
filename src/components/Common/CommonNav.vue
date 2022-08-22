@@ -80,7 +80,7 @@ let items = [
         haveSub: true,
         subs: [
             { name: '新規ユーザー', url: '/newuser' },
-            { name: 'ユーザー情報編集', url: '/user' },
+            { name: 'ユーザー管理', url: '/user' },
             { name: '権限設定', url: '/permission' },
             { name: '業務設定', url: '/work' },
         ]

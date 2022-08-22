@@ -1,5 +1,7 @@
 <script setup>
+import { reactive, ref } from 'vue'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
+// header 参数
 const headerProps = {
     title: '新規ユーザー',
     urls: [
@@ -20,6 +22,50 @@ const headerProps = {
         }
     ]
 }
+// 表单动态绑定
+const form = reactive({
+    name: '',
+    dno: '',
+    rid: '',
+    email: '',
+    tel: '',
+    isLoading: false,
+    errorMsg: ''
+})
+// 异常动态绑定
+const isError = reactive({
+    name: {
+        isErr: "",
+        errMsg: ""
+    },
+    dno: {
+        isErr: "",
+        errMsg: ""
+    },
+    rid: {
+        isErr: "",
+        errMsg: ""
+    },
+    email: {
+        isErr: "",
+        errMsg: ""
+    },
+    tel: {
+        isErr: "",
+        errMsg: ""
+    }
+})
+
+// name 更新处理
+function nameUpdated() {
+    if (form.name.length == 0) {
+        isError.name.isErr = true
+        isError.name.errMsg = "氏名を入力してください。"
+    } else {
+        isError.name.isErr = ""
+        isError.name.errMsg = ""
+    }
+}
 
 </script>
 
@@ -28,26 +74,26 @@ const headerProps = {
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
         <form>
             <label>氏名<span class="redText">*</span></label>
-            <input type="text">
+            <input v-model="form.name" type="text">
             <label>部署<span class="redText">*</span></label>
-            <select>
+            <select v-model="form.dno">
                 <option disabled value="" selected="">選択してください</option>
-                <option>製品部</option>
-                <option>倉庫部</option>
-                <option>営業部</option>
+                <option value="102">製品部</option>
+                <option value="103">倉庫部</option>
+                <option value="101">営業部</option>
             </select>
             <label>職位<span class="redText">*</span></label>
-            <select>
+            <select v-model="form.rid">
                 <option disabled value="" selected="">選択してください</option>
-                <option>部長</option>
-                <option>課長</option>
-                <option>営業員</option>
+                <option value="1001">部長</option>
+                <option value="1002">課長</option>
+                <option value="1003">営業員</option>
             </select>
             <label>email</label>
-            <input type="text">
+            <input v-model="form.email" type="text">
             <label>電話番号</label>
-            <input type="text">
-            <input type="button" value="確認">
+            <input v-model="form.tel" type="text">
+            <button :aria-busy="form.isLoading" type="button">確認</button>
         </form>
     </div>
 </template>

@@ -146,7 +146,7 @@ async function postData() {
                         </svg>
                     </div>
                     <button :aria-busy="isLoading" @click="postData" type="button"
-                        :disabled="isError.pwd.isErr || isError.newpwd1.isErr || isError.newpwd2.isErr">変更</button>
+                        :disabled="(isError.pwd.isErr === true || isError.newpwd1.isErr === true || isError.newpwd2.isErr === true || form.pwd.length == 0 || form.newpwd1.length == 0 || form.newpwd2.length == 0) ? true : false">変更</button>
                 </form>
 
             </div>
