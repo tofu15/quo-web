@@ -1,5 +1,7 @@
 <script setup>
 import { reactive, ref } from 'vue'
+import router from '/router'
+
 // 表单动态绑定
 const form = reactive({
     pwd: "",

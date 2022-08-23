@@ -5,8 +5,9 @@ import ResetPwView from '@/views/ResetPwView.vue'
 
 import HomeView from '@/views/HomeView.vue'
 import ProductListView from '@/views/Product/ListView.vue'
-
+// 系统设置
 import NewUser from '@/views/System/NewUser.vue'
+import Work from '@/views/System/Work.vue'
 
 
 const router = createRouter({
@@ -55,7 +56,15 @@ const router = createRouter({
                     name: 'system-newuser',
                     component: NewUser,
                     meta: {
-                        title: "製品一覧"
+                        title: "新規ユーザー"
+                    }
+                },
+                {
+                    path: '/system/work',
+                    name: 'system-work',
+                    component: Work,
+                    meta: {
+                        title: "業務設定"
                     }
                 }
             ]
@@ -82,7 +91,7 @@ async function beforeAuth(to, form) {
 
 router.beforeEach(router.beforeEach(beforeAuth))
 
-router.afterEach((to, from) => {
+router.beforeResolve((to, from) => {
     document.title = to.meta.title ? to.meta.title : 'ホームページ';
 })
 
