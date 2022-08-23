@@ -53,7 +53,8 @@ const modalProps = reactive({
 // modal 绑定
 const modalData = reactive({
     show: false,
-    url: ''
+    url: '',
+    auth: false
 })
 
 function modalEvent(result) {
@@ -72,7 +73,7 @@ onBeforeRouteLeave((to, from) => {
     if (form.name === "" && form.dno === "" && form.rid === "" && form.email === "" && form.tel === "") {
         return true
     } else {
-        if (modalData.show) {
+        if (modalData.show || modalData.auth) {
             return true
         } else {
             modalProps.title = "確認"
@@ -176,6 +177,7 @@ async function postData() {
         let json = await response.json();
         form.isLoading = false
         if (json.success) {
+            modalData.auth = true
             router.push('/system/user')
         } else {
             modalProps.title = "エラー"
