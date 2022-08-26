@@ -7,7 +7,7 @@ import CommonModal from '@/components/Common/CommonModal.vue';
 import router from '/router';
 // header 参数
 const headerProps = {
-    title: '製品一覧',
+    title: 'シリーズ一覧',
     urls: [
         {
             text: 'ホーム',
@@ -20,7 +20,7 @@ const headerProps = {
             url: ''
         },
         {
-            text: ' / 製品一覧',
+            text: ' / シリーズ一覧',
             isUrl: false,
             url: ''
         }
@@ -28,8 +28,8 @@ const headerProps = {
 }
 // 调用后端接口 获取表格信息
 onBeforeMount(async () => {
-    let productsJson = await (await fetch('/api/product')).json()
-    productsJson.forEach(element => {
+    let productseJson = await (await fetch('/api/product-series')).json()
+    productseJson.data.forEach(element => {
         tableProps.data.push(element)
     })
 })
@@ -38,11 +38,11 @@ const tableProps = reactive({
     data: [],
     headers: [
         {
-            name: "製品番号",
+            name: "ID",
             type: "number"
         },
         {
-            name: "製品名",
+            name: "シリーズ名",
             type: "string"
         },
         {
@@ -50,17 +50,8 @@ const tableProps = reactive({
             type: "type"
         },
         {
-            name: "シリーズ",
-            type: "type"
-        },
-        {
-            name: "単価",
-            type: "number",
-            decimal: true
-        },
-        {
-            name: "在庫数",
-            type: "number"
+            name: "備考",
+            type: "string"
         }
     ]
 })

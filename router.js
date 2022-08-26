@@ -5,6 +5,7 @@ import ResetPwView from '@/views/ResetPwView.vue'
 
 import HomeView from '@/views/HomeView.vue'
 import ProductListView from '@/views/Product/ListView.vue'
+import ProductListseView from '@/views/Product/ListseView.vue'
 // 系统设置
 import NewUser from '@/views/System/NewUser.vue'
 import Work from '@/views/System/Work.vue'
@@ -49,6 +50,14 @@ const router = createRouter({
                     component: ProductListView,
                     meta: {
                         title: "製品一覧"
+                    }
+                },
+                {
+                    path: '/product/listse',
+                    name: 'product-listse',
+                    component: ProductListseView,
+                    meta: {
+                        title: "シリーズ一覧"
                     }
                 },
                 {

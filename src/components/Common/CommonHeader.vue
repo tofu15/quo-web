@@ -40,6 +40,10 @@ function userBtnClicked() {
 
 <style lang="sass" scoped>
 header.commonHeader
+    position: fixed
+    top: 0
+    left: 0
+    right: 0
     background-color: #fbfbfc
     color: rgb(49, 49, 49)
     height: 60px

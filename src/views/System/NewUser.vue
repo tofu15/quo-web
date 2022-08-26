@@ -223,7 +223,7 @@ async function postData() {
                 type="text">
             <small v-if="!isError.tel.errMsg.length == 0">{{ isError.tel.errMsg }}</small>
             <button @click="postData" :aria-busy="form.isLoading"
-                :disabled="isError.name.isErr === true || form.dno.length == 0 || form.rid.length == 0 || isError.email.isErr === true || isError.tel.isErr === true"
+                :disabled="isError.name.isErr !== false || form.dno.length == 0 || form.rid.length == 0 || isError.email.isErr === true || isError.tel.isErr === true"
                 type="button">確認</button>
         </form>
     </div>

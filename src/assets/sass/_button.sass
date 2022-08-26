@@ -58,6 +58,22 @@ input[type="reset"]
     &:focus
         --box-shadow: var(--button-hover-box-shadow, 0 0 0 rgba(0, 0, 0, 0)), 0 0 0 var(--outline-width) var(--secondary-focus)
 
+// del
+:is(button, input[type="submit"], input[type="button"], [role="button"]).del,
+input[type="reset"]
+    --background-color: var(--del)
+    --border-color: var(--del)
+    --color: var(--del-inverse)
+    cursor: pointer
+
+    &:is([aria-current], :hover, :active, :focus)
+        --background-color: var(--del-hover)
+        --border-color: var(--del-hover)
+        --color: var(--del-inverse)
+
+    &:focus
+        --box-shadow: var(--button-hover-box-shadow, 0 0 0 rgba(0, 0, 0, 0)), 0 0 0 var(--outline-width) var(--del-focus)
+
 // Contrast
 :is(button, input[type="submit"], input[type="button"], [role="button"]).contrast
     --background-color: var(--contrast)

@@ -16,6 +16,7 @@ import CommonNavVue from '@/components/Common/CommonNav.vue';
 .mainCon
     background-color: #f6f6f6
     min-height: calc( 100vh - 60px)
+    margin-top: 60px
     margin-left: 260px
 
 .main
