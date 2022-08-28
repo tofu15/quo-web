@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onBeforeMount } from 'vue'
+import { ref, reactive, onBeforeMount, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 // prop 定义
 const props = defineProps({
@@ -13,7 +13,58 @@ const props = defineProps({
 
 const table = reactive({
     filterOpen: false,
-    filters: defaultFilters()
+    filters: defaultFilters(),
+    everyPage: "20",
+    page: 1
+})
+
+const everyPage = computed(() => {
+    if (table.everyPage == "999") {
+        return 0
+    } else {
+        return Number(table.everyPage)
+    }
+})
+
+const numOfPages = computed(() => {
+    if (everyPage.value == 0) {
+        return 1
+    } else {
+        let num = props.data.length
+        return Math.ceil(num / everyPage.value)
+    }
+})
+// 页码
+const paginator = computed(() => {
+    let result = []
+    let start = 0
+    let end = 0
+    // 添加当前页之前的页码
+    if (table.page - 2 >= 1) {
+        start = table.page - 2
+    } else if (table.page == 2) {
+        start = 2
+    } else {
+        start = 1
+    }
+    // 添加当前页之后的页码
+    if (numOfPages.value - table.page > 1) {
+        result.push(table.page + 1, table.page + 2)
+    } else if (table.page == numOfPages.value - 1) {
+        result.push(table.page + 1)
+    }
+    return result
+})
+
+const tableData = computed(() => {
+    let amount = props.data.length
+    if (everyPage.value == 0) {
+        return props.data
+    } else if (table.page == numOfPages.value) {
+        return props.data.slice((table.page - 1) * everyPage.value)
+    } else {
+        return props.data.slice((table.page - 1) * everyPage.value, table.page * everyPage.value)
+    }
 })
 
 function defaultFilters() {
@@ -56,8 +107,8 @@ function defaultFilters() {
         <div class="countCon">
             <div>
                 <span>表示件数</span>
-                <select>
-                    <option value="10">10</option>
+                <select v-model="table.everyPage">
+                    <option value="20">20</option>
                     <option value="50">50</option>
                     <option value="100">100</option>
                     <option value="999">all</option>
@@ -112,7 +163,7 @@ function defaultFilters() {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="product in props.data">
+                    <tr v-for="product in tableData">
                         <td><input type="checkbox"></td>
                         <td v-for="(value, key, index) in product">{{ props.headers[index].decimal ? value.toFixed(2) :
                                 value
@@ -138,8 +189,48 @@ function defaultFilters() {
                 </tbody>
             </table>
         </div>
-        <div>
-            <span>&lt;&lt; &lt; 1 2 3 4 5 &gt; &gt;&gt;</span>
+        <div class="paginatorCon">
+            <svg :disabled="table.page == 1" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24"
+                height="24px" viewBox="0 0 24 24" width="24px">
+                <g>
+                    <rect fill="none" height="24" width="24" />
+                    <rect fill="none" height="24" width="24" />
+                </g>
+                <g>
+                    <g>
+                        <path
+                            d="M18.29,17.29L18.29,17.29c0.39-0.39,0.39-1.02,0-1.41L14.42,12l3.88-3.88c0.39-0.39,0.39-1.02,0-1.41l0,0 c-0.39-0.39-1.02-0.39-1.41,0l-4.59,4.59c-0.39,0.39-0.39,1.02,0,1.41l4.59,4.59C17.27,17.68,17.9,17.68,18.29,17.29z" />
+                        <path
+                            d="M11.7,17.29L11.7,17.29c0.39-0.39,0.39-1.02,0-1.41L7.83,12l3.88-3.88c0.39-0.39,0.39-1.02,0-1.41l0,0 c-0.39-0.39-1.02-0.39-1.41,0l-4.59,4.59c-0.39,0.39-0.39,1.02,0,1.41l4.59,4.59C10.68,17.68,11.31,17.68,11.7,17.29z" />
+                    </g>
+                </g>
+            </svg>
+            <svg :disabled="table.page == 1" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24"
+                width="24px">
+                <path
+                    d="M14.71 15.88L10.83 12l3.88-3.88c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L8.71 11.3c-.39.39-.39 1.02 0 1.41l4.59 4.59c.39.39 1.02.39 1.41 0 .38-.39.39-1.03 0-1.42z" />
+            </svg>
+            <span v-for="p in paginator">{{ p }}</span>
+            <svg :disabled="table.page == numOfPages" xmlns="http://www.w3.org/2000/svg" height="24px"
+                viewBox="0 0 24 24" width="24px">
+                <path
+                    d="M9.29 15.88L13.17 12 9.29 8.12c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0l4.59 4.59c.39.39.39 1.02 0 1.41L10.7 17.3c-.39.39-1.02.39-1.41 0-.38-.39-.39-1.03 0-1.42z" />
+            </svg>
+            <svg :disabled="table.page == numOfPages" xmlns="http://www.w3.org/2000/svg"
+                enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px">
+                <g>
+                    <rect fill="none" height="24" width="24" />
+                    <rect fill="none" height="24" width="24" />
+                </g>
+                <g>
+                    <g>
+                        <path
+                            d="M5.7,6.71L5.7,6.71c-0.39,0.39-0.39,1.02,0,1.41L9.58,12L5.7,15.88c-0.39,0.39-0.39,1.02,0,1.41l0,0 c0.39,0.39,1.02,0.39,1.41,0l4.59-4.59c0.39-0.39,0.39-1.02,0-1.41L7.12,6.71C6.73,6.32,6.09,6.32,5.7,6.71z" />
+                        <path
+                            d="M12.29,6.71L12.29,6.71c-0.39,0.39-0.39,1.02,0,1.41L16.17,12l-3.88,3.88c-0.39,0.39-0.39,1.02,0,1.41l0,0 c0.39,0.39,1.02,0.39,1.41,0l4.59-4.59c0.39-0.39,0.39-1.02,0-1.41l-4.59-4.59C13.32,6.32,12.68,6.32,12.29,6.71z" />
+                    </g>
+                </g>
+            </svg>
         </div>
     </div>
 </template>
@@ -229,6 +320,36 @@ div.tableCon
                 border-width: 0 0 1px 0
                 border-style: solid
                 border-color: rgb(228, 228, 228)
+            svg
+                cursor: pointer
+
+div.paginatorCon
+    display: flex
+    justify-content: flex-end
+    align-items: center
+    >*
+        user-select: none
+        display: block
+        border-radius: 50%
+        &[active]
+            background: #EFF6FF
+            color: #1D4ED8
+        &[disabled="true"]
+            color: hsl(0deg 0% 71%)
+        &:not([disabled="true"]):not([active])
+            cursor: pointer
+            &:hover
+                background: #e9ecef
+            
+    span
+        line-height: 38px
+        height: 40px
+        width: 40px
+        text-align: center
+    svg
+        height: 40px
+        width: 40px
+        padding: 8px
 
                     
 </style>

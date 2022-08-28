@@ -1,4 +1,5 @@
 <script setup>
+import { KeepAlive } from 'vue'
 import { RouterView } from 'vue-router'
 import CommonHeader from '@/components/Common/CommonHeader.vue'
 import CommonNavVue from '@/components/Common/CommonNav.vue';
@@ -8,7 +9,13 @@ import CommonNavVue from '@/components/Common/CommonNav.vue';
     <CommonHeader></CommonHeader>
     <CommonNavVue></CommonNavVue>
     <div class="mainCon">
-        <RouterView class="main"></RouterView>
+        <router-view v-if="$route.meta.keepAlive" class="main" v-slot="{ Component }">
+            <keep-alive>
+                <component :is="Component" />
+            </keep-alive>
+        </router-view>
+        <router-view class="main" v-else>
+        </router-view>
     </div>
 </template>
 

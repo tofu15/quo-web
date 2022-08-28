@@ -41,7 +41,8 @@ const router = createRouter({
                     name: 'home',
                     component: HomeView,
                     meta: {
-                        title: "ホームページ"
+                        title: "ホームページ",
+                        keepAlive: false
                     }
                 },
                 {
@@ -49,7 +50,8 @@ const router = createRouter({
                     name: 'product-list',
                     component: ProductListView,
                     meta: {
-                        title: "製品一覧"
+                        title: "製品一覧",
+                        keepAlive: true
                     }
                 },
                 {
@@ -57,7 +59,8 @@ const router = createRouter({
                     name: 'product-listse',
                     component: ProductListseView,
                     meta: {
-                        title: "シリーズ一覧"
+                        title: "シリーズ一覧",
+                        keepAlive: true
                     }
                 },
                 {
@@ -65,7 +68,8 @@ const router = createRouter({
                     name: 'system-newuser',
                     component: NewUser,
                     meta: {
-                        title: "新規ユーザー"
+                        title: "新規ユーザー",
+                        keepAlive: false
                     }
                 },
                 {
@@ -73,7 +77,8 @@ const router = createRouter({
                     name: 'system-work',
                     component: Work,
                     meta: {
-                        title: "業務設定"
+                        title: "業務設定",
+                        keepAlive: false
                     }
                 }
             ]
