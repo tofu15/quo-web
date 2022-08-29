@@ -29,7 +29,7 @@ const headerProps = {
 // 调用后端接口 获取表格信息
 onBeforeMount(async () => {
     let productsJson = await (await fetch('/api/product')).json()
-    productsJson.forEach(element => {
+    productsJson.data.forEach(element => {
         tableProps.data.push(element)
     })
 })

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
+import { NSelect } from 'naive-ui'
 import { RouterLink } from 'vue-router'
 // prop 定义
 const props = defineProps({
@@ -29,10 +30,10 @@ const everyPage = computed(() => {
 
 const numOfPages = computed(() => {
     let result = 1
-    if (everyPage.value == 0) {
+    if (everyPage.value == 0 || filteredData.value.length == 0) {
         result = 1
     } else {
-        let num = props.data.length
+        let num = filteredData.value.length
         result = Math.ceil(num / everyPage.value)
     }
     return result
@@ -62,14 +63,110 @@ const paginator = computed(() => {
     return result
 })
 
+// 过滤 排序后的数据
+const filteredData = computed(() => {
+    let result = props.data
+    table.filters.forEach((filter, index) => {
+        // 文本过滤
+        if (filter.type == "string" && filter.text.length != 0) {
+            result = result.filter(item => {
+                let key = Object.keys(item)[index]
+                let str = item[key]
+                if (str.includes(filter.text)) {
+                    return true
+                } else {
+                    return false
+                }
+            })
+            // 数字过滤
+        } else if (filter.type == "number" && filter.num !== "") {
+            result = result.filter(item => {
+                let key = Object.keys(item)[index]
+                let num = item[key]
+                if (num === filter.num) {
+                    return true
+                } else {
+                    return false
+                }
+            })
+            // 数字范围过滤
+        } else if (filter.type == "numberRange" && (filter.from !== "" || filter.from !== "")) {
+            result = result.filter(item => {
+                let key = Object.keys(item)[index]
+                let num = item[key]
+                if (filter.from !== "" && filter.to !== "" && num >= filter.from && num <= filter.to) {
+                    return true
+                } else if (filter.from === "" && num <= filter.to) {
+                    return true
+                } else if (filter.to === "" && num >= filter.from) {
+                    return true
+                } else {
+                    return false
+                }
+            })
+            // 单选过滤
+        } else if (filter.type == "select" && filter.select != null) {
+            result = result.filter(item => {
+                let key = Object.keys(item)[index]
+                let str = item[key]
+                if (str === filter.select) {
+                    return true
+                } else {
+                    return false
+                }
+            })
+            // 多选过滤
+        } else if (filter.type == "multiSelect" && filter.selects.length != 0) {
+            result = result.filter(item => {
+                let key = Object.keys(item)[index]
+                let str = item[key]
+                for (const select of filter.selects) {
+                    if (str === select) {
+                        return true
+                    }
+                }
+                return false
+            })
+        }
+    })
+
+    return result
+})
+
+// 显示在表格中的数据
 const tableData = computed(() => {
+    let result = filteredData.value
+    // 分页
     if (everyPage.value == 0) {
-        return props.data
+        return result
     } else if (table.page == numOfPages.value) {
-        return props.data.slice((table.page - 1) * everyPage.value)
+        return result.slice((table.page - 1) * everyPage.value)
     } else {
-        return props.data.slice((table.page - 1) * everyPage.value, table.page * everyPage.value)
+        return result.slice((table.page - 1) * everyPage.value, table.page * everyPage.value)
     }
+})
+const tableSelectData = computed(() => {
+    let resultSet = []
+    let result = []
+    props.headers.forEach((value, index) => {
+        resultSet[index] = new Set()
+        result[index] = new Array()
+    })
+    props.data.forEach((item, index) => {
+        Object.entries(item).forEach(([key, value], i) => {
+            resultSet[i].add(value)
+        })
+    })
+
+    resultSet.forEach((set, index) => {
+        set.forEach((value) => {
+            result[index].push({
+                label: value,
+                value: value
+            })
+        })
+    })
+    return result
 })
 
 function defaultFilters() {
@@ -79,7 +176,7 @@ function defaultFilters() {
             result[index] = {
                 type: "string",
                 text: "",
-                select: "",
+                select: null,
                 selects: []
             }
         } else if (e.type == "number") {
@@ -88,13 +185,13 @@ function defaultFilters() {
                 num: "",
                 from: "",
                 to: "",
-                select: "",
+                select: null,
                 selects: []
             }
         } else {
             result[index] = {
                 type: "select",
-                select: "",
+                select: null,
                 selects: []
             }
         }
@@ -124,7 +221,7 @@ function defaultFilters() {
                 <input v-model="table.filterOpen" type="checkbox" role="switch">
                 フィルター設定
             </label>
-            <button class="secondary">クリア</button>
+            <button @click="table.filters = defaultFilters()" class="secondary">クリア</button>
         </div>
         <div class="tableWrapper">
             <table>
@@ -145,18 +242,23 @@ function defaultFilters() {
                         <td v-for="(header, index) in props.headers">
                             <input v-if="table.filters[index].type == 'string'" v-model="table.filters[index].text"
                                 type="text" placeholder="テキスト">
-                            <input v-if="table.filters[index].type == 'number'" v-model="table.filters[index].num"
+                            <input v-else-if="table.filters[index].type == 'number'" v-model="table.filters[index].num"
                                 type="number" placeholder="数字">
-                            <div v-if="table.filters[index].type == 'numberRange'">
+                            <div v-else-if="table.filters[index].type == 'numberRange'">
                                 <input v-model="table.filters[index].from" type="number" placeholder="From">
                                 <br>
                                 <input v-model="table.filters[index].to" type="number" placeholder="To">
                             </div>
+                            <n-select placeholder="選択" clearable v-model:value="table.filters[index].select"
+                                :options="tableSelectData[index]" v-else-if="table.filters[index].type == 'select'" />
+                            <n-select :max-tag-count="1" multiple placeholder="複数選択" clearable
+                                v-model:value="table.filters[index].selects" :options="tableSelectData[index]"
+                                v-else-if="table.filters[index].type == 'multiSelect'" />
                         </td>
                     </tr>
                     <tr class="tableHeader">
                         <th><input type="checkbox"></th>
-                        <th v-for="header in props.headers">{{ header.name }}<span><svg
+                        <th v-for="header in props.headers">{{  header.name  }}<span><svg
                                     xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrows-sort"
                                     width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                     fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -168,11 +270,10 @@ function defaultFilters() {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="product in tableData">
+                    <tr v-for="product in tableData" :key="product[Object.keys(product)[0]]">
                         <td><input type="checkbox"></td>
-                        <td v-for="(value, key, index) in product">{{ props.headers[index].decimal ? value.toFixed(2) :
-                                value
-                        }}</td>
+                        <td v-for="(value, key, index) in product">{{  props.headers[index].decimal ?
+                        value.toFixed(2) : value}}</td>
                         <td>
                             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
                                 <path d="M0 0h24v24H0V0z" fill="none" />
@@ -195,8 +296,8 @@ function defaultFilters() {
             </table>
         </div>
         <div class="paginatorCon">
-            <svg :disabled="table.page == 1" @click="table.page = 1" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24"
-                height="24px" viewBox="0 0 24 24" width="24px">
+            <svg :disabled="table.page == 1" @click="table.page = 1" xmlns="http://www.w3.org/2000/svg"
+                enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px">
                 <g>
                     <rect fill="none" height="24" width="24" />
                     <rect fill="none" height="24" width="24" />
@@ -210,19 +311,20 @@ function defaultFilters() {
                     </g>
                 </g>
             </svg>
-            <svg :disabled="table.page == 1" @click="table.page != 1 ? table.page--:table.page" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24"
-                width="24px">
+            <svg :disabled="table.page == 1" @click="table.page != 1 ? table.page-- : table.page"
+                xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
                 <path
                     d="M14.71 15.88L10.83 12l3.88-3.88c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L8.71 11.3c-.39.39-.39 1.02 0 1.41l4.59 4.59c.39.39 1.02.39 1.41 0 .38-.39.39-1.03 0-1.42z" />
             </svg>
-            <span v-for="p in paginator" :active="p == table.page" @click="table.page = p">{{ p }}</span>
-            <svg :disabled="table.page == numOfPages" @click="table.page != numOfPages?table.page++:table.page" xmlns="http://www.w3.org/2000/svg" height="24px"
-                viewBox="0 0 24 24" width="24px">
+            <span v-for="p in paginator" :active="p == table.page" @click="table.page = p">{{  p  }}</span>
+            <svg :disabled="table.page == numOfPages" @click="table.page != numOfPages ? table.page++ : table.page"
+                xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
                 <path
                     d="M9.29 15.88L13.17 12 9.29 8.12c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0l4.59 4.59c.39.39.39 1.02 0 1.41L10.7 17.3c-.39.39-1.02.39-1.41 0-.38-.39-.39-1.03 0-1.42z" />
             </svg>
-            <svg :disabled="table.page == numOfPages" @click="table.page = numOfPages" xmlns="http://www.w3.org/2000/svg"
-                enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px">
+            <svg :disabled="table.page == numOfPages" @click="table.page = numOfPages"
+                xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24"
+                width="24px">
                 <g>
                     <rect fill="none" height="24" width="24" />
                     <rect fill="none" height="24" width="24" />
@@ -279,7 +381,7 @@ div.tableCon
         table
             border-collapse: collapse
         select
-            width: 100%
+            width: auto
         th, td
             text-align: start
             padding: 10px
@@ -289,9 +391,12 @@ div.tableCon
                 background-position: center right 5px
         tr.filterInput
             td
+                width: auto
                 padding-right: 15px
                 padding-bottom: 15px
-            input
+                >*
+                    width: 100%
+            input, select
                 margin-bottom: 10px
                 padding: 0
                 height: 35px
@@ -299,6 +404,10 @@ div.tableCon
                 border-radius: 0
                 border-width: 0
                 border-bottom-width: 2px
+            select
+                width: auto
+                background-position: center right 0px
+                padding-right: 10px
         tr.tableHeader
             th
                 padding-right: 40px
