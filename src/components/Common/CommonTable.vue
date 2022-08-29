@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onBeforeMount, computed } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 // prop 定义
 const props = defineProps({
@@ -18,6 +18,7 @@ const table = reactive({
     page: 1
 })
 
+
 const everyPage = computed(() => {
     if (table.everyPage == "999") {
         return 0
@@ -27,37 +28,41 @@ const everyPage = computed(() => {
 })
 
 const numOfPages = computed(() => {
+    let result = 1
     if (everyPage.value == 0) {
-        return 1
+        result = 1
     } else {
         let num = props.data.length
-        return Math.ceil(num / everyPage.value)
+        result = Math.ceil(num / everyPage.value)
     }
+    return result
 })
 // 页码
 const paginator = computed(() => {
+
     let result = []
-    let start = 0
-    let end = 0
-    // 添加当前页之前的页码
-    if (table.page - 2 >= 1) {
-        start = table.page - 2
-    } else if (table.page == 2) {
-        start = 2
+    // 检查页码数是否小于等于5
+    if (numOfPages.value <= 5) {
+        for (let index = 1; index <= numOfPages.value; index++) {
+            result.push(index)
+        }
+    } else if (table.page == 1 || table.page == 2) {
+        for (let index = 1; index <= 5 && index <= numOfPages.value; index++) {
+            result.push(index)
+        }
+    } else if (table.page == numOfPages.value || table.page == (numOfPages.value - 1)) {
+        for (let index = numOfPages.value; index >= 1 && index >= (numOfPages.value - 4); index--) {
+            result.unshift(index)
+        }
     } else {
-        start = 1
-    }
-    // 添加当前页之后的页码
-    if (numOfPages.value - table.page > 1) {
-        result.push(table.page + 1, table.page + 2)
-    } else if (table.page == numOfPages.value - 1) {
-        result.push(table.page + 1)
+        for (let index = table.page - 2; index <= table.page + 2; index++) {
+            result.push(index)
+        }
     }
     return result
 })
 
 const tableData = computed(() => {
-    let amount = props.data.length
     if (everyPage.value == 0) {
         return props.data
     } else if (table.page == numOfPages.value) {
@@ -107,7 +112,7 @@ function defaultFilters() {
         <div class="countCon">
             <div>
                 <span>表示件数</span>
-                <select v-model="table.everyPage">
+                <select v-model="table.everyPage" @change="table.page = 1">
                     <option value="20">20</option>
                     <option value="50">50</option>
                     <option value="100">100</option>
@@ -190,7 +195,7 @@ function defaultFilters() {
             </table>
         </div>
         <div class="paginatorCon">
-            <svg :disabled="table.page == 1" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24"
+            <svg :disabled="table.page == 1" @click="table.page = 1" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24"
                 height="24px" viewBox="0 0 24 24" width="24px">
                 <g>
                     <rect fill="none" height="24" width="24" />
@@ -205,18 +210,18 @@ function defaultFilters() {
                     </g>
                 </g>
             </svg>
-            <svg :disabled="table.page == 1" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24"
+            <svg :disabled="table.page == 1" @click="table.page != 1 ? table.page--:table.page" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24"
                 width="24px">
                 <path
                     d="M14.71 15.88L10.83 12l3.88-3.88c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L8.71 11.3c-.39.39-.39 1.02 0 1.41l4.59 4.59c.39.39 1.02.39 1.41 0 .38-.39.39-1.03 0-1.42z" />
             </svg>
-            <span v-for="p in paginator">{{ p }}</span>
-            <svg :disabled="table.page == numOfPages" xmlns="http://www.w3.org/2000/svg" height="24px"
+            <span v-for="p in paginator" :active="p == table.page" @click="table.page = p">{{ p }}</span>
+            <svg :disabled="table.page == numOfPages" @click="table.page != numOfPages?table.page++:table.page" xmlns="http://www.w3.org/2000/svg" height="24px"
                 viewBox="0 0 24 24" width="24px">
                 <path
                     d="M9.29 15.88L13.17 12 9.29 8.12c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0l4.59 4.59c.39.39.39 1.02 0 1.41L10.7 17.3c-.39.39-1.02.39-1.41 0-.38-.39-.39-1.03 0-1.42z" />
             </svg>
-            <svg :disabled="table.page == numOfPages" xmlns="http://www.w3.org/2000/svg"
+            <svg :disabled="table.page == numOfPages" @click="table.page = numOfPages" xmlns="http://www.w3.org/2000/svg"
                 enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px">
                 <g>
                     <rect fill="none" height="24" width="24" />
@@ -331,12 +336,12 @@ div.paginatorCon
         user-select: none
         display: block
         border-radius: 50%
-        &[active]
+        &[active="true"]
             background: #EFF6FF
             color: #1D4ED8
         &[disabled="true"]
             color: hsl(0deg 0% 71%)
-        &:not([disabled="true"]):not([active])
+        &:not([disabled="true"]):not([active="true"])
             cursor: pointer
             &:hover
                 background: #e9ecef
