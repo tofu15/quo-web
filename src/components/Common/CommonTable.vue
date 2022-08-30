@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { NSelect } from 'naive-ui'
 import { RouterLink } from 'vue-router'
 // prop 定义
@@ -9,6 +9,9 @@ const props = defineProps({
     },
     headers: {
         type: Array
+    },
+    action: {
+        type: Object
     }
 })
 
@@ -16,7 +19,41 @@ const table = reactive({
     filterOpen: false,
     filters: defaultFilters(),
     everyPage: "20",
-    page: 1
+    page: 1,
+    isAllSelected: false
+})
+// 选择 Map
+const selectMap = reactive(new Map())
+// 设置选择 Map
+watch(props, () => {
+    props.data.forEach((value) => {
+        let id = value[Object.keys(value)[0]]
+        selectMap.set(id, ref(false))
+    })
+}, { immediate: true })
+// 全选按钮点击
+function allSelectClick() {
+    let to
+    if (table.isAllSelected == true) {
+        to = false
+    } else {
+        to = true
+    }
+    tableData.value.forEach((item) => {
+        let id = item[Object.keys(item)[0]]
+        selectMap.get(id).value = to
+    })
+}
+// 判断是否全选
+watch(selectMap, (selectMap, oldSelectMap) => {
+    let result = true
+    tableData.value.forEach((item) => {
+        let id = item[Object.keys(item)[0]]
+        if (selectMap.get(id).value == false) {
+            result = false
+        }
+    })
+    table.isAllSelected = result
 })
 
 
@@ -145,6 +182,13 @@ const tableData = computed(() => {
         return result.slice((table.page - 1) * everyPage.value, table.page * everyPage.value)
     }
 })
+// 观察表格中的数据变化 清空选择Map
+watch(tableData, () => {
+    [...selectMap.keys()].forEach((key) => {
+        selectMap.set(key, ref(false))
+    })
+})
+
 const tableSelectData = computed(() => {
     let resultSet = []
     let result = []
@@ -257,7 +301,7 @@ function defaultFilters() {
                         </td>
                     </tr>
                     <tr class="tableHeader">
-                        <th><input type="checkbox"></th>
+                        <th><input :checked="table.isAllSelected" @click="allSelectClick" type="checkbox"></th>
                         <th v-for="header in props.headers">{{  header.name  }}<span><svg
                                     xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrows-sort"
                                     width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -271,25 +315,40 @@ function defaultFilters() {
                 </thead>
                 <tbody>
                     <tr v-for="product in tableData" :key="product[Object.keys(product)[0]]">
-                        <td><input type="checkbox"></td>
-                        <td v-for="(value, key, index) in product">{{  props.headers[index].decimal ?
-                        value.toFixed(2) : value}}</td>
+                        <td><input v-model="selectMap.get(product[Object.keys(product)[0]]).value" type="checkbox"></td>
+                        <td v-for="(value, key, index) in product">{{  props.headers[index].decimal ? value.toFixed(2) :
+                        value
+ }}</td>
                         <td>
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
-                                <path d="M0 0h24v24H0V0z" fill="none" />
-                                <path
-                                    d="M12 4C7 4 2.73 7.11 1 11.5 2.73 15.89 7 19 12 19s9.27-3.11 11-7.5C21.27 7.11 17 4 12 4zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                            </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
-                                <path d="M0 0h24v24H0V0z" fill="none" />
-                                <path
-                                    d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                            </svg><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24"
-                                width="24px">
-                                <path d="M0 0h24v24H0V0z" fill="none" />
-                                <path
-                                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v10zM18 4h-2.5l-.71-.71c-.18-.18-.44-.29-.7-.29H9.91c-.26 0-.52.11-.7.29L8.5 4H6c-.55 0-1 .45-1 1s.45 1 1 1h12c.55 0 1-.45 1-1s-.45-1-1-1z" />
-                            </svg>
+                            <button v-if="props.action.hasOwnProperty('view')">
+                                <svg :class="{ prohibit: props.action.view != 'all' && !props.action.view.includes(product[Object.keys(product)[0]]) }"
+                                    @click="$emit('view', product[Object.keys(product)[0]])"
+                                    xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
+                                    <path d="M0 0h24v24H0V0z" fill="none" />
+                                    <path
+                                        d="M12 4C7 4 2.73 7.11 1 11.5 2.73 15.89 7 19 12 19s9.27-3.11 11-7.5C21.27 7.11 17 4 12 4zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                                </svg>
+                            </button>
+
+                            <button v-if="props.action.hasOwnProperty('edit')">
+                                <svg :class="{ prohibit: props.action.edit != 'all' && !props.action.edit.includes(product[Object.keys(product)[0]]) }"
+                                    @click="$emit('edit', product[Object.keys(product)[0]])"
+                                    xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
+                                    <path d="M0 0h24v24H0V0z" fill="none" />
+                                    <path
+                                        d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                </svg>
+                            </button>
+
+                            <button v-if="props.action.hasOwnProperty('delete')"
+                                :disabled="props.action.delete != 'all' && !props.action.delete.includes(product[Object.keys(product)[0]])"
+                                @click="$emit('delete', product[Object.keys(product)[0]])">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
+                                    <path d="M0 0h24v24H0V0z" fill="none" />
+                                    <path
+                                        d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v10zM18 4h-2.5l-.71-.71c-.18-.18-.44-.29-.7-.29H9.91c-.26 0-.52.11-.7.29L8.5 4H6c-.55 0-1 .45-1 1s.45 1 1 1h12c.55 0 1-.45 1-1s-.45-1-1-1z" />
+                                </svg>
+                            </button>
                         </td>
                     </tr>
                 </tbody>
@@ -434,8 +493,17 @@ div.tableCon
                 border-width: 0 0 1px 0
                 border-style: solid
                 border-color: rgb(228, 228, 228)
-            svg
-                cursor: pointer
+            button
+                background: none
+                margin: 0
+                display: inline
+                padding: 0
+                border: none
+                &[disabled]
+                    svg
+                        fill: #8d8c8c
+                svg
+                    fill: #1095c1
 
 div.paginatorCon
     display: flex
