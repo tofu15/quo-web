@@ -180,7 +180,8 @@ function view(id) {
         <CommonModal v-if="modalData.show" v-bind="modalProps" @modalEvent="modalEvent">
         </CommonModal>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <CommonTable @view="view" @deleteAll="deleteAll" @delete="deleteItem" v-bind="tableProps"></CommonTable>
+        <CommonTable @edit="(id) => $router.push({ name: 'product-edit', params: { id: id } })" @view="view"
+            @deleteAll="deleteAll" @delete="deleteItem" v-bind="tableProps"></CommonTable>
     </div>
 </template>
 <style lang="sass" scoped>

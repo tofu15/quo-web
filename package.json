@@ -16,7 +16,6 @@
     "@vicons/ionicons5": "^0.12.0",
     "@vitejs/plugin-vue": "^3.0.3",
     "naive-ui": "^2.33.0",
-    "vfonts": "^0.0.3",
     "vite": "^3.0.9"
   }
 }

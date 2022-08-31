@@ -10,8 +10,8 @@ const emit = defineEmits(['return', 'edit']);
     
 <template>
     <div class="actionCon">
-        <button v-if="props.action.includes('return')" class="secondary">戻る</button>
-        <button v-if="props.action.includes('edit')">編集</button>
+        <button v-if="props.action.includes('return')" class="secondary" @click="$emit('return')">戻る</button>
+        <button v-if="props.action.includes('edit')" @click="$emit('edit', $route.params.id)">編集</button>
     </div>
     <div class="partCon" v-for="part in props.data">
         <h3>{{ part.name }}</h3>

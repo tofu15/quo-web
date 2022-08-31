@@ -114,9 +114,11 @@ const detailProps = reactive({
 <template>
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <CommonDetail v-bind="detailProps"></CommonDetail>
+        <CommonDetail @return="$router.push({ name: 'product-list' })"
+            @edit="(id) => $router.push({ name: 'product-edit', params: { id: id } })" v-bind="detailProps">
+        </CommonDetail>
     </div>
 </template>
-        
+
 <style lang="sass" scoped>
 </style>
