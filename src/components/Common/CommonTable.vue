@@ -14,6 +14,9 @@ const props = defineProps({
         type: Object
     }
 })
+// 声明触发的事件
+const emit = defineEmits(['delete', 'deleteAll']);
+
 
 const table = reactive({
     filterOpen: false,
@@ -127,7 +130,7 @@ const filteredData = computed(() => {
                 }
             })
             // 数字范围过滤
-        } else if (filter.type == "numberRange" && (filter.from !== "" || filter.from !== "")) {
+        } else if (filter.type == "numberRange" && (filter.from !== "" || filter.to !== "")) {
             result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let num = item[key]
@@ -188,7 +191,37 @@ watch(tableData, () => {
         selectMap.set(key, ref(false))
     })
 })
-
+// 判断是否有选中
+const iSAnySelected = computed(() => {
+    let result = false;
+    selectMap.forEach((value, key) => {
+        if (value.value) {
+            result = true
+        }
+    })
+    return result
+})
+// 判断是否可选择删除
+const isDeleteAble = computed(() => {
+    let result = true
+    if (!props.action.hasOwnProperty("delete")) {
+        return false
+    } else if (props.action.delete == "all") {
+        return iSAnySelected.value
+    } else {
+        if (!iSAnySelected.value) {
+            return false
+        } else {
+            selectMap.forEach((value, key) => {
+                if (value.value && !props.action.delete.includes(key)) {
+                    result = false
+                }
+            })
+            return result
+        }
+    }
+})
+// 选择器数据
 const tableSelectData = computed(() => {
     let resultSet = []
     let result = []
@@ -212,7 +245,7 @@ const tableSelectData = computed(() => {
     })
     return result
 })
-
+// 默认筛选器
 function defaultFilters() {
     let result = []
     props.headers.forEach((e, index) => {
@@ -242,13 +275,24 @@ function defaultFilters() {
     })
     return result
 }
+
+// 删除多个
+function deleteAll() {
+    let result = new Array()
+    selectMap.forEach((value, key) => {
+        if(value.value) {
+            result.push(key)
+        }
+    })
+    emit("deleteAll", result)
+}
 </script>
 
 <template>
     <div class="tableCon">
         <div class="operationCon">
-            <button class="del">削除</button>
-            <button class="expBtn">エクスポート</button>
+            <button v-if="props.action.hasOwnProperty('delete')" :disabled="!isDeleteAble" class="del" @click="deleteAll">削除</button>
+            <button :disabled="!iSAnySelected" class="expBtn">エクスポート</button>
         </div>
         <div class="countCon">
             <div>
@@ -302,7 +346,7 @@ function defaultFilters() {
                     </tr>
                     <tr class="tableHeader">
                         <th><input :checked="table.isAllSelected" @click="allSelectClick" type="checkbox"></th>
-                        <th v-for="header in props.headers">{{  header.name  }}<span><svg
+                        <th v-for="header in props.headers">{{ header.name }}<span><svg
                                     xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrows-sort"
                                     width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                     fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -316,9 +360,9 @@ function defaultFilters() {
                 <tbody>
                     <tr v-for="product in tableData" :key="product[Object.keys(product)[0]]">
                         <td><input v-model="selectMap.get(product[Object.keys(product)[0]]).value" type="checkbox"></td>
-                        <td v-for="(value, key, index) in product">{{  props.headers[index].decimal ? value.toFixed(2) :
-                        value
- }}</td>
+                        <td v-for="(value, key, index) in product">{{ props.headers[index].decimal ? value.toFixed(2) :
+                                value
+                        }}</td>
                         <td>
                             <button v-if="props.action.hasOwnProperty('view')">
                                 <svg :class="{ prohibit: props.action.view != 'all' && !props.action.view.includes(product[Object.keys(product)[0]]) }"
@@ -375,7 +419,7 @@ function defaultFilters() {
                 <path
                     d="M14.71 15.88L10.83 12l3.88-3.88c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L8.71 11.3c-.39.39-.39 1.02 0 1.41l4.59 4.59c.39.39 1.02.39 1.41 0 .38-.39.39-1.03 0-1.42z" />
             </svg>
-            <span v-for="p in paginator" :active="p == table.page" @click="table.page = p">{{  p  }}</span>
+            <span v-for="p in paginator" :active="p == table.page" @click="table.page = p">{{ p }}</span>
             <svg :disabled="table.page == numOfPages" @click="table.page != numOfPages ? table.page++ : table.page"
                 xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
                 <path

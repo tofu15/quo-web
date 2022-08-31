@@ -62,13 +62,121 @@ const tableProps = reactive({
             name: "在庫数",
             type: "number"
         }
-    ]
+    ],
+    action: {
+        view: "all",
+        edit: "all",
+        delete: "all"
+    }
 })
+
+// modal 参数
+const modalProps = reactive({
+    title: "",
+    text: "",
+    type: 0
+})
+// modal 绑定
+const modalData = reactive({
+    show: false,
+    type: '',
+    deleteId: 0,
+    deleteAuth: false
+})
+
+function modalEvent(result) {
+    if (modalProps.type == 2) {
+        if (result) {
+            modalData.show = false
+            modalData.deleteAuth = true
+            if (modalData.type == 'delete') {
+                deleteItem(modalData.deleteId)
+            } else if (modalData.type == "deleteAll") {
+                deleteAll(modalData.deleteId)
+            }
+
+        } else {
+            modalData.show = false
+        }
+    } else {
+        modalData.show = false
+    }
+}
+
+async function deleteItem(id) {
+    if (modalData.deleteAuth) {
+        modalData.deleteAuth = false
+        let response = await fetch('/api/product/' + id, {
+            method: 'DELETE'
+        })
+        if (response.ok) {
+            let json = await response.json();
+            if (json.success) {
+                router.go()
+            } else {
+                modalProps.title = "エラー"
+                modalProps.text = json.message
+                modalProps.type = 1
+                modalData.show = true
+            }
+        } else {
+            modalProps.title = "エラー"
+            modalProps.text = "エラーが発生しました。"
+            modalProps.type = 1
+            modalData.show = true
+        }
+    } else {
+        modalProps.title = "確認"
+        modalProps.text = "該当製品を削除します。<br>よろしいですか？"
+        modalProps.type = 2
+        modalData.type = 'delete'
+        modalData.deleteId = id
+        modalData.show = true
+    }
+}
+
+async function deleteAll(ids) {
+    if (modalData.deleteAuth) {
+        modalData.deleteAuth = false
+        let response = await fetch('/api/product-del', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(ids)
+        })
+        if (response.ok) {
+            let json = await response.json();
+            if (json.success) {
+                router.go()
+            } else {
+                modalProps.title = "エラー"
+                modalProps.text = json.message
+                modalProps.type = 1
+                modalData.show = true
+            }
+        } else {
+            modalProps.title = "エラー"
+            modalProps.text = "エラーが発生しました。"
+            modalProps.type = 1
+            modalData.show = true
+        }
+    } else {
+        modalProps.title = "確認"
+        modalProps.text = ids.length + "件の製品を削除します。<br>よろしいですか？"
+        modalProps.type = 2
+        modalData.type = 'deleteAll'
+        modalData.deleteId = ids
+        modalData.show = true
+    }
+}
 </script>
 <template>
     <div>
+        <CommonModal v-if="modalData.show" v-bind="modalProps" @modalEvent="modalEvent">
+        </CommonModal>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <CommonTable v-bind="tableProps"></CommonTable>
+        <CommonTable @deleteAll="deleteAll" @delete="deleteItem" v-bind="tableProps"></CommonTable>
     </div>
 </template>
 <style lang="sass" scoped>

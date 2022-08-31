@@ -63,7 +63,6 @@ const tableProps = reactive({
         }
     ],
     action: {
-        view: "all",
         edit: "all",
         delete: new Array()
     }
@@ -78,6 +77,7 @@ const modalProps = reactive({
 // modal 绑定
 const modalData = reactive({
     show: false,
+    type: '',
     deleteId: 0,
     deleteAuth: false
 })
@@ -87,7 +87,12 @@ function modalEvent(result) {
         if (result) {
             modalData.show = false
             modalData.deleteAuth = true
-            deleteItem(modalData.deleteId)
+            if (modalData.type == 'delete') {
+                deleteItem(modalData.deleteId)
+            } else if (modalData.type == "deleteAll") {
+                deleteAll(modalData.deleteId)
+            }
+
         } else {
             modalData.show = false
         }
@@ -122,7 +127,44 @@ async function deleteItem(id) {
         modalProps.title = "確認"
         modalProps.text = "該当シリーズを削除します。<br>よろしいですか？"
         modalProps.type = 2
+        modalData.type = 'delete'
         modalData.deleteId = id
+        modalData.show = true
+    }
+}
+
+async function deleteAll(ids) {
+    if (modalData.deleteAuth) {
+        modalData.deleteAuth = false
+        let response = await fetch('/api/product-series-del', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(ids)
+        })
+        if (response.ok) {
+            let json = await response.json();
+            if (json.success) {
+                router.go()
+            } else {
+                modalProps.title = "エラー"
+                modalProps.text = json.message
+                modalProps.type = 1
+                modalData.show = true
+            }
+        } else {
+            modalProps.title = "エラー"
+            modalProps.text = "エラーが発生しました。"
+            modalProps.type = 1
+            modalData.show = true
+        }
+    } else {
+        modalProps.title = "確認"
+        modalProps.text = ids.length + "件のシリーズを削除します。<br>よろしいですか？"
+        modalProps.type = 2
+        modalData.type = 'deleteAll'
+        modalData.deleteId = ids
         modalData.show = true
     }
 }
@@ -132,7 +174,7 @@ async function deleteItem(id) {
         <CommonModal v-if="modalData.show" v-bind="modalProps" @modalEvent="modalEvent">
         </CommonModal>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <CommonTable @delete="deleteItem" v-bind="tableProps"></CommonTable>
+        <CommonTable @deleteAll="deleteAll" @delete="deleteItem" v-bind="tableProps"></CommonTable>
     </div>
 </template>
 <style lang="sass" scoped>
