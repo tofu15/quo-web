@@ -15,7 +15,7 @@ const props = defineProps({
     }
 })
 // 声明触发的事件
-const emit = defineEmits(['delete', 'deleteAll']);
+const emit = defineEmits(['delete', 'deleteAll', 'view']);
 
 
 const table = reactive({
@@ -360,9 +360,7 @@ function deleteAll() {
                 <tbody>
                     <tr v-for="product in tableData" :key="product[Object.keys(product)[0]]">
                         <td><input v-model="selectMap.get(product[Object.keys(product)[0]]).value" type="checkbox"></td>
-                        <td v-for="(value, key, index) in product">{{ props.headers[index].decimal ? value.toFixed(2) :
-                                value
-                        }}</td>
+                        <td v-for="(value, key, index) in product">{{ props.headers[index].decimal ? value.toFixed(2) :value}}</td>
                         <td>
                             <button v-if="props.action.hasOwnProperty('view')">
                                 <svg :class="{ prohibit: props.action.view != 'all' && !props.action.view.includes(product[Object.keys(product)[0]]) }"

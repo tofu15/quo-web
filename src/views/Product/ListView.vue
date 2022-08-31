@@ -4,7 +4,7 @@ import { onBeforeRouteLeave } from 'vue-router'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
 import CommonModal from '@/components/Common/CommonModal.vue';
-import router from '/router';
+import router from '../../../router';
 // header 参数
 const headerProps = {
     title: '製品一覧',
@@ -170,13 +170,17 @@ async function deleteAll(ids) {
         modalData.show = true
     }
 }
+
+function view(id) {
+    router.push({ name: 'product-detail', params: { id: id } })
+}
 </script>
 <template>
     <div>
         <CommonModal v-if="modalData.show" v-bind="modalProps" @modalEvent="modalEvent">
         </CommonModal>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <CommonTable @deleteAll="deleteAll" @delete="deleteItem" v-bind="tableProps"></CommonTable>
+        <CommonTable @view="view" @deleteAll="deleteAll" @delete="deleteItem" v-bind="tableProps"></CommonTable>
     </div>
 </template>
 <style lang="sass" scoped>
