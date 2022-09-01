@@ -15,7 +15,7 @@ const props = defineProps({
     }
 })
 // 声明触发的事件
-const emit = defineEmits(['delete', 'deleteAll', 'view']);
+const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit']);
 
 
 const table = reactive({

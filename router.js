@@ -8,6 +8,7 @@ import ProductListView from '@/views/Product/ListView.vue'
 import ProductDetailView from '@/views/Product/DetailView.vue'
 import ProductEditView from '@/views/Product/EditView.vue'
 import ProductListseView from '@/views/Product/ListseView.vue'
+import ProductEditseView from '@/views/Product/EditseView.vue'
 // 系统设置
 import NewUser from '@/views/System/NewUser.vue'
 import Work from '@/views/System/Work.vue'
@@ -81,6 +82,15 @@ const router = createRouter({
                     meta: {
                         title: "シリーズ一覧",
                         keepAlive: true
+                    }
+                },
+                {
+                    path: '/product/editse/:id',
+                    name: 'product-editse',
+                    component: ProductEditseView,
+                    meta: {
+                        title: "シリーズ編集",
+                        keepAlive: false
                     }
                 },
                 {

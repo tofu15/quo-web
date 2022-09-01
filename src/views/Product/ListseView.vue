@@ -174,7 +174,8 @@ async function deleteAll(ids) {
         <CommonModal v-if="modalData.show" v-bind="modalProps" @modalEvent="modalEvent">
         </CommonModal>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <CommonTable @deleteAll="deleteAll" @delete="deleteItem" v-bind="tableProps"></CommonTable>
+        <CommonTable @edit="(id) => $router.push({ name: 'product-editse', params: { id: id } })" @deleteAll="deleteAll"
+            @delete="deleteItem" v-bind="tableProps"></CommonTable>
     </div>
 </template>
 <style lang="sass" scoped>
