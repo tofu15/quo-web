@@ -12,7 +12,7 @@ onBeforeMount(async () => {
     const id = route.params.id
     const seJson = await (await fetch('/api/product-series/' + id)).json()
     const seData = seJson.data
-    const typeJson = await (await fetch('/api/product-type-list')).json()
+    const typeJson = await (await fetch('/api/product-type-list-series-edit')).json()
     const typeData = typeJson.data
 
     // types 赋值

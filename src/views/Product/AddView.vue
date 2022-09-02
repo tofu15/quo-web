@@ -1,20 +1,16 @@
 <script setup>
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import { reactive, onBeforeMount, computed, watch } from 'vue';
-import { useRoute, onBeforeRouteLeave } from 'vue-router'
+import { onBeforeRouteLeave } from 'vue-router'
 import CommonModal from '@/components/Common/CommonModal.vue';
 import router from '../../../router';
-const route = useRoute()
 
 // 获取产品信息 和 系列类型信息
 onBeforeMount(async () => {
     // 获取数据
-    const id = route.params.id
-    const productJson = await (await fetch('/api/product/' + id)).json()
-    const productData = productJson.data
-    const typeJson = await (await fetch('/api/product-type-list-edit')).json()
+    const typeJson = await (await fetch('/api/product-type-list-add')).json()
     const typeData = typeJson.data
-    const seriesJson = await (await fetch('/api/product-series-list-edit')).json()
+    const seriesJson = await (await fetch('/api/product-series-list-add')).json()
     const seriesData = seriesJson.data
 
     // types 赋值
@@ -25,14 +21,10 @@ onBeforeMount(async () => {
     seriesData.forEach(e => {
         series.push(e)
     })
-
-    // product 赋值
-    Object.assign(initialProduct, productData)
-    Object.assign(product, productData)
 })
 // header 参数
 const headerProps = {
-    title: '製品情報編集',
+    title: '新規製品',
     urls: [
         {
             text: 'ホーム',
@@ -45,29 +37,18 @@ const headerProps = {
             url: ''
         },
         {
-            text: '製品一覧',
-            isUrl: true,
-            url: '/product/list'
-        },
-        {
-            text: ' / 製品情報編集',
+            text: '新規製品',
             isUrl: false,
             url: ''
         }
     ]
 }
-// 原始 product 对象
-const initialProduct = new Object
 // product 对象 绑定表单
 const product = reactive({
-    pid: 0,
     pname: "",
-    tid: 0,
-    tname: "",
-    psid: 0,
-    psname: "",
-    price: 0,
-    stock: 0,
+    tid: null,
+    psid: null,
+    price: "",
     connection: "",
     noise: "",
     bass: "",
@@ -86,13 +67,13 @@ const seriesOfType = computed(() => {
 })
 // 观察 tid 变化时 重置 psid
 watch(() => product.tid, (tid, oldtid) => {
-    if (oldtid != 0) {
+    if (oldtid !== null) {
         product.psid = null
     }
 })
 // 能否做了任何编辑修改
 const isAnyEdit = computed(() => {
-    if (initialProduct.pname == product.pname && initialProduct.price == product.price && initialProduct.tid == product.tid && initialProduct.psid == product.psid && initialProduct.connection == product.connection && initialProduct.pinterface == product.pinterface && initialProduct.bass == product.bass && initialProduct.waterproof == product.waterproof && initialProduct.mic == product.mic && initialProduct.packageInfo == product.packageInfo && initialProduct.noise == product.noise) {
+    if (product.pname.length == 0 && product.price === "" && product.tid === null && product.psid === null && product.connection.length == 0 && product.pinterface.length == 0 && product.bass.length == 0 && product.waterproof.length == 0 && product.mic.length == 0 && product.packageInfo.length == 0 && product.noise.length == 0) {
         return false
     } else {
         return true
@@ -102,7 +83,7 @@ const isAnyEdit = computed(() => {
 const isSaveAble = computed(() => {
     if (!isAnyEdit.value) {
         return false
-    } else if (product.pname.length == 0 || product.price.length == 0 || product.price <= 0 || product.tid == null || product.psid == null || product.connection.length == 0 || product.pinterface.length == 0 || product.waterproof.length == 0 || product.packageInfo.length == 0 || product.noise.length == 0) {
+    } else if (product.pname.length == 0 || product.price === "" || product.price <= 0 || product.tid === null || product.psid === null || product.connection.length == 0 || product.pinterface.length == 0 || product.bass.length == 0 || product.waterproof.length == 0 || product.mic.length == 0 || product.packageInfo.length == 0 || product.noise.length == 0) {
         return false
     } else {
         return true
@@ -157,8 +138,8 @@ async function postData() {
         waterproof: product.waterproof,
         packageInfo: product.packageInfo
     }
-    let response = await fetch('/api/product/' + route.params.id, {
-        method: 'PUT',
+    let response = await fetch('/api/product', {
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -180,14 +161,9 @@ async function postData() {
         </CommonModal>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
         <div class="btnCon">
-            <button @click="$router.push({ name: 'product-list' })" class="secondary">戻る</button>
             <button @click="postData" :disabled="!isSaveAble">保存</button>
         </div>
         <div class="formCon">
-            <div>
-                <label>製品ID</label>
-                <input v-model.trim="product.pid" type="text" disabled>
-            </div>
             <div>
                 <label>名称</label>
                 <input :aria-invalid="product.pname.length == 0 ? true : ''" v-model.trim="product.pname" type="text">
@@ -199,10 +175,6 @@ async function postData() {
                     v-model.trim="product.price" type="number">
                 <small v-if="product.price.length == 0">入力必須です。</small>
                 <small v-if="product.price.length != 0 && product.price <= 0">正しくありません。</small>
-            </div>
-            <div>
-                <label>在庫数</label>
-                <input v-model.trim="product.stock" type="number" disabled>
             </div>
             <div>
                 <label>タイプ</label>

@@ -8,7 +8,7 @@ import router from '../../../router';
 // 获取产品信息 和 系列类型信息
 onBeforeMount(async () => {
     // 获取数据
-    const typeJson = await (await fetch('/api/product-type-list')).json()
+    const typeJson = await (await fetch('/api/product-type-list-series-add')).json()
     const typeData = typeJson.data
 
     // types 赋值
