@@ -147,7 +147,6 @@ async function postData() {
     const data = {
         pname: product.pname,
         price: product.price,
-        tid: product.tid,
         psid: product.psid,
         connection: product.connection,
         noise: product.noise,
