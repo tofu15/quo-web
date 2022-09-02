@@ -40,6 +40,7 @@ function userBtnClicked() {
 
 <style lang="sass" scoped>
 header.commonHeader
+    z-index: 999
     position: fixed
     top: 0
     left: 0

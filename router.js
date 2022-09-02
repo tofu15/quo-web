@@ -2,13 +2,14 @@ import { createRouter, createWebHistory } from 'vue-router'
 import MainView from '@/views/MainView.vue'
 import LoginView from '@/views/LoginView.vue'
 import ResetPwView from '@/views/ResetPwView.vue'
-
+// 产品
 import HomeView from '@/views/HomeView.vue'
 import ProductListView from '@/views/Product/ListView.vue'
 import ProductDetailView from '@/views/Product/DetailView.vue'
 import ProductEditView from '@/views/Product/EditView.vue'
 import ProductListseView from '@/views/Product/ListseView.vue'
 import ProductEditseView from '@/views/Product/EditseView.vue'
+import ProductAddseView from '@/views/Product/AddseView.vue'
 // 系统设置
 import NewUser from '@/views/System/NewUser.vue'
 import Work from '@/views/System/Work.vue'
@@ -90,6 +91,15 @@ const router = createRouter({
                     component: ProductEditseView,
                     meta: {
                         title: "シリーズ編集",
+                        keepAlive: false
+                    }
+                },
+                {
+                    path: '/product/addse',
+                    name: 'product-addse',
+                    component: ProductAddseView,
+                    meta: {
+                        title: "新規シリーズ",
                         keepAlive: false
                     }
                 },
