@@ -1,10 +1,17 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import router from '../../../router';
 const expanded = ref(false)
 
 function userBtnClicked() {
     expanded.value = !expanded.value
+}
+
+function logout() {
+    document.cookie = 'a=; max-age=0; Path=/api; HttpOnly; Secure; SameSite=Lax;';
+    document.cookie = "b=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    router.push({ name: 'login' });
 }
 </script>
 
@@ -32,7 +39,7 @@ function userBtnClicked() {
             </div>
             <div class="popup">
                 <a href="/">個人設定</a>
-                <a @click="">ログアウト</a>
+                <a @click="logout">ログアウト</a>
             </div>
         </div>
     </header>
