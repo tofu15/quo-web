@@ -32,7 +32,7 @@ function userBtnClicked() {
             </div>
             <div class="popup">
                 <a href="/">個人設定</a>
-                <a href="/">ログアウト</a>
+                <a @click="">ログアウト</a>
             </div>
         </div>
     </header>
@@ -103,6 +103,7 @@ header.commonHeader
         box-shadow: rgba(0, 0, 0, 0.15) 2px 4px 20px 0px
         border: 1px solid rgb(182, 182, 182)
         >a
+            cursor: pointer
             color: inherit
             text-decoration: none
             padding: 10px 0

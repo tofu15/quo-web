@@ -25,6 +25,28 @@ const table = reactive({
     page: 1,
     isAllSelected: false
 })
+// 声明排序对象
+const sort = reactive({
+    isSort: false,
+    header: '',
+    isAscending: true
+})
+// 排序事件
+function sortClick(header) {
+    if (!sort.isSort || sort.header != header) {
+        sort.isSort = true
+        sort.header = header
+        sort.isAscending = true
+    } else if (sort.isAscending == true) {
+        sort.isAscending = false
+    } else {
+        sort.isSort = false
+        sort.header = ''
+        sort.isAscending = true
+    }
+}
+
+
 // 选择 Map
 const selectMap = reactive(new Map())
 // 设置选择 Map
@@ -103,9 +125,55 @@ const paginator = computed(() => {
     return result
 })
 
-// 过滤 排序后的数据
+// 排序后的数据
+const sortedData = computed(() => {
+    let result = JSON.parse(JSON.stringify(props.data))
+    // 进行排序
+    if (sort.isSort) {
+        let index = 0
+        let type = ''
+        props.headers.forEach((header, i) => {
+            if (header.name == sort.header) {
+                index = i
+                type = header.type
+            }
+        })
+        if (type == 'number') {
+            result.sort((a, b) => {
+                const key = Object.keys(a)[index]
+                const aNum = a[key]
+                const bNum = b[key]
+                if (aNum < bNum) {
+                    return sort.isAscending ? -1 : 1
+                } else if (aNum > bNum) {
+                    return sort.isAscending ? 1 : -1
+                } else {
+                    return 0
+                }
+            })
+        } else {
+            result.sort((a, b) => {
+                const key = Object.keys(a)[index]
+                const aStr = a[key]
+                const bStr = b[key]
+                if (aStr.localeCompare(bStr, 'ja') < 0) {
+                    return sort.isAscending ? -1 : 1
+                } else if (aStr.localeCompare(bStr, 'ja') > 0) {
+                    return sort.isAscending ? 1 : -1
+                } else {
+                    return 0
+                }
+            })
+        }
+    }
+    return result
+})
+
+// 过滤后的数据
 const filteredData = computed(() => {
-    let result = props.data
+    let result = sortedData.value
+
+    // 进行过滤
     table.filters.forEach((filter, index) => {
         // 文本过滤
         if (filter.type == "string" && filter.text.length != 0) {
@@ -170,6 +238,7 @@ const filteredData = computed(() => {
         }
     })
 
+    // 返回结果
     return result
 })
 
@@ -280,7 +349,7 @@ function defaultFilters() {
 function deleteAll() {
     let result = new Array()
     selectMap.forEach((value, key) => {
-        if(value.value) {
+        if (value.value) {
             result.push(key)
         }
     })
@@ -291,7 +360,8 @@ function deleteAll() {
 <template>
     <div class="tableCon">
         <div class="operationCon">
-            <button v-if="props.action.hasOwnProperty('delete')" :disabled="!isDeleteAble" class="del" @click="deleteAll">削除</button>
+            <button v-if="props.action.hasOwnProperty('delete')" :disabled="!isDeleteAble" class="del"
+                @click="deleteAll">削除</button>
             <button :disabled="!iSAnySelected" class="expBtn">エクスポート</button>
         </div>
         <div class="countCon">
@@ -346,21 +416,39 @@ function deleteAll() {
                     </tr>
                     <tr class="tableHeader">
                         <th><input :checked="table.isAllSelected" @click="allSelectClick" type="checkbox"></th>
-                        <th v-for="header in props.headers">{{ header.name }}<span><svg
-                                    xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrows-sort"
-                                    width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <th @click="sortClick(header.name)" v-for="header in props.headers">{{ header.name }}
+                            <span v-if="sort.isSort == true && sort.header == header.name && sort.isAscending == true">
+                                <svg transform='rotate(180)' xmlns="http://www.w3.org/2000/svg" height="18px"
+                                    viewBox="0 0 24 24" width="18px">
+                                    <path d="M0 0h24v24H0V0z" fill="none" />
+                                    <path
+                                        d="M4 18h4c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zM3 7c0 .55.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1zm1 6h10c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1z" />
+                                </svg></span>
+                            <span
+                                v-else-if="sort.isSort == true && sort.header == header.name && sort.isAscending == false">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px">
+                                    <path d="M0 0h24v24H0V0z" fill="none" />
+                                    <path
+                                        d="M4 18h4c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zM3 7c0 .55.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1zm1 6h10c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1z" />
+                                </svg></span>
+                            <span v-else><svg xmlns="http://www.w3.org/2000/svg"
+                                    class="icon icon-tabler icon-tabler-arrows-sort" width="18" height="18"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                     <path d="M3 9l4 -4l4 4m-4 -4v14"></path>
                                     <path d="M21 15l-4 4l-4 -4m4 4v-14"></path>
-                                </svg></span></th>
+                                </svg></span>
+                        </th>
                         <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="product in tableData" :key="product[Object.keys(product)[0]]">
                         <td><input v-model="selectMap.get(product[Object.keys(product)[0]]).value" type="checkbox"></td>
-                        <td v-for="(value, key, index) in product">{{ props.headers[index].decimal ? value.toFixed(2) :value}}</td>
+                        <td v-for="(value, key, index) in product">{{ props.headers[index].decimal ? value.toFixed(2)
+                                : value
+                        }}</td>
                         <td>
                             <button v-if="props.action.hasOwnProperty('view')">
                                 <svg :class="{ prohibit: props.action.view != 'all' && !props.action.view.includes(product[Object.keys(product)[0]]) }"
