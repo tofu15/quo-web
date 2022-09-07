@@ -4,6 +4,9 @@ import { reactive, onBeforeMount, computed } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router'
 import CommonModal from '@/components/Common/CommonModal.vue';
 import router from '../../../router';
+import { useQuasar } from 'quasar'
+
+const $q = useQuasar()
 
 // 获取产品信息 和 系列类型信息
 onBeforeMount(async () => {
@@ -83,8 +86,21 @@ onBeforeRouteLeave((to, from) => {
     if (!isAnyEdit.value || modalData.show || modalData.auth) {
         return true
     } else {
-        modalData.show = true
-        modalData.url = to.path
+        let url = ''
+        if (url.length != 0) {
+            return true
+        }
+        url = to.path
+        $q.dialog({
+            title: '確認',
+            message: 'この画面から離れます。入力中のデータは保存されません。よろしいですか？',
+            cancel: true,
+            persistent: false
+        }).onOk(() => {
+            router.push(url)
+        }).onCancel(() => {
+            url = ""
+        })
         return false
     }
 })

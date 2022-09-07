@@ -166,7 +166,7 @@ async function beforeAuth(to, form) {
     }
 }
 
-router.beforeEach(router.beforeEach(beforeAuth))
+// router.beforeEach(router.beforeEach(beforeAuth))
 
 router.beforeResolve((to, from) => {
     document.title = to.meta.title ? to.meta.title : 'ホームページ';
