@@ -15,7 +15,7 @@ const props = defineProps({
     }
 })
 // 声明触发的事件
-const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit']);
+const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel']);
 
 
 const table = reactive({
@@ -355,6 +355,17 @@ function deleteAll() {
     })
     emit("deleteAll", result)
 }
+
+// 导出 excel
+function exportExcel() {
+    let result = new Array()
+    selectMap.forEach((value, key) => {
+        if (value.value) {
+            result.push(key)
+        }
+    })
+    emit("exportExcel", result)
+}
 </script>
 
 <template>
@@ -362,7 +373,7 @@ function deleteAll() {
         <div class="operationCon">
             <button v-if="props.action.hasOwnProperty('delete')" :disabled="!isDeleteAble" class="del"
                 @click="deleteAll">削除</button>
-            <button :disabled="!iSAnySelected" class="expBtn">エクスポート</button>
+            <button :disabled="!iSAnySelected" class="expBtn" @click="exportExcel">エクスポート</button>
         </div>
         <div class="countCon">
             <div>
@@ -447,7 +458,7 @@ function deleteAll() {
                     <tr v-for="product in tableData" :key="product[Object.keys(product)[0]]">
                         <td><input v-model="selectMap.get(product[Object.keys(product)[0]]).value" type="checkbox"></td>
                         <td v-for="(value, key, index) in product">{{ props.headers[index].decimal ? value.toFixed(2)
-                                : value
+                        : value
                         }}</td>
                         <td>
                             <button v-if="props.action.hasOwnProperty('view')">

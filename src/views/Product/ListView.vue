@@ -174,13 +174,37 @@ async function deleteAll(ids) {
 function view(id) {
     router.push({ name: 'product-detail', params: { id: id } })
 }
+
+function exportExcel(ids) {
+    fetch('/api/product-export', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ids)
+    })
+        .then((response) => response.blob())
+        .then((blob) => {
+            var url = window.URL.createObjectURL(blob); // create url from blob
+            var fileLink = document.createElement('a'); // create link for file
+            fileLink.href = url;
+            fileLink.download = '製品エクスポート.xlsx'; // download filename
+            document.body.appendChild(fileLink); // append file link to download
+            fileLink.click();
+            fileLink.remove(); // remove file link after click
+        })
+        .catch((error) => {
+            console.log(error)
+        });
+}
 </script>
 <template>
     <div>
         <CommonModal v-if="modalData.show" v-bind="modalProps" @modalEvent="modalEvent">
         </CommonModal>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <CommonTable @edit="(id) => $router.push({ name: 'product-edit', params: { id: id } })" @view="view"
+        <CommonTable @exportExcel="exportExcel"
+            @edit="(id) => $router.push({ name: 'product-edit', params: { id: id } })" @view="view"
             @deleteAll="deleteAll" @delete="deleteItem" v-bind="tableProps"></CommonTable>
     </div>
 </template>

@@ -1,9 +1,10 @@
 <script setup>
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
-import { reactive, ref, computed, watch } from 'vue';
-import { onBeforeRouteLeave } from 'vue-router'
-import CommonModal from '@/components/Common/CommonModal.vue';
+import { reactive } from 'vue';
+import { useQuasar } from 'quasar'
 import router from '../../../router';
+
+const $q = useQuasar()
 
 const headerProps = {
     title: '新規製品一括インポート',
@@ -36,6 +37,23 @@ function fileChanged(event) {
     file.obj = event.target.files[0]
     file.name = file.obj.name
 }
+
+function confirm() {
+    $q.dialog({
+        title: '確認',
+        message: 'Excelファイルをアップロードし、製品を追加します。よろしいですか？',
+        cancel: true,
+        persistent: false
+    }).onOk(() => {
+        // console.log('>>>> OK')
+    }).onOk(() => {
+        // console.log('>>>> second OK catcher')
+    }).onCancel(() => {
+        // console.log('>>>> Cancel')
+    }).onDismiss(() => {
+        // console.log('I am triggered on both OK and Cancel')
+    })
+}
 </script>
 
 <template>
@@ -54,7 +72,7 @@ function fileChanged(event) {
                     </label>
                 </div>
                 <div>
-                    <button :disabled="file.name.length == 0" class="secondary">インポート</button>
+                    <button :disabled="file.name.length == 0" class="secondary" @click="confirm">インポート</button>
                 </div>
             </div>
         </div>
