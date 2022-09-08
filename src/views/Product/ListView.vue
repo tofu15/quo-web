@@ -1,10 +1,11 @@
 <script setup>
-import { reactive, computed, onBeforeMount } from 'vue'
-import { onBeforeRouteLeave } from 'vue-router'
+import { reactive, onBeforeMount } from 'vue'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
-import CommonModal from '@/components/Common/CommonModal.vue';
 import router from '../../../router';
+import { useQuasar } from 'quasar'
+
+const $q = useQuasar()
 // header 参数
 const headerProps = {
     title: '製品一覧',
@@ -27,11 +28,19 @@ const headerProps = {
     ]
 }
 // 调用后端接口 获取表格信息
-onBeforeMount(async () => {
-    let productsJson = await (await fetch('/api/product')).json()
-    productsJson.data.forEach(element => {
-        tableProps.data.push(element)
-    })
+onBeforeMount(() => {
+    fetch('/api/product').then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status);
+        }
+        return response.json()
+    }).then((json) => {
+        if (json.success) {
+            tableProps.data.push(...json.data)
+        } else {
+            throw new Error(json.message);
+        }
+    }).catch((error) => console.error(error))
 })
 // table 参数
 const tableProps = reactive({
@@ -70,105 +79,70 @@ const tableProps = reactive({
     }
 })
 
-// modal 参数
-const modalProps = reactive({
-    title: "",
-    text: "",
-    type: 0
-})
-// modal 绑定
-const modalData = reactive({
-    show: false,
-    type: '',
-    deleteId: 0,
-    deleteAuth: false
-})
-
-function modalEvent(result) {
-    if (modalProps.type == 2) {
-        if (result) {
-            modalData.show = false
-            modalData.deleteAuth = true
-            if (modalData.type == 'delete') {
-                deleteItem(modalData.deleteId)
-            } else if (modalData.type == "deleteAll") {
-                deleteAll(modalData.deleteId)
-            }
-
-        } else {
-            modalData.show = false
-        }
-    } else {
-        modalData.show = false
-    }
-}
-
-async function deleteItem(id) {
-    if (modalData.deleteAuth) {
-        modalData.deleteAuth = false
-        let response = await fetch('/api/product/' + id, {
+function deleteItem(id) {
+    $q.dialog({
+        title: '確認',
+        message: '該当製品を削除します。よろしいですか？',
+        cancel: true,
+        persistent: false
+    }).onOk(() => {
+        fetch('/api/product/' + id, {
             method: 'DELETE'
-        })
-        if (response.ok) {
-            let json = await response.json();
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error("HTTP status " + response.status)
+            }
+            return response.json()
+        }).then((json) => {
             if (json.success) {
                 router.go()
             } else {
-                modalProps.title = "エラー"
-                modalProps.text = json.message
-                modalProps.type = 1
-                modalData.show = true
+                throw new Error(json.message)
             }
-        } else {
-            modalProps.title = "エラー"
-            modalProps.text = "エラーが発生しました。"
-            modalProps.type = 1
-            modalData.show = true
-        }
-    } else {
-        modalProps.title = "確認"
-        modalProps.text = "該当製品を削除します。<br>よろしいですか？"
-        modalProps.type = 2
-        modalData.type = 'delete'
-        modalData.deleteId = id
-        modalData.show = true
-    }
+        }).catch((error) => {
+            $q.dialog({
+                title: 'エラー',
+                message: error.toString(),
+                cancel: false,
+                persistent: false
+            })
+        })
+    })
 }
 
-async function deleteAll(ids) {
-    if (modalData.deleteAuth) {
-        modalData.deleteAuth = false
-        let response = await fetch('/api/product-del', {
+function deleteAll(ids) {
+    $q.dialog({
+        title: '確認',
+        message: ids.length + "件の製品を削除します。よろしいですか？",
+        cancel: true,
+        persistent: false
+    }).onOk(() => {
+        fetch('/api/product-del', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(ids)
-        })
-        if (response.ok) {
-            let json = await response.json();
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error("HTTP status " + response.status)
+            }
+            return response.json()
+        }).then((json) => {
             if (json.success) {
                 router.go()
             } else {
-                modalProps.title = "エラー"
-                modalProps.text = json.message
-                modalProps.type = 1
-                modalData.show = true
+                throw new Error(json.message)
             }
-        } else {
-            modalProps.title = "エラー"
-            modalProps.text = "エラーが発生しました。"
-            modalProps.type = 1
-            modalData.show = true
-        }
-    } else {
-        modalProps.title = "確認"
-        modalProps.text = ids.length + "件の製品を削除します。<br>よろしいですか？"
-        modalProps.type = 2
-        modalData.type = 'deleteAll'
-        modalData.deleteId = ids
-        modalData.show = true
-    }
+        }).catch((error) => {
+            $q.dialog({
+                title: 'エラー',
+                message: error.toString(),
+                cancel: false,
+                persistent: false
+            })
+        })
+    })
 }
 
 function view(id) {
@@ -182,26 +156,31 @@ function exportExcel(ids) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(ids)
-    })
-        .then((response) => response.blob())
-        .then((blob) => {
-            var url = window.URL.createObjectURL(blob); // create url from blob
-            var fileLink = document.createElement('a'); // create link for file
-            fileLink.href = url;
-            fileLink.download = '製品エクスポート.xlsx'; // download filename
-            document.body.appendChild(fileLink); // append file link to download
-            fileLink.click();
-            fileLink.remove(); // remove file link after click
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status)
+        }
+        return response.blob()
+    }).then((blob) => {
+        var url = window.URL.createObjectURL(blob)
+        var fileLink = document.createElement('a')
+        fileLink.href = url;
+        fileLink.download = '製品エクスポート.xlsx'
+        document.body.appendChild(fileLink)
+        fileLink.click()
+        fileLink.remove()
+    }).catch((error) => {
+        $q.dialog({
+            title: 'エラー',
+            message: error.toString(),
+            cancel: false,
+            persistent: false
         })
-        .catch((error) => {
-            console.log(error)
-        });
+    })
 }
 </script>
 <template>
     <div>
-        <CommonModal v-if="modalData.show" v-bind="modalProps" @modalEvent="modalEvent">
-        </CommonModal>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
         <CommonTable @exportExcel="exportExcel"
             @edit="(id) => $router.push({ name: 'product-edit', params: { id: id } })" @view="view"

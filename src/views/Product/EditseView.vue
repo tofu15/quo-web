@@ -2,9 +2,10 @@
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import { reactive, onBeforeMount, computed, watch } from 'vue';
 import { useRoute, onBeforeRouteLeave } from 'vue-router'
-import CommonModal from '@/components/Common/CommonModal.vue';
 import router from '../../../router';
+import { useQuasar } from 'quasar'
 const route = useRoute()
+const $q = useQuasar()
 
 // 获取产品信息 和 系列类型信息
 onBeforeMount(async () => {
@@ -82,36 +83,30 @@ const isSaveAble = computed(() => {
     }
 })
 
-// modal 参数
-const modalProps = reactive({
-    title: "確認",
-    text: "この画面から離れます。入力中のデータは保存されません。<br>よろしいですか？",
-    type: 2
-})
 // modal 绑定
 const modalData = reactive({
-    show: false,
     url: '',
     auth: false
 })
 
 onBeforeRouteLeave((to, from) => {
-    if (!isAnyEdit.value || modalData.show || modalData.auth) {
+    if (!isAnyEdit.value || modalData.auth) {
         return true
     } else {
-        modalData.show = true
         modalData.url = to.path
+        $q.dialog({
+            title: '確認',
+            message: 'この画面から離れます。入力中のデータは保存されません。よろしいですか？',
+            cancel: true,
+            persistent: false
+        }).onOk(() => {
+            modalData.auth = true
+            router.push(modalData.url)
+        })
         return false
     }
 })
 
-function modalEvent(result) {
-    if (result) {
-        router.push(modalData.url)
-    } else {
-        modalData.show = false
-    }
-}
 
 // 上传数据
 // post 上传数据
@@ -140,8 +135,6 @@ async function postData() {
             
 <template>
     <div>
-        <CommonModal v-if="modalData.show" v-bind="modalProps" @modalEvent="modalEvent">
-        </CommonModal>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
         <div class="btnCon">
             <button @click="$router.push({ name: 'product-listse' })" class="secondary">戻る</button>

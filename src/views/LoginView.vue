@@ -1,51 +1,57 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import router from '/router';
+import { useQuasar } from 'quasar'
+
+const $q = useQuasar()
 
 const form = reactive({
     eno: "",
     pwd: "",
-    flag: false
+    isPwd: true,
+    flag: false,
+    isLoading: false
 })
-const isEnoEmpty = ref("")
-const isPwdEmpty = ref("")
-const isLoading = ref(false)
-const errorMsg = ref("")
-const isHided = ref(true)
 
-async function postData() {
-
-    const flagdata = form.flag ? "1" : "0"
-    isLoading.value = true
+function postData() {
+    form.isLoading = true
 
     let data = {
         eno: form.eno,
         pwd: form.pwd,
-        flag: flagdata
+        flag: form.flag ? "1" : "0"
     }
 
-    let response = await fetch('/api/login', {
+    fetch('/api/login', {
         method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data)
-    })
-
-    if (response.ok) {
-        let json = await response.json();
-        isLoading.value = false
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status);
+        }
+        return response.json()
+    }).then((json) => {
         if (json.success) {
-            if (json.isNewUser) {
+            if (json.code === 10001) {
                 router.push('/resetpw')
             } else {
                 router.push('/home')
             }
         } else {
-            errorMsg.value = json.errorMsg
+            throw new Error(json.message);
         }
-    } else {
-        isLoading.value = false
-        errorMsg.value = "エラーが発生しました。"
-    }
-
+    }).catch((error) => {
+        form.isLoading = false
+        $q.dialog({
+            title: 'エラー',
+            message: error.toString(),
+            cancel: false,
+            persistent: false
+        })
+    })
 }
 </script>
 
@@ -57,10 +63,9 @@ async function postData() {
         </header>
         <main>
             <div>
-                <p v-if="errorMsg.length != 0" class="error">{{ errorMsg }}</p>
                 <h1>ログイン</h1>
                 <p>見積システムへようこそ</p>
-                <form>
+                <!-- <form>
                     <label for="eno">ユーザーID</label>
                     <input :aria-invalid="isEnoEmpty" @focusout="isEnoEmpty = form.eno.length == 0 ? true : ''"
                         @input="isEnoEmpty = form.eno.length == 0 ? true : ''" v-model.trim="form.eno" type="text"
@@ -91,8 +96,28 @@ async function postData() {
                     </label>
                     <button :aria-busy="isLoading" @click="postData" type="button"
                         :disabled="form.eno.length == 0 || form.pwd.length == 0">ログイン</button>
-                </form>
+                </form> -->
+                <q-form @submit="postData" class="q-gutter-md">
+                    <q-input outlined v-model="form.eno" label="ユーザーID" lazy-rules
+                        :rules="[ val => val && val.length > 0 || 'ユーザーIDは入力必須です。']" />
 
+                    <q-input outlined :type="form.isPwd ? 'password' : 'text'" v-model="form.pwd" label="パスワード"
+                        lazy-rules :rules="[
+                          val => val && val.length > 0 || 'パスワードは入力必須です。'
+                        ]">
+                        <template v-slot:append>
+                            <q-icon :name="form.isPwd ? 'r_visibility_off' : 'r_visibility'" class="cursor-pointer"
+                                @click="form.isPwd = !form.isPwd" />
+                        </template>
+                    </q-input>
+
+                    <q-toggle v-model="form.flag" label="次回から自動的にログイン" />
+
+                    <div>
+                        <q-btn :loading="form.isLoading" label="ログイン" type="submit" color="primary"
+                            style="width: 100%;" />
+                    </div>
+                </q-form>
             </div>
         </main>
     </div>
@@ -124,35 +149,9 @@ main
         border-radius: 15px
         box-shadow: rgba(0, 0, 0, 0.16) 0px 8px 24px 0px
         background-color: #fff
-
-        p.error
-            color: red
-
         h1
             margin-bottom: 0
-
-        button
-            margin-top: 20px
-
-        small
-            font-weight: 500
-            color: red
-
-
-input[type="password"][aria-invalid="true"], input[type="text"][aria-invalid="true"]
-    background-image: none
-.eyeCon
-    position: relative
-    .eye
-        cursor: pointer
-        fill: #454545
-        width: 30px
-        height: 30px
-        position: absolute
-        right: 5px
-        top: 10px
-        padding: 5px
-        border-radius: 10px
-        &:hover
-            background-color: rgba(194, 193, 192, 0.2)
+        p
+            margin-top: -20px
+            margin-bottom: 30px
 </style>

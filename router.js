@@ -153,20 +153,39 @@ async function beforeAuth(to, form) {
     if (to.name == 'resetpw') {
         return true
     }
+
+    let result
+
     let isToLogin = to.name == 'login'
-    let json = await (await fetch('/api/islogin')).json()
-    if (json.isLogin && isToLogin) {
-        return { name: 'home' }
-    } else if (!json.isLogin && isToLogin) {
-        return true
-    } else if (json.isLogin && !isToLogin) {
-        return true
-    } else if (!json.isLogin && !isToLogin) {
-        return { name: 'login' }
-    }
+
+
+
+    await fetch('/api/islogin').then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status);
+        }
+        return response.json()
+    }).then((json) => {
+        if (json.success) {
+            if (isToLogin) {
+                result = { name: 'home' }
+            } else {
+                result = true
+            }
+        } else {
+            if (isToLogin) {
+                result = true
+            } else {
+                result = { name: 'login' }
+            }
+        }
+    }).catch((error) => {
+        result = false
+    })
+    return result
 }
 
-// router.beforeEach(router.beforeEach(beforeAuth))
+router.beforeEach(router.beforeEach(beforeAuth))
 
 router.beforeResolve((to, from) => {
     document.title = to.meta.title ? to.meta.title : 'ホームページ';
