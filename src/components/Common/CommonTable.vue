@@ -1,7 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted, computed, watch } from 'vue'
-import { NSelect } from 'naive-ui'
-import { RouterLink } from 'vue-router'
+import { ref, reactive, computed, watch } from 'vue'
 // prop 定义
 const props = defineProps({
     data: {
@@ -224,7 +222,7 @@ const filteredData = computed(() => {
                 }
             })
             // 多选过滤
-        } else if (filter.type == "multiSelect" && filter.selects.length != 0) {
+        } else if (filter.type == "multiSelect" && filter.selects != null && filter.selects.length != 0) {
             result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let str = item[key]
@@ -366,63 +364,108 @@ function exportExcel() {
     })
     emit("exportExcel", result)
 }
+
+// 各个类型的筛选模式
+function filterTypes(t) {
+    if (t == 'string') {
+        return [
+            {
+                label: 'テキスト',
+                value: 'string'
+            },
+            {
+                label: '選択',
+                value: 'select'
+            },
+            {
+                label: '複数選択',
+                value: 'multiSelect'
+            }
+        ]
+    } else if (t == 'number') {
+        return [
+            {
+                label: '数字',
+                value: 'number'
+            },
+            {
+                label: '数字範囲',
+                value: 'numberRange'
+            },
+            {
+                label: '選択',
+                value: 'select'
+            },
+            {
+                label: '複数選択',
+                value: 'multiSelect'
+            }
+        ]
+    } else {
+        return [
+            {
+                label: '選択',
+                value: 'select'
+            },
+            {
+                label: '複数選択',
+                value: 'multiSelect'
+            }
+        ]
+    }
+}
 </script>
 
 <template>
     <div class="tableCon">
         <div class="operationCon">
-            <button v-if="props.action.hasOwnProperty('delete')" :disabled="!isDeleteAble" class="del"
-                @click="deleteAll">削除</button>
-            <button :disabled="!iSAnySelected" class="expBtn" @click="exportExcel">エクスポート</button>
+            <q-btn color="red" label="削除" v-if="props.action.hasOwnProperty('delete')" :disabled="!isDeleteAble"
+                class="del" @click="deleteAll" />
+            <q-btn color="primary" label="エクスポート" :disabled="!iSAnySelected" class="expBtn" @click="exportExcel" />
         </div>
         <div class="countCon">
-            <div>
-                <span>表示件数</span>
-                <select v-model="table.everyPage" @change="table.page = 1">
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                    <option value="999">all</option>
-                </select>
-            </div>
+            <p>表示件数</p>
+            <q-select outlined v-model="table.everyPage"
+                :options="[{ label: '20', value: '20' }, { label: '50', value: '50' }, { label: '100', value: '100' }, { label: 'all', value: '999' }]"
+                @update:model-value="table.page = 1" dense map-options emit-value options-dense />
             <div class="space"></div>
-            <label for="switch-1">
-                <input v-model="table.filterOpen" type="checkbox" role="switch">
+            <label>
+                <q-toggle v-model="table.filterOpen" dense />
                 フィルター設定
             </label>
-            <button @click="table.filters = defaultFilters()" class="secondary">クリア</button>
+            <q-btn color="secondary" label="クリア" @click="table.filters = defaultFilters()" />
         </div>
         <div class="tableWrapper">
             <table>
                 <thead>
                     <tr v-if="table.filterOpen" class="filterCon">
                         <td></td>
-                        <td v-for="(header, index) in props.headers"><select v-model="table.filters[index].type">
-                                <option v-if="header.type == 'string'" value="string">テキスト</option>
-                                <option v-if="header.type == 'number'" value="number">数字</option>
-                                <option v-if="header.type == 'number'" value="numberRange">数字範囲</option>
-                                <option value="select">選択</option>
-                                <option value="multiSelect">複数選択</option>
-                            </select></td>
+                        <td v-for="(header, index) in props.headers">
+                            <q-select outlined v-model="table.filters[index].type" :options="filterTypes(header.type)"
+                                dense map-options emit-value options-dense />
+                        </td>
                         <td></td>
                     </tr>
                     <tr class="filterInput">
                         <td></td>
                         <td v-for="(header, index) in props.headers">
-                            <input v-if="table.filters[index].type == 'string'" v-model="table.filters[index].text"
-                                type="text" placeholder="テキスト">
-                            <input v-else-if="table.filters[index].type == 'number'" v-model="table.filters[index].num"
-                                type="number" placeholder="数字">
+                            <q-input type="text" outlined v-model="table.filters[index].text" placeholder="テキスト"
+                                v-if="table.filters[index].type == 'string'" dense />
+                            <q-input outlined v-else-if="table.filters[index].type == 'number'"
+                                v-model.number="table.filters[index].num" type="number" placeholder="数字" dense />
                             <div v-else-if="table.filters[index].type == 'numberRange'">
-                                <input v-model="table.filters[index].from" type="number" placeholder="From">
+                                <q-input outlined v-model="table.filters[index].from" type="number" placeholder="From"
+                                    dense />
                                 <br>
-                                <input v-model="table.filters[index].to" type="number" placeholder="To">
+                                <q-input outlined v-model="table.filters[index].to" type="number" placeholder="To"
+                                    dense />
                             </div>
-                            <n-select placeholder="選択" clearable v-model:value="table.filters[index].select"
-                                :options="tableSelectData[index]" v-else-if="table.filters[index].type == 'select'" />
-                            <n-select :max-tag-count="1" multiple placeholder="複数選択" clearable
-                                v-model:value="table.filters[index].selects" :options="tableSelectData[index]"
-                                v-else-if="table.filters[index].type == 'multiSelect'" />
+                            <q-select v-else-if="table.filters[index].type == 'select'" outlined
+                                v-model="table.filters[index].select" :options="tableSelectData[index]" emit-value
+                                clearable dense options-dense />
+                            <q-select multiple v-else-if="table.filters[index].type == 'multiSelect'" outlined
+                                v-model="table.filters[index].selects" :options="tableSelectData[index]" emit-value
+                                clearable dense options-dense use-chips />
                         </td>
                     </tr>
                     <tr class="tableHeader">
@@ -548,17 +591,16 @@ div.tableCon
     border-radius: 15px
     background-color: #ffffff
     padding: 28px
-    button, select, label
-        line-height: 1
-        width: auto
-        display: inline-block
+    // button, select, label
+        // line-height: 1
+        // width: auto
+        // display: inline-block
 
     >div.operationCon
+        margin-bottom: 16px
         text-align: end
-        >button:not(:last-child)
+        >*:not(:last-child)
             margin-right: 10px
-        >button
-            font-weight: 500
 
     >div.countCon
         *
@@ -570,10 +612,10 @@ div.tableCon
         margin-bottom: 16px
         >button
             margin-left: 20px
-        select
-            margin-left: 10px
-        &, button, label
-            font-weight: 500
+        >p
+            margin-right: 10px
+        // &, button, label
+        //     font-weight: 500
 
     div.tableWrapper
         white-space: nowrap
@@ -585,10 +627,10 @@ div.tableCon
         th, td
             text-align: start
             padding: 10px
-        tr.filterCon
-            select
-                padding: 6px 20px 6px 5px
-                background-position: center right 5px
+        // tr.filterCon
+            // select
+            //     padding: 6px 20px 6px 5px
+            //     background-position: center right 5px
         tr.filterInput
             td
                 width: auto
@@ -596,18 +638,18 @@ div.tableCon
                 padding-bottom: 15px
                 >*
                     width: 100%
-            input, select
-                margin-bottom: 10px
-                padding: 0
-                height: 35px
-                box-shadow: none
-                border-radius: 0
-                border-width: 0
-                border-bottom-width: 2px
-            select
-                width: auto
-                background-position: center right 0px
-                padding-right: 10px
+            // input, select
+            //     margin-bottom: 10px
+            //     padding: 0
+            //     height: 35px
+            //     box-shadow: none
+            //     border-radius: 0
+            //     border-width: 0
+            //     border-bottom-width: 2px
+            // select
+            //     width: auto
+            //     background-position: center right 0px
+            //     padding-right: 10px
         tr.tableHeader
             th
                 padding-right: 40px
