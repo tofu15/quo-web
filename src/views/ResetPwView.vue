@@ -1,95 +1,51 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import router from '/router'
+import { useQuasar } from 'quasar'
+
+const $q = useQuasar()
 
 // 表单动态绑定
 const form = reactive({
     pwd: "",
     newpwd1: "",
-    newpwd2: ""
+    newpwd2: "",
+    isPwd: true,
+    isLoading: false
 })
-// 异常动态绑定
-const isError = reactive({
-    pwd: {
-        isErr: "",
-        errMsg: ""
-    },
-    newpwd1: {
-        isErr: "",
-        errMsg: ""
-    },
-    newpwd2: {
-        isErr: "",
-        errMsg: ""
-    }
-})
-// loading 动态绑定
-const isLoading = ref(false)
-// errorMsg 动态绑定
-const errorMsg = ref("")
-// 是否隐藏密码 动态绑定
-const isHided = ref(true)
-
-function pwdInputed() {
-    if (form.pwd.length == 0) {
-        isError.pwd.isErr = true
-        isError.pwd.errMsg = "初期パスワードを入力してください。"
-    } else if (form.pwd != "000000") {
-        isError.pwd.isErr = true
-        isError.pwd.errMsg = "初期パスワードが正しくありません。"
-    } else {
-        isError.pwd.isErr = ""
-        isError.pwd.errMsg = ""
-    }
-}
-function newpwd1Inputed() {
-    if (!/^\w{8,16}$/.test(form.newpwd1)) {
-        isError.newpwd1.isErr = true
-        isError.newpwd1.errMsg = "8〜16文字の半角英数字を入力してください。"
-    } else {
-        isError.newpwd1.isErr = ""
-        isError.newpwd1.errMsg = ""
-    }
-}
-function newpwd2Inputed() {
-    if (form.newpwd2.length == 0) {
-        isError.newpwd2.isErr = true
-        isError.newpwd2.errMsg = "新パスワード（確認）を入力してください。"
-    } else if (!/^\w{8,16}$/.test(form.newpwd2)) {
-        isError.newpwd2.isErr = true
-        isError.newpwd2.errMsg = "8〜16文字の半角英数字を入力してください。"
-    } else if (form.newpwd2 != form.newpwd1) {
-        isError.newpwd2.isErr = true
-        isError.newpwd2.errMsg = "新パスワードと再入力パスワードが一致しません。"
-    } else {
-        isError.newpwd2.isErr = ""
-        isError.newpwd2.errMsg = ""
-    }
-}
 
 // post请求函数
-async function postData() {
-    isLoading.value = true
-    const data = { pwd: form.newpwd1.trim() }
-    let response = await fetch('/api/resetpw', {
+function postData() {
+    form.isLoading = true
+
+    const data = { newpwd: form.newpwd1 }
+
+    fetch('/api/resetpw', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
-    })
-    if (response.ok) {
-        let json = await response.json();
-        isLoading.value = false
+        body: JSON.stringify(data)
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status);
+        }
+        return response.json()
+    }).then((json) => {
         if (json.success) {
             router.push('/login')
         } else {
-            errorMsg.value = json.errorMsg
+            throw new Error(json.message);
         }
-    } else {
-        isLoading.value = false
-        errorMsg.value = "エラーが発生しました。"
-    }
+    }).catch((error) => {
+        form.isLoading = false
+        $q.dialog({
+            title: 'エラー',
+            message: error.toString(),
+            cancel: false,
+            persistent: false
+        })
+    })
 }
 </script>
 
@@ -101,10 +57,9 @@ async function postData() {
         </header>
         <main>
             <div>
-                <p v-if="errorMsg.length != 0" class="error">{{ errorMsg }}</p>
                 <h1>初期パスワード変更</h1>
                 <p>パスワードを変更してください</p>
-                <form>
+                <!-- <form>
                     <label for="pwd">初期パスワード</label>
                     <input v-model="form.pwd" :aria-invalid="isError.pwd.isErr" @input="pwdInputed"
                         @focusout="pwdInputed" type="password" id="pwd" name="pwd">
@@ -149,8 +104,46 @@ async function postData() {
                     </div>
                     <button :aria-busy="isLoading" @click="postData" type="button"
                         :disabled="(isError.pwd.isErr === true || isError.newpwd1.isErr === true || isError.newpwd2.isErr === true || form.pwd.length == 0 || form.newpwd1.length == 0 || form.newpwd2.length == 0) ? true : false">変更</button>
-                </form>
+                </form> -->
+                <q-form @submit="postData" class="q-gutter-md">
+                    <q-input outlined :type="form.isPwd ? 'password' : 'text'" v-model.trim="form.pwd" label="初期パスワード"
+                        lazy-rules :rules="[
+                          val => val && val.length > 0 || '初期パスワードを入力してください。',
+                          val => val == '000000' || '初期パスワードが正しくありません。'
+                        ]">
+                        <template v-slot:append>
+                            <q-icon :name="form.isPwd ? 'r_visibility_off' : 'r_visibility'" class="cursor-pointer"
+                                @click="form.isPwd = !form.isPwd" />
+                        </template>
+                    </q-input>
 
+                    <q-input outlined :type="form.isPwd ? 'password' : 'text'" v-model.trim="form.newpwd1"
+                        label="新パスワード" lazy-rules :rules="[
+                        val => val && val.length > 0 || '新パスワードを入力してください。',
+                        val => /^\w{8,16}$/.test(val) || '8〜16文字の半角英数字を入力してください。']">
+                        <template v-slot:append>
+                            <q-icon :name="form.isPwd ? 'r_visibility_off' : 'r_visibility'" class="cursor-pointer"
+                                @click="form.isPwd = !form.isPwd" />
+                        </template>
+                    </q-input>
+
+                    <q-input outlined :type="form.isPwd ? 'password' : 'text'" v-model.trim="form.newpwd2"
+                        label="新パスワード（確認入力）" lazy-rules :rules="[
+                          val => val && val.length > 0 || '新パスワード（確認）を入力してください。',
+                          val => /^\w{8,16}$/.test(val) || '8〜16文字の半角英数字を入力してください。',
+                          val => val === form.newpwd1 || '新パスワードと再入力パスワードが一致しません。'
+                        ]">
+                        <template v-slot:append>
+                            <q-icon :name="form.isPwd ? 'r_visibility_off' : 'r_visibility'" class="cursor-pointer"
+                                @click="form.isPwd = !form.isPwd" />
+                        </template>
+                    </q-input>
+
+                    <div>
+                        <q-btn :loading="form.isLoading" label="変更" type="submit" color="primary"
+                            style="width: 100%;" />
+                    </div>
+                </q-form>
             </div>
         </main>
     </div>
@@ -182,34 +175,10 @@ main
         border-radius: 15px
         box-shadow: rgba(0, 0, 0, 0.16) 0px 8px 24px 0px
         background-color: #fff
-
-        p.error
-            color: red
-
         h1
+            line-height: 1
             margin-bottom: 0
-
-        button
-            margin-top: 20px
-
-        small
-            font-weight: 500
-            color: red
-
-input[type="password"][aria-invalid="true"], input[type="text"][aria-invalid="true"]
-    background-image: none
-.eyeCon
-    position: relative
-    .eye
-        cursor: pointer
-        fill: #454545
-        width: 30px
-        height: 30px
-        position: absolute
-        right: 5px
-        top: 10px
-        padding: 5px
-        border-radius: 10px
-        &:hover
-            background-color: rgba(194, 193, 192, 0.2)
+        p
+            margin-top: 15px
+            margin-bottom: 30px
 </style>
