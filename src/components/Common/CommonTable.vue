@@ -469,37 +469,29 @@ function filterTypes(t) {
                         </td>
                     </tr>
                     <tr class="tableHeader">
-                        <th><input :checked="table.isAllSelected" @click="allSelectClick" type="checkbox"></th>
+                        <th>
+                            <q-checkbox :model-value="table.isAllSelected" @click="allSelectClick" dense />
+                        </th>
                         <th @click="sortClick(header.name)" v-for="header in props.headers">{{ header.name }}
                             <span v-if="sort.isSort == true && sort.header == header.name && sort.isAscending == true">
-                                <svg transform='rotate(180)' xmlns="http://www.w3.org/2000/svg" height="18px"
-                                    viewBox="0 0 24 24" width="18px">
-                                    <path d="M0 0h24v24H0V0z" fill="none" />
-                                    <path
-                                        d="M4 18h4c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zM3 7c0 .55.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1zm1 6h10c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1z" />
-                                </svg></span>
+                                <q-icon style="rotate: 180deg;" name="r_sort" size="20px" />
+                            </span>
                             <span
                                 v-else-if="sort.isSort == true && sort.header == header.name && sort.isAscending == false">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px">
-                                    <path d="M0 0h24v24H0V0z" fill="none" />
-                                    <path
-                                        d="M4 18h4c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zM3 7c0 .55.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1zm1 6h10c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1z" />
-                                </svg></span>
-                            <span v-else><svg xmlns="http://www.w3.org/2000/svg"
-                                    class="icon icon-tabler icon-tabler-arrows-sort" width="18" height="18"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M3 9l4 -4l4 4m-4 -4v14"></path>
-                                    <path d="M21 15l-4 4l-4 -4m4 4v-14"></path>
-                                </svg></span>
+                                <q-icon name="r_sort" size="20px" />
+                            </span>
+                            <span v-else>
+                                <q-icon name="r_swap_vert" size="20px" />
+                            </span>
                         </th>
                         <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="product in tableData" :key="product[Object.keys(product)[0]]">
-                        <td><input v-model="selectMap.get(product[Object.keys(product)[0]]).value" type="checkbox"></td>
+                        <td>
+                            <q-checkbox v-model="selectMap.get(product[Object.keys(product)[0]]).value" dense />
+                        </td>
                         <td v-for="(value, key, index) in product">{{ props.headers[index].decimal ? value.toFixed(2)
                         : value
                         }}</td>
@@ -627,10 +619,6 @@ div.tableCon
         th, td
             text-align: start
             padding: 10px
-        // tr.filterCon
-            // select
-            //     padding: 6px 20px 6px 5px
-            //     background-position: center right 5px
         tr.filterInput
             td
                 width: auto
@@ -638,18 +626,6 @@ div.tableCon
                 padding-bottom: 15px
                 >*
                     width: 100%
-            // input, select
-            //     margin-bottom: 10px
-            //     padding: 0
-            //     height: 35px
-            //     box-shadow: none
-            //     border-radius: 0
-            //     border-width: 0
-            //     border-bottom-width: 2px
-            // select
-            //     width: auto
-            //     background-position: center right 0px
-            //     padding-right: 10px
         tr.tableHeader
             th
                 padding-right: 40px
