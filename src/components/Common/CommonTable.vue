@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
+import {ref, reactive, computed, watch} from 'vue'
 // prop 定义
 const props = defineProps({
     data: {
@@ -29,13 +29,14 @@ const sort = reactive({
     header: '',
     isAscending: true
 })
+
 // 排序事件
 function sortClick(header) {
-    if (!sort.isSort || sort.header != header) {
+    if (!sort.isSort || sort.header !== header) {
         sort.isSort = true
         sort.header = header
         sort.isAscending = true
-    } else if (sort.isAscending == true) {
+    } else if (sort.isAscending === true) {
         sort.isAscending = false
     } else {
         sort.isSort = false
@@ -53,11 +54,12 @@ watch(props, () => {
         let id = value[Object.keys(value)[0]]
         selectMap.set(id, ref(false))
     })
-}, { immediate: true })
+}, {immediate: true})
+
 // 全选按钮点击
 function allSelectClick() {
     let to
-    if (table.isAllSelected == true) {
+    if (table.isAllSelected === true) {
         to = false
     } else {
         to = true
@@ -67,8 +69,9 @@ function allSelectClick() {
         selectMap.get(id).value = to
     })
 }
+
 // 判断是否全选
-watch(selectMap, (selectMap, oldSelectMap) => {
+watch(selectMap, (selectMap) => {
     let result = true
     tableData.value.forEach((item) => {
         let id = item[Object.keys(item)[0]]
@@ -81,7 +84,7 @@ watch(selectMap, (selectMap, oldSelectMap) => {
 
 
 const everyPage = computed(() => {
-    if (table.everyPage == "999") {
+    if (table.everyPage === "999") {
         return 0
     } else {
         return Number(table.everyPage)
@@ -90,7 +93,7 @@ const everyPage = computed(() => {
 
 const numOfPages = computed(() => {
     let result = 1
-    if (everyPage.value == 0 || filteredData.value.length == 0) {
+    if (everyPage.value === 0 || filteredData.value.length === 0) {
         result = 1
     } else {
         let num = filteredData.value.length
@@ -99,29 +102,29 @@ const numOfPages = computed(() => {
     return result
 })
 // 页码
-const paginator = computed(() => {
-
-    let result = []
-    // 检查页码数是否小于等于5
-    if (numOfPages.value <= 5) {
-        for (let index = 1; index <= numOfPages.value; index++) {
-            result.push(index)
-        }
-    } else if (table.page == 1 || table.page == 2) {
-        for (let index = 1; index <= 5 && index <= numOfPages.value; index++) {
-            result.push(index)
-        }
-    } else if (table.page == numOfPages.value || table.page == (numOfPages.value - 1)) {
-        for (let index = numOfPages.value; index >= 1 && index >= (numOfPages.value - 4); index--) {
-            result.unshift(index)
-        }
-    } else {
-        for (let index = table.page - 2; index <= table.page + 2; index++) {
-            result.push(index)
-        }
-    }
-    return result
-})
+// const paginator = computed(() => {
+//
+//     let result = []
+//     // 检查页码数是否小于等于5
+//     if (numOfPages.value <= 5) {
+//         for (let index = 1; index <= numOfPages.value; index++) {
+//             result.push(index)
+//         }
+//     } else if (table.page === 1 || table.page === 2) {
+//         for (let index = 1; index <= 5 && index <= numOfPages.value; index++) {
+//             result.push(index)
+//         }
+//     } else if (table.page === numOfPages.value || table.page === (numOfPages.value - 1)) {
+//         for (let index = numOfPages.value; index >= 1 && index >= (numOfPages.value - 4); index--) {
+//             result.unshift(index)
+//         }
+//     } else {
+//         for (let index = table.page - 2; index <= table.page + 2; index++) {
+//             result.push(index)
+//         }
+//     }
+//     return result
+// })
 
 // 排序后的数据
 const sortedData = computed(() => {
@@ -131,12 +134,12 @@ const sortedData = computed(() => {
         let index = 0
         let type = ''
         props.headers.forEach((header, i) => {
-            if (header.name == sort.header) {
+            if (header.name === sort.header) {
                 index = i
                 type = header.type
             }
         })
-        if (type == 'number') {
+        if (type === 'number') {
             result.sort((a, b) => {
                 const key = Object.keys(a)[index]
                 const aNum = a[key]
@@ -174,29 +177,21 @@ const filteredData = computed(() => {
     // 进行过滤
     table.filters.forEach((filter, index) => {
         // 文本过滤
-        if (filter.type == "string" && filter.text.length != 0) {
+        if (filter.type === "string" && filter.text.length !== 0) {
             result = result.filter(item => {
                 let key = Object.keys(item)[index]
-                let str = item[key]
-                if (str.includes(filter.text)) {
-                    return true
-                } else {
-                    return false
-                }
+                let str = String(item[key]).toLowerCase()
+                return str.includes(filter.text.toLowerCase());
             })
             // 数字过滤
-        } else if (filter.type == "number" && filter.num !== "") {
+        } else if (filter.type === "number" && filter.num !== "") {
             result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let num = item[key]
-                if (num === filter.num) {
-                    return true
-                } else {
-                    return false
-                }
+                return num === filter.num;
             })
             // 数字范围过滤
-        } else if (filter.type == "numberRange" && (filter.from !== "" || filter.to !== "")) {
+        } else if (filter.type === "numberRange" && (filter.from !== "" || filter.to !== "")) {
             result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let num = item[key]
@@ -211,18 +206,14 @@ const filteredData = computed(() => {
                 }
             })
             // 单选过滤
-        } else if (filter.type == "select" && filter.select != null) {
+        } else if (filter.type === "select" && filter.select != null) {
             result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let str = item[key]
-                if (str === filter.select) {
-                    return true
-                } else {
-                    return false
-                }
+                return str === filter.select;
             })
             // 多选过滤
-        } else if (filter.type == "multiSelect" && filter.selects != null && filter.selects.length != 0) {
+        } else if (filter.type === "multiSelect" && filter.selects != null && filter.selects.length !== 0) {
             result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let str = item[key]
@@ -244,9 +235,9 @@ const filteredData = computed(() => {
 const tableData = computed(() => {
     let result = filteredData.value
     // 分页
-    if (everyPage.value == 0) {
+    if (everyPage.value === 0) {
         return result
-    } else if (table.page == numOfPages.value) {
+    } else if (table.page === numOfPages.value) {
         return result.slice((table.page - 1) * everyPage.value)
     } else {
         return result.slice((table.page - 1) * everyPage.value, table.page * everyPage.value)
@@ -273,7 +264,7 @@ const isDeleteAble = computed(() => {
     let result = true
     if (!props.action.hasOwnProperty("delete")) {
         return false
-    } else if (props.action.delete == "all") {
+    } else if (props.action.delete === "all") {
         return iSAnySelected.value
     } else {
         if (!iSAnySelected.value) {
@@ -312,20 +303,22 @@ const tableSelectData = computed(() => {
     })
     return result
 })
+
 // 默认筛选器
 function defaultFilters() {
     let result = []
     props.headers.forEach((e, index) => {
-        if (e.type == "string") {
+        if (e.type === "string") {
             result[index] = {
                 type: "string",
                 text: "",
                 select: null,
                 selects: []
             }
-        } else if (e.type == "number") {
+        } else if (e.type === "number") {
             result[index] = {
                 type: "number",
+                text: "",
                 num: "",
                 from: "",
                 to: "",
@@ -335,6 +328,7 @@ function defaultFilters() {
         } else {
             result[index] = {
                 type: "select",
+                text: "",
                 select: null,
                 selects: []
             }
@@ -367,7 +361,7 @@ function exportExcel() {
 
 // 各个类型的筛选模式
 function filterTypes(t) {
-    if (t == 'string') {
+    if (t === 'string') {
         return [
             {
                 label: 'テキスト',
@@ -382,8 +376,12 @@ function filterTypes(t) {
                 value: 'multiSelect'
             }
         ]
-    } else if (t == 'number') {
+    } else if (t === 'number') {
         return [
+            {
+                label: 'テキスト',
+                value: 'string'
+            },
             {
                 label: '数字',
                 value: 'number'
@@ -404,6 +402,10 @@ function filterTypes(t) {
     } else {
         return [
             {
+                label: 'テキスト',
+                value: 'string'
+            },
+            {
                 label: '選択',
                 value: 'select'
             },
@@ -420,159 +422,165 @@ function filterTypes(t) {
     <div class="tableCon">
         <div class="operationCon">
             <q-btn color="red" label="削除" v-if="props.action.hasOwnProperty('delete')" :disabled="!isDeleteAble"
-                class="del" @click="deleteAll" />
-            <q-btn color="primary" label="エクスポート" :disabled="!iSAnySelected" class="expBtn" @click="exportExcel" />
+                   class="del" @click="deleteAll"/>
+            <q-btn color="primary" label="エクスポート" :disabled="!iSAnySelected" class="expBtn" @click="exportExcel"/>
         </div>
         <div class="countCon">
             <p>表示件数</p>
             <q-select outlined v-model="table.everyPage"
-                :options="[{ label: '20', value: '20' }, { label: '50', value: '50' }, { label: '100', value: '100' }, { label: 'all', value: '999' }]"
-                @update:model-value="table.page = 1" dense map-options emit-value options-dense />
+                      :options="[{ label: '20', value: '20' }, { label: '50', value: '50' }, { label: '100', value: '100' }, { label: 'all', value: '999' }]"
+                      @update:model-value="table.page = 1" dense map-options emit-value options-dense/>
             <div class="space"></div>
             <label>
-                <q-toggle v-model="table.filterOpen" dense />
+                <q-toggle v-model="table.filterOpen" dense/>
                 フィルター設定
             </label>
-            <q-btn color="secondary" label="クリア" @click="table.filters = defaultFilters()" />
+            <q-btn color="secondary" label="クリア" @click="table.filters = defaultFilters()"/>
         </div>
         <div class="tableWrapper">
             <table>
                 <thead>
-                    <tr v-if="table.filterOpen" class="filterCon">
-                        <td></td>
-                        <td v-for="(header, index) in props.headers">
-                            <q-select outlined v-model="table.filters[index].type" :options="filterTypes(header.type)"
-                                dense map-options emit-value options-dense />
-                        </td>
-                        <td></td>
-                    </tr>
-                    <tr class="filterInput">
-                        <td></td>
-                        <td v-for="(header, index) in props.headers">
-                            <q-input type="text" outlined v-model="table.filters[index].text" placeholder="テキスト"
-                                v-if="table.filters[index].type == 'string'" dense />
-                            <q-input outlined v-else-if="table.filters[index].type == 'number'"
-                                v-model.number="table.filters[index].num" type="number" placeholder="数字" dense />
-                            <div v-else-if="table.filters[index].type == 'numberRange'">
-                                <q-input outlined v-model="table.filters[index].from" type="number" placeholder="From"
-                                    dense />
-                                <br>
-                                <q-input outlined v-model="table.filters[index].to" type="number" placeholder="To"
-                                    dense />
-                            </div>
-                            <q-select v-else-if="table.filters[index].type == 'select'" outlined
-                                v-model="table.filters[index].select" :options="tableSelectData[index]" emit-value
-                                clearable dense options-dense />
-                            <q-select multiple v-else-if="table.filters[index].type == 'multiSelect'" outlined
-                                v-model="table.filters[index].selects" :options="tableSelectData[index]" emit-value
-                                clearable dense options-dense use-chips />
-                        </td>
-                    </tr>
-                    <tr class="tableHeader">
-                        <th>
-                            <q-checkbox :model-value="table.isAllSelected" @click="allSelectClick" dense />
-                        </th>
-                        <th @click="sortClick(header.name)" v-for="header in props.headers">{{ header.name }}
-                            <span v-if="sort.isSort == true && sort.header == header.name && sort.isAscending == true">
-                                <q-icon style="rotate: 180deg;" name="r_sort" size="20px" />
+                <tr v-if="table.filterOpen" class="filterCon">
+                    <td></td>
+                    <td v-for="(header, index) in props.headers">
+                        <q-select outlined v-model="table.filters[index].type" :options="filterTypes(header.type)"
+                                  dense map-options emit-value options-dense/>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr class="filterInput">
+                    <td></td>
+                    <td v-for="(header, index) in props.headers">
+                        <q-input type="text" outlined v-model="table.filters[index].text" placeholder="テキスト"
+                                 v-if="table.filters[index].type === 'string'" dense/>
+                        <q-input outlined v-else-if="table.filters[index].type === 'number'"
+                                 v-model.number="table.filters[index].num" type="number" placeholder="数字" dense/>
+                        <div v-else-if="table.filters[index].type === 'numberRange'">
+                            <q-input outlined v-model="table.filters[index].from" type="number" placeholder="From"
+                                     dense/>
+                            <br>
+                            <q-input outlined v-model="table.filters[index].to" type="number" placeholder="To"
+                                     dense/>
+                        </div>
+                        <q-select v-else-if="table.filters[index].type === 'select'" outlined
+                                  v-model="table.filters[index].select" :options="tableSelectData[index]" emit-value
+                                  clearable dense options-dense/>
+                        <q-select multiple v-else-if="table.filters[index].type === 'multiSelect'" outlined
+                                  v-model="table.filters[index].selects" :options="tableSelectData[index]" emit-value
+                                  clearable dense options-dense use-chips/>
+                    </td>
+                </tr>
+                <tr class="tableHeader">
+                    <th>
+                        <q-checkbox :model-value="table.isAllSelected" @click="allSelectClick" dense/>
+                    </th>
+                    <th @click="sortClick(header.name)" v-for="header in props.headers">{{ header.name }}
+                        <span v-if="sort.isSort === true && sort.header === header.name && sort.isAscending === true">
+                                <q-icon style="rotate: 180deg;" name="r_sort" size="20px"/>
                             </span>
-                            <span
-                                v-else-if="sort.isSort == true && sort.header == header.name && sort.isAscending == false">
-                                <q-icon name="r_sort" size="20px" />
+                        <span
+                            v-else-if="sort.isSort === true && sort.header === header.name && sort.isAscending === false">
+                                <q-icon name="r_sort" size="20px"/>
                             </span>
-                            <span v-else>
-                                <q-icon name="r_swap_vert" size="20px" />
+                        <span v-else>
+                                <q-icon name="r_swap_vert" size="20px"/>
                             </span>
-                        </th>
-                        <th>操作</th>
-                    </tr>
+                    </th>
+                    <th>操作</th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="product in tableData" :key="product[Object.keys(product)[0]]">
-                        <td>
-                            <q-checkbox v-model="selectMap.get(product[Object.keys(product)[0]]).value" dense />
-                        </td>
-                        <td v-for="(value, key, index) in product">{{ props.headers[index].decimal ? value.toFixed(2)
-                        : value
-                        }}</td>
-                        <td>
-                            <button v-if="props.action.hasOwnProperty('view')">
-                                <svg :class="{ prohibit: props.action.view != 'all' && !props.action.view.includes(product[Object.keys(product)[0]]) }"
-                                    @click="$emit('view', product[Object.keys(product)[0]])"
-                                    xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
-                                    <path d="M0 0h24v24H0V0z" fill="none" />
-                                    <path
-                                        d="M12 4C7 4 2.73 7.11 1 11.5 2.73 15.89 7 19 12 19s9.27-3.11 11-7.5C21.27 7.11 17 4 12 4zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                                </svg>
-                            </button>
-
-                            <button v-if="props.action.hasOwnProperty('edit')">
-                                <svg :class="{ prohibit: props.action.edit != 'all' && !props.action.edit.includes(product[Object.keys(product)[0]]) }"
-                                    @click="$emit('edit', product[Object.keys(product)[0]])"
-                                    xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
-                                    <path d="M0 0h24v24H0V0z" fill="none" />
-                                    <path
-                                        d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                                </svg>
-                            </button>
-
-                            <button v-if="props.action.hasOwnProperty('delete')"
-                                :disabled="props.action.delete != 'all' && !props.action.delete.includes(product[Object.keys(product)[0]])"
-                                @click="$emit('delete', product[Object.keys(product)[0]])">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
-                                    <path d="M0 0h24v24H0V0z" fill="none" />
-                                    <path
-                                        d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v10zM18 4h-2.5l-.71-.71c-.18-.18-.44-.29-.7-.29H9.91c-.26 0-.52.11-.7.29L8.5 4H6c-.55 0-1 .45-1 1s.45 1 1 1h12c.55 0 1-.45 1-1s-.45-1-1-1z" />
-                                </svg>
-                            </button>
-                        </td>
-                    </tr>
+                <tr v-for="product in tableData" :key="product[Object.keys(product)[0]]">
+                    <td>
+                        <q-checkbox v-model="selectMap.get(product[Object.keys(product)[0]]).value" dense/>
+                    </td>
+                    <td v-for="(value, key, index) in product">
+                        {{ props.headers[index].decimal ? value.toFixed(2) : value }}
+                    </td>
+                    <td>
+                        <q-btn v-if="props.action.hasOwnProperty('view')"
+                               :disable="props.action.view !== 'all' && !props.action.view.includes(product[Object.keys(product)[0]])"
+                               @click="$emit('view', product[Object.keys(product)[0]])" round color="primary"
+                               icon="r_visibility" size="10px"/>
+                        <q-btn v-if="props.action.hasOwnProperty('edit')"
+                               :disable="props.action.edit !== 'all' && !props.action.edit.includes(product[Object.keys(product)[0]])"
+                               @click="$emit('edit', product[Object.keys(product)[0]])" round color="secondary"
+                               icon="r_edit" size="10px"/>
+                        <q-btn v-if="props.action.hasOwnProperty('delete')"
+                               :disabled="props.action.delete !== 'all' && !props.action.delete.includes(product[Object.keys(product)[0]])"
+                               @click="$emit('delete', product[Object.keys(product)[0]])" round color="red"
+                               icon="r_delete" size="10px"/>
+                    </td>
+                </tr>
                 </tbody>
             </table>
         </div>
-        <div class="paginatorCon">
-            <svg :disabled="table.page == 1" @click="table.page = 1" xmlns="http://www.w3.org/2000/svg"
-                enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px">
-                <g>
-                    <rect fill="none" height="24" width="24" />
-                    <rect fill="none" height="24" width="24" />
-                </g>
-                <g>
-                    <g>
-                        <path
-                            d="M18.29,17.29L18.29,17.29c0.39-0.39,0.39-1.02,0-1.41L14.42,12l3.88-3.88c0.39-0.39,0.39-1.02,0-1.41l0,0 c-0.39-0.39-1.02-0.39-1.41,0l-4.59,4.59c-0.39,0.39-0.39,1.02,0,1.41l4.59,4.59C17.27,17.68,17.9,17.68,18.29,17.29z" />
-                        <path
-                            d="M11.7,17.29L11.7,17.29c0.39-0.39,0.39-1.02,0-1.41L7.83,12l3.88-3.88c0.39-0.39,0.39-1.02,0-1.41l0,0 c-0.39-0.39-1.02-0.39-1.41,0l-4.59,4.59c-0.39,0.39-0.39,1.02,0,1.41l4.59,4.59C10.68,17.68,11.31,17.68,11.7,17.29z" />
-                    </g>
-                </g>
-            </svg>
-            <svg :disabled="table.page == 1" @click="table.page != 1 ? table.page-- : table.page"
-                xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
-                <path
-                    d="M14.71 15.88L10.83 12l3.88-3.88c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L8.71 11.3c-.39.39-.39 1.02 0 1.41l4.59 4.59c.39.39 1.02.39 1.41 0 .38-.39.39-1.03 0-1.42z" />
-            </svg>
-            <span v-for="p in paginator" :active="p == table.page" @click="table.page = p">{{ p }}</span>
-            <svg :disabled="table.page == numOfPages" @click="table.page != numOfPages ? table.page++ : table.page"
-                xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
-                <path
-                    d="M9.29 15.88L13.17 12 9.29 8.12c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0l4.59 4.59c.39.39.39 1.02 0 1.41L10.7 17.3c-.39.39-1.02.39-1.41 0-.38-.39-.39-1.03 0-1.42z" />
-            </svg>
-            <svg :disabled="table.page == numOfPages" @click="table.page = numOfPages"
-                xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24"
-                width="24px">
-                <g>
-                    <rect fill="none" height="24" width="24" />
-                    <rect fill="none" height="24" width="24" />
-                </g>
-                <g>
-                    <g>
-                        <path
-                            d="M5.7,6.71L5.7,6.71c-0.39,0.39-0.39,1.02,0,1.41L9.58,12L5.7,15.88c-0.39,0.39-0.39,1.02,0,1.41l0,0 c0.39,0.39,1.02,0.39,1.41,0l4.59-4.59c0.39-0.39,0.39-1.02,0-1.41L7.12,6.71C6.73,6.32,6.09,6.32,5.7,6.71z" />
-                        <path
-                            d="M12.29,6.71L12.29,6.71c-0.39,0.39-0.39,1.02,0,1.41L16.17,12l-3.88,3.88c-0.39,0.39-0.39,1.02,0,1.41l0,0 c0.39,0.39,1.02,0.39,1.41,0l4.59-4.59c0.39-0.39,0.39-1.02,0-1.41l-4.59-4.59C13.32,6.32,12.68,6.32,12.29,6.71z" />
-                    </g>
-                </g>
-            </svg>
+        <!--        <div v-if="false" class="paginatorCon">-->
+        <!--            <q-btn :disabled="table.page == 1" @click="table.page = 1" flat round color="primary"-->
+        <!--                   icon="r_keyboard_double_arrow_left" size="13px"/>-->
+        <!--            <q-btn :disabled="table.page == 1" @click="table.page != 1 ? table.page&#45;&#45; : table.page" flat round-->
+        <!--                   color="primary" icon="r_keyboard_arrow_left" size="13px"/>-->
+        <!--            <q-btn v-for="p in paginator" :active="p == table.page" @click="table.page = p" flat round color="primary"-->
+        <!--                   :label="p" size="13px" style="font-weight: bold;"/>-->
+        <!--            <q-btn :disabled="table.page == numOfPages" @click="table.page != numOfPages ? table.page++ : table.page"-->
+        <!--                   flat round color="primary" icon="r_keyboard_arrow_right" size="13px"/>-->
+        <!--            <q-btn :disabled="table.page == numOfPages" @click="table.page = numOfPages" flat round color="primary"-->
+        <!--                   icon="r_keyboard_double_arrow_right" size="13px"/>-->
+        <!--            &lt;!&ndash;            <svg :disabled="table.page == 1" @click="table.page = 1" xmlns="http://www.w3.org/2000/svg"&ndash;&gt;-->
+        <!--            &lt;!&ndash;                 enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px">&ndash;&gt;-->
+        <!--            &lt;!&ndash;                <g>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                    <rect fill="none" height="24" width="24"/>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                    <rect fill="none" height="24" width="24"/>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                </g>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                <g>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                    <g>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                        <path&ndash;&gt;-->
+        <!--            &lt;!&ndash;                            d="M18.29,17.29L18.29,17.29c0.39-0.39,0.39-1.02,0-1.41L14.42,12l3.88-3.88c0.39-0.39,0.39-1.02,0-1.41l0,0 c-0.39-0.39-1.02-0.39-1.41,0l-4.59,4.59c-0.39,0.39-0.39,1.02,0,1.41l4.59,4.59C17.27,17.68,17.9,17.68,18.29,17.29z"/>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                        <path&ndash;&gt;-->
+        <!--            &lt;!&ndash;                            d="M11.7,17.29L11.7,17.29c0.39-0.39,0.39-1.02,0-1.41L7.83,12l3.88-3.88c0.39-0.39,0.39-1.02,0-1.41l0,0 c-0.39-0.39-1.02-0.39-1.41,0l-4.59,4.59c-0.39,0.39-0.39,1.02,0,1.41l4.59,4.59C10.68,17.68,11.31,17.68,11.7,17.29z"/>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                    </g>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                </g>&ndash;&gt;-->
+        <!--            &lt;!&ndash;            </svg>&ndash;&gt;-->
+        <!--            &lt;!&ndash;            <svg :disabled="table.page == 1" @click="table.page != 1 ? table.page&#45;&#45; : table.page"&ndash;&gt;-->
+        <!--            &lt;!&ndash;                 xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">&ndash;&gt;-->
+        <!--            &lt;!&ndash;                <path&ndash;&gt;-->
+        <!--            &lt;!&ndash;                    d="M14.71 15.88L10.83 12l3.88-3.88c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L8.71 11.3c-.39.39-.39 1.02 0 1.41l4.59 4.59c.39.39 1.02.39 1.41 0 .38-.39.39-1.03 0-1.42z"/>&ndash;&gt;-->
+        <!--            &lt;!&ndash;            </svg>&ndash;&gt;-->
+        <!--            &lt;!&ndash;            <span v-for="p in paginator" :active="p == table.page" @click="table.page = p">{{ p }}</span>&ndash;&gt;-->
+        <!--            &lt;!&ndash;            <svg :disabled="table.page == numOfPages" @click="table.page != numOfPages ? table.page++ : table.page"&ndash;&gt;-->
+        <!--            &lt;!&ndash;                 xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">&ndash;&gt;-->
+        <!--            &lt;!&ndash;                <path&ndash;&gt;-->
+        <!--            &lt;!&ndash;                    d="M9.29 15.88L13.17 12 9.29 8.12c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0l4.59 4.59c.39.39.39 1.02 0 1.41L10.7 17.3c-.39.39-1.02.39-1.41 0-.38-.39-.39-1.03 0-1.42z"/>&ndash;&gt;-->
+        <!--            &lt;!&ndash;            </svg>&ndash;&gt;-->
+        <!--            &lt;!&ndash;            <svg :disabled="table.page == numOfPages" @click="table.page = numOfPages"&ndash;&gt;-->
+        <!--            &lt;!&ndash;                 xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24"&ndash;&gt;-->
+        <!--            &lt;!&ndash;                 width="24px">&ndash;&gt;-->
+        <!--            &lt;!&ndash;                <g>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                    <rect fill="none" height="24" width="24"/>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                    <rect fill="none" height="24" width="24"/>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                </g>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                <g>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                    <g>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                        <path&ndash;&gt;-->
+        <!--            &lt;!&ndash;                            d="M5.7,6.71L5.7,6.71c-0.39,0.39-0.39,1.02,0,1.41L9.58,12L5.7,15.88c-0.39,0.39-0.39,1.02,0,1.41l0,0 c0.39,0.39,1.02,0.39,1.41,0l4.59-4.59c0.39-0.39,0.39-1.02,0-1.41L7.12,6.71C6.73,6.32,6.09,6.32,5.7,6.71z"/>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                        <path&ndash;&gt;-->
+        <!--            &lt;!&ndash;                            d="M12.29,6.71L12.29,6.71c-0.39,0.39-0.39,1.02,0,1.41L16.17,12l-3.88,3.88c-0.39,0.39-0.39,1.02,0,1.41l0,0 c0.39,0.39,1.02,0.39,1.41,0l4.59-4.59c0.39-0.39,0.39-1.02,0-1.41l-4.59-4.59C13.32,6.32,12.68,6.32,12.29,6.71z"/>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                    </g>&ndash;&gt;-->
+        <!--            &lt;!&ndash;                </g>&ndash;&gt;-->
+        <!--            &lt;!&ndash;            </svg>&ndash;&gt;-->
+        <!--        </div>-->
+        <div class="q-pa-lg flex justify-end">
+            <q-pagination
+                v-model="table.page"
+                :max="numOfPages"
+                max-pages="5"
+                direction-links
+                boundary-links
+                icon-first="r_skip_previous"
+                icon-last="r_skip_next"
+                icon-prev="r_fast_rewind"
+                icon-next="r_fast_forward"
+            />
         </div>
     </div>
 </template>
@@ -588,44 +596,51 @@ div.tableCon
         // width: auto
         // display: inline-block
 
-    >div.operationCon
+    > div.operationCon
         margin-bottom: 16px
         text-align: end
-        >*:not(:last-child)
+
+        > *:not(:last-child)
             margin-right: 10px
 
-    >div.countCon
+    > div.countCon
         *
             margin: 0
-        >div.space
+
+        > div.space
             flex: 1
         display: flex
         align-items: center
         margin-bottom: 16px
-        >button
+
+        > button
             margin-left: 20px
-        >p
+
+        > p
             margin-right: 10px
-        // &, button, label
-        //     font-weight: 500
+    // &, button, label
+    //     font-weight: 500
 
     div.tableWrapper
         white-space: nowrap
         overflow-x: auto
+
         table
             border-collapse: collapse
-        select
-            width: auto
+
         th, td
             text-align: start
             padding: 10px
+
         tr.filterInput
             td
                 width: auto
                 padding-right: 15px
                 padding-bottom: 15px
-                >*
+
+                > *
                     width: 100%
+
         tr.tableHeader
             th
                 padding-right: 40px
@@ -633,64 +648,63 @@ div.tableCon
                 border-width: 1px 0 1px 0
                 border-style: solid
                 border-color: rgb(228, 228, 228)
+
                 &:not(:first-child)
                     cursor: pointer
                     user-select: none
+
                     &:hover
                         background: rgba(0, 0, 0, 0.04)
                         color: rgba(0, 0, 0, 0.87)
+
                 span
                     position: absolute
                     right: 15px
                     top: 7px
-        
+
         tbody
             tr:hover
                 background: rgba(0, 0, 0, 0.04)
                 color: rgba(0, 0, 0, 0.87)
+
             td
                 border-width: 0 0 1px 0
                 border-style: solid
                 border-color: rgb(228, 228, 228)
-            button
-                background: none
-                margin: 0
-                display: inline
-                padding: 0
-                border: none
-                &[disabled]
-                    svg
-                        fill: #8d8c8c
-                svg
-                    fill: #1095c1
 
 div.paginatorCon
     display: flex
     justify-content: flex-end
     align-items: center
-    >*
-        user-select: none
-        display: block
-        border-radius: 50%
-        &[active="true"]
-            background: #EFF6FF
-            color: #1D4ED8
-        &[disabled="true"]
-            color: hsl(0deg 0% 71%)
-        &:not([disabled="true"]):not([active="true"])
-            cursor: pointer
-            &:hover
-                background: #e9ecef
-            
-    span
-        line-height: 38px
-        height: 40px
-        width: 40px
-        text-align: center
-    svg
-        height: 40px
-        width: 40px
-        padding: 8px
 
-                    
+    //> *
+    //    user-select: none
+    //    display: block
+    //    border-radius: 50%
+    //
+    //    &[active="true"]
+    //        background: #EFF6FF
+    //        color: #1D4ED8
+    //
+    //    &[disabled="true"]
+    //        color: hsl(0deg 0% 71%)
+    //
+    //    &:not([disabled="true"]):not([active="true"])
+    //        cursor: pointer
+    //
+    //        &:hover
+    //            background: #e9ecef
+    //
+    //span
+    //    line-height: 38px
+    //    height: 40px
+    //    width: 40px
+    //    text-align: center
+    //
+    //svg
+    //    height: 40px
+    //    width: 40px
+    //    padding: 8px
+
+
 </style>

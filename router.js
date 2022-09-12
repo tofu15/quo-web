@@ -10,7 +10,7 @@ import ProductListView from '@/views/Product/ListView.vue'
 import ProductDetailView from '@/views/Product/DetailView.vue'
 import ProductEditView from '@/views/Product/EditView.vue'
 import ProductAddView from '@/views/Product/AddView.vue'
-import ProductAddAllview from '@/views/Product/AddAllView.vue'
+import ProductAddAllView from '@/views/Product/AddAllView.vue'
 
 import ProductListseView from '@/views/Product/ListseView.vue'
 import ProductEditseView from '@/views/Product/EditseView.vue'
@@ -93,7 +93,7 @@ const router = createRouter({
                 {
                     path: '/product/addall',
                     name: 'product-addall',
-                    component: ProductAddAllview,
+                    component: ProductAddAllView,
                     meta: {
                         title: "新規製品一括インポート",
                         keepAlive: false
