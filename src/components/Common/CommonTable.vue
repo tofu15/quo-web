@@ -101,30 +101,6 @@ const numOfPages = computed(() => {
     }
     return result
 })
-// 页码
-// const paginator = computed(() => {
-//
-//     let result = []
-//     // 检查页码数是否小于等于5
-//     if (numOfPages.value <= 5) {
-//         for (let index = 1; index <= numOfPages.value; index++) {
-//             result.push(index)
-//         }
-//     } else if (table.page === 1 || table.page === 2) {
-//         for (let index = 1; index <= 5 && index <= numOfPages.value; index++) {
-//             result.push(index)
-//         }
-//     } else if (table.page === numOfPages.value || table.page === (numOfPages.value - 1)) {
-//         for (let index = numOfPages.value; index >= 1 && index >= (numOfPages.value - 4); index--) {
-//             result.unshift(index)
-//         }
-//     } else {
-//         for (let index = table.page - 2; index <= table.page + 2; index++) {
-//             result.push(index)
-//         }
-//     }
-//     return result
-// })
 
 // 排序后的数据
 const sortedData = computed(() => {
@@ -423,7 +399,7 @@ function filterTypes(t) {
         <div class="operationCon">
             <q-btn color="red" label="削除" v-if="props.action.hasOwnProperty('delete')" :disabled="!isDeleteAble"
                    class="del" @click="deleteAll"/>
-            <q-btn color="primary" label="エクスポート" :disabled="!iSAnySelected" class="expBtn" @click="exportExcel"/>
+            <q-btn color="primary" label="エクスポート" :disabled="!iSAnySelected" @click="exportExcel"/>
         </div>
         <div class="countCon">
             <p>表示件数</p>
@@ -515,65 +491,11 @@ function filterTypes(t) {
                 </tbody>
             </table>
         </div>
-        <!--        <div v-if="false" class="paginatorCon">-->
-        <!--            <q-btn :disabled="table.page == 1" @click="table.page = 1" flat round color="primary"-->
-        <!--                   icon="r_keyboard_double_arrow_left" size="13px"/>-->
-        <!--            <q-btn :disabled="table.page == 1" @click="table.page != 1 ? table.page&#45;&#45; : table.page" flat round-->
-        <!--                   color="primary" icon="r_keyboard_arrow_left" size="13px"/>-->
-        <!--            <q-btn v-for="p in paginator" :active="p == table.page" @click="table.page = p" flat round color="primary"-->
-        <!--                   :label="p" size="13px" style="font-weight: bold;"/>-->
-        <!--            <q-btn :disabled="table.page == numOfPages" @click="table.page != numOfPages ? table.page++ : table.page"-->
-        <!--                   flat round color="primary" icon="r_keyboard_arrow_right" size="13px"/>-->
-        <!--            <q-btn :disabled="table.page == numOfPages" @click="table.page = numOfPages" flat round color="primary"-->
-        <!--                   icon="r_keyboard_double_arrow_right" size="13px"/>-->
-        <!--            &lt;!&ndash;            <svg :disabled="table.page == 1" @click="table.page = 1" xmlns="http://www.w3.org/2000/svg"&ndash;&gt;-->
-        <!--            &lt;!&ndash;                 enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px">&ndash;&gt;-->
-        <!--            &lt;!&ndash;                <g>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                    <rect fill="none" height="24" width="24"/>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                    <rect fill="none" height="24" width="24"/>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                </g>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                <g>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                    <g>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                        <path&ndash;&gt;-->
-        <!--            &lt;!&ndash;                            d="M18.29,17.29L18.29,17.29c0.39-0.39,0.39-1.02,0-1.41L14.42,12l3.88-3.88c0.39-0.39,0.39-1.02,0-1.41l0,0 c-0.39-0.39-1.02-0.39-1.41,0l-4.59,4.59c-0.39,0.39-0.39,1.02,0,1.41l4.59,4.59C17.27,17.68,17.9,17.68,18.29,17.29z"/>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                        <path&ndash;&gt;-->
-        <!--            &lt;!&ndash;                            d="M11.7,17.29L11.7,17.29c0.39-0.39,0.39-1.02,0-1.41L7.83,12l3.88-3.88c0.39-0.39,0.39-1.02,0-1.41l0,0 c-0.39-0.39-1.02-0.39-1.41,0l-4.59,4.59c-0.39,0.39-0.39,1.02,0,1.41l4.59,4.59C10.68,17.68,11.31,17.68,11.7,17.29z"/>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                    </g>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                </g>&ndash;&gt;-->
-        <!--            &lt;!&ndash;            </svg>&ndash;&gt;-->
-        <!--            &lt;!&ndash;            <svg :disabled="table.page == 1" @click="table.page != 1 ? table.page&#45;&#45; : table.page"&ndash;&gt;-->
-        <!--            &lt;!&ndash;                 xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">&ndash;&gt;-->
-        <!--            &lt;!&ndash;                <path&ndash;&gt;-->
-        <!--            &lt;!&ndash;                    d="M14.71 15.88L10.83 12l3.88-3.88c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L8.71 11.3c-.39.39-.39 1.02 0 1.41l4.59 4.59c.39.39 1.02.39 1.41 0 .38-.39.39-1.03 0-1.42z"/>&ndash;&gt;-->
-        <!--            &lt;!&ndash;            </svg>&ndash;&gt;-->
-        <!--            &lt;!&ndash;            <span v-for="p in paginator" :active="p == table.page" @click="table.page = p">{{ p }}</span>&ndash;&gt;-->
-        <!--            &lt;!&ndash;            <svg :disabled="table.page == numOfPages" @click="table.page != numOfPages ? table.page++ : table.page"&ndash;&gt;-->
-        <!--            &lt;!&ndash;                 xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">&ndash;&gt;-->
-        <!--            &lt;!&ndash;                <path&ndash;&gt;-->
-        <!--            &lt;!&ndash;                    d="M9.29 15.88L13.17 12 9.29 8.12c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0l4.59 4.59c.39.39.39 1.02 0 1.41L10.7 17.3c-.39.39-1.02.39-1.41 0-.38-.39-.39-1.03 0-1.42z"/>&ndash;&gt;-->
-        <!--            &lt;!&ndash;            </svg>&ndash;&gt;-->
-        <!--            &lt;!&ndash;            <svg :disabled="table.page == numOfPages" @click="table.page = numOfPages"&ndash;&gt;-->
-        <!--            &lt;!&ndash;                 xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24"&ndash;&gt;-->
-        <!--            &lt;!&ndash;                 width="24px">&ndash;&gt;-->
-        <!--            &lt;!&ndash;                <g>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                    <rect fill="none" height="24" width="24"/>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                    <rect fill="none" height="24" width="24"/>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                </g>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                <g>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                    <g>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                        <path&ndash;&gt;-->
-        <!--            &lt;!&ndash;                            d="M5.7,6.71L5.7,6.71c-0.39,0.39-0.39,1.02,0,1.41L9.58,12L5.7,15.88c-0.39,0.39-0.39,1.02,0,1.41l0,0 c0.39,0.39,1.02,0.39,1.41,0l4.59-4.59c0.39-0.39,0.39-1.02,0-1.41L7.12,6.71C6.73,6.32,6.09,6.32,5.7,6.71z"/>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                        <path&ndash;&gt;-->
-        <!--            &lt;!&ndash;                            d="M12.29,6.71L12.29,6.71c-0.39,0.39-0.39,1.02,0,1.41L16.17,12l-3.88,3.88c-0.39,0.39-0.39,1.02,0,1.41l0,0 c0.39,0.39,1.02,0.39,1.41,0l4.59-4.59c0.39-0.39,0.39-1.02,0-1.41l-4.59-4.59C13.32,6.32,12.68,6.32,12.29,6.71z"/>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                    </g>&ndash;&gt;-->
-        <!--            &lt;!&ndash;                </g>&ndash;&gt;-->
-        <!--            &lt;!&ndash;            </svg>&ndash;&gt;-->
-        <!--        </div>-->
         <div class="q-pa-lg flex justify-end">
             <q-pagination
                 v-model="table.page"
                 :max="numOfPages"
-                max-pages="5"
+                :max-pages="5"
                 direction-links
                 boundary-links
                 icon-first="r_skip_previous"
@@ -671,40 +593,5 @@ div.tableCon
                 border-width: 0 0 1px 0
                 border-style: solid
                 border-color: rgb(228, 228, 228)
-
-div.paginatorCon
-    display: flex
-    justify-content: flex-end
-    align-items: center
-
-    //> *
-    //    user-select: none
-    //    display: block
-    //    border-radius: 50%
-    //
-    //    &[active="true"]
-    //        background: #EFF6FF
-    //        color: #1D4ED8
-    //
-    //    &[disabled="true"]
-    //        color: hsl(0deg 0% 71%)
-    //
-    //    &:not([disabled="true"]):not([active="true"])
-    //        cursor: pointer
-    //
-    //        &:hover
-    //            background: #e9ecef
-    //
-    //span
-    //    line-height: 38px
-    //    height: 40px
-    //    width: 40px
-    //    text-align: center
-    //
-    //svg
-    //    height: 40px
-    //    width: 40px
-    //    padding: 8px
-
 
 </style>

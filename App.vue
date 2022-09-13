@@ -1,10 +1,10 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import {RouterView} from 'vue-router'
 </script>
 
 <template>
-    <q-ajax-bar />
-    <RouterView />
+    <q-ajax-bar/>
+    <RouterView/>
 </template>
 
 <style scoped>
