@@ -1,6 +1,6 @@
 <script setup>
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
-import {reactive, onBeforeMount, computed, watch} from 'vue';
+import {ref, reactive, onBeforeMount, computed, watch} from 'vue';
 import {useRoute, onBeforeRouteLeave} from 'vue-router'
 import {useQuasar} from 'quasar'
 import router from '../../../router';
@@ -57,7 +57,7 @@ onBeforeMount(() => {
     }).catch((error) => console.error(error))
 
     // 获取产品信息
-    fetch('/api/product-' + id).then((response) => {
+    fetch('/api/product/' + id).then((response) => {
         if (!response.ok) {
             throw new Error("HTTP status " + response.status);
         }
@@ -100,7 +100,7 @@ const headerProps = {
     ]
 }
 // 原始 product 对象
-const initialProduct = new Object
+const initialProduct = {}
 // product 对象 绑定表单
 const product = reactive({
     pid: 0,
@@ -119,6 +119,8 @@ const product = reactive({
     packageInfo: "",
     pinterface: ""
 })
+// isLoading
+const isLoading = ref(false)
 
 // types 数组
 const types = reactive([])
@@ -129,23 +131,13 @@ const seriesOfType = computed(() => {
 })
 // 观察 tid 变化时 重置 psid
 watch(() => product.tid, (tid, oldtid) => {
-    if (oldtid != 0) {
+    if (oldtid !== 0) {
         product.psid = null
     }
 })
 // 能否做了任何编辑修改
 const isAnyEdit = computed(() => {
-    if (initialProduct.pname == product.pname && initialProduct.price == product.price && initialProduct.tid == product.tid && initialProduct.psid == product.psid && initialProduct.connection == product.connection && initialProduct.pinterface == product.pinterface && initialProduct.bass == product.bass && initialProduct.waterproof == product.waterproof && initialProduct.mic == product.mic && initialProduct.packageInfo == product.packageInfo && initialProduct.noise == product.noise) {
-        return false
-    } else {
-        return true
-    }
-})
-// 是否能够保存
-const isSaveAble = computed(() => {
-    if (!isAnyEdit.value) {
-        return false
-    } else if (product.pname.length == 0 || product.price.length == 0 || product.price <= 0 || product.tid == null || product.psid == null || product.connection.length == 0 || product.pinterface.length == 0 || product.waterproof.length == 0 || product.packageInfo.length == 0 || product.noise.length == 0) {
+    if (initialProduct.pname === product.pname && initialProduct.price === product.price && initialProduct.tid === product.tid && initialProduct.psid === product.psid && initialProduct.connection === product.connection && initialProduct.pinterface === product.pinterface && initialProduct.bass === product.bass && initialProduct.waterproof === product.waterproof && initialProduct.mic === product.mic && initialProduct.packageInfo === product.packageInfo && initialProduct.noise === product.noise) {
         return false
     } else {
         return true
@@ -158,7 +150,7 @@ const modalData = reactive({
     auth: false
 })
 
-onBeforeRouteLeave((to, from) => {
+onBeforeRouteLeave((to) => {
     if (!isAnyEdit.value || modalData.auth) {
         return true
     } else {
@@ -178,7 +170,7 @@ onBeforeRouteLeave((to, from) => {
 
 // 上传数据
 // post 上传数据
-async function postData() {
+function postData() {
     const data = {
         pname: product.pname,
         price: product.price,
@@ -191,20 +183,34 @@ async function postData() {
         waterproof: product.waterproof,
         packageInfo: product.packageInfo
     }
-    let response = await fetch('/api/product/' + route.params.id, {
+    isLoading.value = true
+    fetch('/api/product/' + route.params.id, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
-    })
-    if (response.ok) {
-        let json = await response.json();
+        body: JSON.stringify(data)
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status);
+        }
+        return response.json()
+    }).then((json) => {
         if (json.success) {
             modalData.auth = true
             router.push({name: 'product-list'})
+        } else {
+            throw new Error(json.message);
         }
-    }
+    }).catch((error) => {
+        isLoading.value = false
+        $q.dialog({
+            title: 'エラー',
+            message: error.toString(),
+            cancel: false,
+            persistent: false
+        })
+    })
 }
 </script>
 
@@ -213,10 +219,9 @@ async function postData() {
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
         <div class="actionCon">
             <q-btn @click="$router.push({ name: 'product-list' })" color="grey" label="戻る"/>
-            <!--            <q-btn @click="postData" :disable="!isSaveAble" color="primary" label="保存"/>-->
         </div>
         <div class="formCon">
-            <q-form @submit="postData">
+            <q-form @reset="Object.assign(product, initialProduct)" @submit="postData">
                 <div class="row">
                     <q-input v-model.trim="product.pid" label="製品ID" class="col-sm-12 col-md-6" readonly outlined/>
                     <q-input :rules="[val => !!val || '入力必須です。']" v-model.trim="product.pname" label="名称"
@@ -236,85 +241,45 @@ async function postData() {
                              class="col-sm-12 col-md-6" outlined/>
                     <q-input :rules="[val => !!val || '入力必須です。']" v-model.trim="product.waterproof" label="防水"
                              class="col-sm-12 col-md-6" outlined/>
+                    <q-field class="col-sm-12 col-md-6" label="重低音" stack-label borderless
+                             :rules="[() => !!product.bass || '入力必須です。']">
+                        <template v-slot:control>
+                            <q-radio size="30px" dense v-model="product.bass" val="あり" label="あり"/>
+                            <q-radio size="30px" dense v-model="product.bass" val="なし" label="なし"/>
+                        </template>
+                    </q-field>
+                    <q-field class="col-sm-12 col-md-6" label="マイク通話" stack-label borderless
+                             :rules="[() => !!product.mic || '入力必須です。']">
+                        <template v-slot:control>
+                            <q-radio size="30px" dense v-model="product.mic" val="あり" label="あり"/>
+                            <q-radio size="30px" dense v-model="product.mic" val="なし" label="なし"/>
+                        </template>
+                    </q-field>
+                    <q-field class="col-sm-12 col-md-6" label="ノイキャン" stack-label borderless
+                             :rules="[() => !!product.noise || '入力必須です。']">
+                        <template v-slot:control>
+                            <q-radio size="30px" dense v-model="product.noise" val="あり" label="あり"/>
+                            <q-radio size="30px" dense v-model="product.noise" val="なし" label="なし"/>
+                        </template>
+                    </q-field>
+                    <q-input
+                        :rules="[val => !!val || '入力必須です。', val => val.length <=50 || '50文字まで。']"
+                        label="付属"
+                        class="col-sm-12 col-md-6"
+                        v-model="product.packageInfo"
+                        no-error-icon
+                        counter
+                        autogrow
+                        outlined
+                        type="textarea"
+                    />
                 </div>
                 <div>
-                    <q-btn label="リセット" type="reset" color="grey"/>
-                    <q-btn label="保存" type="submit" color="primary" class="q-ml-sm"/>
+                    <q-btn label="リセット" type="reset" color="secondary"/>
+                    <q-btn :loading="isLoading" label="保存" :disable="!isAnyEdit" type="submit" color="primary"
+                           class="q-ml-sm"/>
                 </div>
             </q-form>
-        </div>
-        <div class="formCon">
-            <div>
-                <label>製品ID</label>
-                <input v-model.trim="product.pid" type="text" disabled>
-            </div>
-            <div>
-                <label>名称</label>
-                <input :aria-invalid="product.pname.length == 0 ? true : ''" v-model.trim="product.pname" type="text">
-                <small v-if="product.pname.length == 0">入力必須です。</small>
-            </div>
-            <div>
-                <label>単価（円）</label>
-                <input :aria-invalid="product.price.length == 0 || product.price <= 0 ? true : ''"
-                       v-model.trim="product.price" type="number">
-                <small v-if="product.price.length == 0">入力必須です。</small>
-                <small v-if="product.price.length != 0 && product.price <= 0">正しくありません。</small>
-            </div>
-            <div>
-                <label>在庫数</label>
-                <input v-model.trim="product.stock" type="number" disabled>
-            </div>
-            <div>
-                <label>タイプ</label>
-                <select v-model.trim="product.tid">
-                    <option v-for="t in types" :value="t.value">{{ t.label }}</option>
-                </select>
-            </div>
-            <div>
-                <label>シリーズ</label>
-                <select v-model.trim="product.psid">
-                    <option v-for="s in seriesOfType" :value="s.value">{{ s.label }}</option>
-                </select>
-            </div>
-            <div>
-                <label>接続性</label>
-                <input :aria-invalid="product.connection.length == 0 ? true : ''" v-model.trim="product.connection"
-                       type="text">
-                <small v-if="product.connection.length == 0">入力必須です。</small>
-            </div>
-            <div>
-                <label>インターフェイス</label>
-                <input :aria-invalid="product.pinterface.length == 0 ? true : ''" v-model.trim="product.pinterface"
-                       type="text">
-                <small v-if="product.pinterface.length == 0">入力必須です。</small>
-            </div>
-            <div>
-                <label>重低音</label>
-                <label><input v-model.trim="product.bass" value="あり" name="bass" type="radio">あり</label>
-                <label><input v-model.trim="product.bass" value="なし" name="bass" type="radio">なし</label>
-            </div>
-            <div>
-                <label>マイク通話</label>
-                <label><input v-model.trim="product.mic" value="あり" name="mic" type="radio">あり</label>
-                <label><input v-model.trim="product.mic" value="なし" name="mic" type="radio">なし</label>
-            </div>
-            <div>
-                <label>ノイキャン</label>
-                <label><input v-model.trim="product.noise" value="あり" name="noise" type="radio">あり</label>
-                <label><input v-model.trim="product.noise" value="なし" name="noise" type="radio">なし</label>
-            </div>
-            <div>
-                <label>防水</label>
-                <input :aria-invalid="product.waterproof.length == 0 ? true : ''" v-model.trim="product.waterproof"
-                       type="text">
-                <small v-if="product.waterproof.length == 0">入力必須です。</small>
-            </div>
-            <div>
-                <label>付属</label>
-                <textarea :aria-invalid="product.packageInfo.length == 0 ? true : ''" v-model.trim="product.packageInfo"
-                          maxlength="50" cols="20" rows="5"></textarea>
-                <small v-if="product.packageInfo.length == 0">入力必須です。</small>
-            </div>
         </div>
     </div>
 </template>
@@ -323,12 +288,10 @@ async function postData() {
 div.actionCon
     margin-bottom: 20px
 
-    > button:last-of-type
+    > button:not(:first-of-type):last-of-type
         margin-left: 10px
 
 div.formCon
-    //display: flex
-    //flex-wrap: wrap
     padding: 50px
     border-radius: 10px
     box-shadow: rgba(0, 0, 0, 0.16) 0 8px 24px 0
@@ -338,15 +301,4 @@ div.formCon
         > *
             padding-right: 20px
             margin-bottom: 10px
-
-//> div
-//    padding-right: 30px
-//    min-width: 50%
-//
-//    > label
-//        &:first-child
-//            font-weight: 500
-//
-//        &:last-child
-//            margin-bottom: 16px
 </style>

@@ -1,9 +1,9 @@
 <script setup>
-import { reactive, onBeforeMount } from 'vue'
+import {reactive, onBeforeMount} from 'vue'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
 import router from '../../../router';
-import { useQuasar } from 'quasar'
+import {useQuasar} from 'quasar'
 
 const $q = useQuasar()
 // header 参数
@@ -146,7 +146,7 @@ function deleteAll(ids) {
 }
 
 function view(id) {
-    router.push({ name: 'product-detail', params: { id: id } })
+    router.push({name: 'product-detail', params: {id: id}})
 }
 
 function exportExcel(ids) {
@@ -162,8 +162,8 @@ function exportExcel(ids) {
         }
         return response.blob()
     }).then((blob) => {
-        var url = window.URL.createObjectURL(blob)
-        var fileLink = document.createElement('a')
+        const url = window.URL.createObjectURL(blob);
+        const fileLink = document.createElement('a');
         fileLink.href = url;
         fileLink.download = '製品エクスポート.xlsx'
         document.body.appendChild(fileLink)
@@ -183,8 +183,8 @@ function exportExcel(ids) {
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
         <CommonTable @exportExcel="exportExcel"
-            @edit="(id) => $router.push({ name: 'product-edit', params: { id: id } })" @view="view"
-            @deleteAll="deleteAll" @delete="deleteItem" v-bind="tableProps"></CommonTable>
+                     @edit="(id) => this.$router.push({ name: 'product-edit', params: { id: id } })" @view="view"
+                     @deleteAll="deleteAll" @delete="deleteItem" v-bind="tableProps"></CommonTable>
     </div>
 </template>
 <style lang="sass" scoped>

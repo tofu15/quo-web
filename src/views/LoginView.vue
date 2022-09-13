@@ -65,7 +65,7 @@ function postData() {
             <div>
                 <h1>ログイン</h1>
                 <p>見積システムへようこそ</p>
-                <q-form @submit="postData" class="q-gutter-md">
+                <q-form greedy @submit="postData" class="q-gutter-md">
                     <q-input outlined v-model.trim="form.eno" label="ユーザーID" lazy-rules
                         :rules="[ val => val && val.length > 0 || 'ユーザーIDは入力必須です。']" />
 

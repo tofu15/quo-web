@@ -1,29 +1,69 @@
 <script setup>
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
-import { reactive, onBeforeMount, computed, watch } from 'vue';
-import { useRoute, onBeforeRouteLeave } from 'vue-router'
+import {reactive, onBeforeMount, computed, ref} from 'vue';
+import {useRoute, onBeforeRouteLeave} from 'vue-router'
 import router from '../../../router';
-import { useQuasar } from 'quasar'
+import {useQuasar} from 'quasar'
+
 const route = useRoute()
 const $q = useQuasar()
 
 // 获取产品信息 和 系列类型信息
-onBeforeMount(async () => {
+onBeforeMount(() => {
     // 获取数据
     const id = route.params.id
-    const seJson = await (await fetch('/api/product-series/' + id)).json()
-    const seData = seJson.data
-    const typeJson = await (await fetch('/api/product-type-list-series-edit')).json()
-    const typeData = typeJson.data
+    // 获取类型信息
+    fetch('/api/product-type-list-series-edit').then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status);
+        }
+        return response.json()
+    }).then((json) => {
+        if (json.success) {
+            return json.data
+        } else {
+            throw new Error(json.message);
+        }
+    }).then((data) => {
+        data.forEach(e => {
+            types.push({
+                label: e.tname,
+                value: Number(e.tid)
+            })
+        })
+    }).catch((error) => console.error(error))
+
+    // 获取系列信息
+    fetch('/api/product-series/' + id).then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status);
+        }
+        return response.json()
+    }).then((json) => {
+        if (json.success) {
+            return json.data
+        } else {
+            throw new Error(json.message);
+        }
+    }).then((data) => {
+        Object.assign(initialSe, data)
+        Object.assign(se, data)
+    }).catch((error) => console.error(error))
+
+
+    // const seJson = await (await fetch('/api/product-series/' + id)).json()
+    // const seData = seJson.data
+    // const typeJson = await (await fetch('/api/product-type-list-series-edit')).json()
+    // const typeData = typeJson.data
 
     // types 赋值
-    typeData.forEach(e => {
-        types.push(e)
-    });
+    // typeData.forEach(e => {
+    //     types.push(e)
+    // });
 
     // product 赋值
-    Object.assign(initialSe, seData)
-    Object.assign(se, seData)
+    // Object.assign(initialSe, seData)
+    // Object.assign(se, seData)
 })
 // header 参数
 const headerProps = {
@@ -52,7 +92,7 @@ const headerProps = {
     ]
 }
 // 原始 product 对象
-const initialSe = new Object
+const initialSe = {}
 // product 对象 绑定表单
 const se = reactive({
     psid: null,
@@ -60,23 +100,15 @@ const se = reactive({
     tid: null,
     notes: ""
 })
+// isLoading
+const isLoading = ref(false)
 
 // types 数组
 const types = reactive([])
 
 // 是否做了任何编辑修改
 const isAnyEdit = computed(() => {
-    if (initialSe.psname == se.psname && initialSe.tid == se.tid && initialSe.notes == se.notes) {
-        return false
-    } else {
-        return true
-    }
-})
-// 是否能够保存
-const isSaveAble = computed(() => {
-    if (!isAnyEdit.value) {
-        return false
-    } else if (se.psname.length == 0 || se.tid == null || se.notes.length == 0) {
+    if (initialSe.psname === se.psname && initialSe.tid === se.tid && initialSe.notes === se.notes) {
         return false
     } else {
         return true
@@ -89,7 +121,7 @@ const modalData = reactive({
     auth: false
 })
 
-onBeforeRouteLeave((to, from) => {
+onBeforeRouteLeave((to) => {
     if (!isAnyEdit.value || modalData.auth) {
         return true
     } else {
@@ -107,87 +139,119 @@ onBeforeRouteLeave((to, from) => {
     }
 })
 
-
-// 上传数据
 // post 上传数据
-async function postData() {
+function postData() {
     const data = {
         psname: se.psname,
         tid: se.tid,
         notes: se.notes
     }
-    let response = await fetch('/api/product-series/' + route.params.id, {
+    isLoading.value = true
+    fetch('/api/product-series/' + route.params.id, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
-    })
-    if (response.ok) {
-        let json = await response.json();
+        body: JSON.stringify(data)
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status);
+        }
+        return response.json()
+    }).then((json) => {
         if (json.success) {
             modalData.auth = true
-            router.push({ name: 'product-listse' })
+            router.push({name: 'product-listse'})
+        } else {
+            throw new Error(json.message);
         }
-    }
+    }).catch((error) => {
+        isLoading.value = false
+        $q.dialog({
+            title: 'エラー',
+            message: error.toString(),
+            cancel: false,
+            persistent: false
+        })
+    })
 }
 </script>
-            
+
 <template>
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <div class="btnCon">
-            <button @click="$router.push({ name: 'product-listse' })" class="secondary">戻る</button>
-            <button @click="postData" :disabled="!isSaveAble">保存</button>
+        <div class="actionCon">
+            <q-btn @click="$router.push({ name: 'product-listse' })" color="grey" label="戻る"/>
+            <!--<button @click="postData" :disabled="!isSaveAble">保存</button>-->
         </div>
         <div class="formCon">
-            <div>
-                <label>シリーズ番号</label>
-                <input v-model.trim="se.psid" type="text" disabled>
-            </div>
-            <div>
-                <label>シリーズ名</label>
-                <input :aria-invalid="se.psname.length == 0 ? true : ''" v-model.trim="se.psname" type="text">
-                <small v-if="se.psname.length == 0">入力必須です。</small>
-            </div>
-            <div>
-                <label>タイプ</label>
-                <select v-model.trim="se.tid">
-                    <option v-for="t in types" :value="t.tid">{{ t.tname }}</option>
-                </select>
-            </div>
-            <div>
-                <label>備考</label>
-                <textarea :aria-invalid="se.notes.length == 0 ? true : ''" v-model.trim="se.notes" maxlength="10"
-                    cols="10" rows="5"></textarea>
-                <small v-if="se.notes.length == 0">入力必須です。</small>
-            </div>
+            <q-form @reset="Object.assign(se, initialSe)" @submit="postData">
+                <div class="row">
+                    <q-input v-model.trim="se.psid" label="シリーズ番号" class="col-sm-12 col-md-6" readonly outlined/>
+                    <q-input :rules="[val => !!val || '入力必須です。']" v-model.trim="se.psname" label="シリーズ名"
+                             class="col-sm-12 col-md-6" outlined/>
+                    <q-select :rules="[val => !!val || '入力必須です。']" v-model="se.tid" :options="types"
+                              label="タイプ" class="col-sm-12 col-md-6" outlined emit-value map-options/>
+                    <q-input
+                        :rules="[val => !!val || '入力必須です。', val => val.length <=10 || '10文字まで。']"
+                        label="付属"
+                        class="col-sm-12 col-md-6"
+                        v-model="se.notes"
+                        no-error-icon
+                        counter
+                        autogrow
+                        outlined
+                        type="textarea"
+                    />
+                </div>
+                <div>
+                    <q-btn label="リセット" type="reset" color="secondary"/>
+                    <q-btn :loading="isLoading" label="保存" :disable="!isAnyEdit" type="submit" color="primary"
+                           class="q-ml-sm"/>
+                </div>
+            </q-form>
         </div>
+        <!--        <div class="formCon">-->
+        <!--            <div>-->
+        <!--                <label>シリーズ番号</label>-->
+        <!--                <input v-model.trim="se.psid" type="text" disabled>-->
+        <!--            </div>-->
+        <!--            <div>-->
+        <!--                <label>シリーズ名</label>-->
+        <!--                <input :aria-invalid="se.psname.length == 0 ? true : ''" v-model.trim="se.psname" type="text">-->
+        <!--                <small v-if="se.psname.length == 0">入力必須です。</small>-->
+        <!--            </div>-->
+        <!--            <div>-->
+        <!--                <label>タイプ</label>-->
+        <!--                <select v-model.trim="se.tid">-->
+        <!--                    <option v-for="t in types" :value="t.value">{{ t.label }}</option>-->
+        <!--                </select>-->
+        <!--            </div>-->
+        <!--            <div>-->
+        <!--                <label>備考</label>-->
+        <!--                <textarea :aria-invalid="se.notes.length == 0 ? true : ''" v-model.trim="se.notes" maxlength="10"-->
+        <!--                          cols="10" rows="5"></textarea>-->
+        <!--                <small v-if="se.notes.length == 0">入力必須です。</small>-->
+        <!--            </div>-->
+        <!--        </div>-->
     </div>
 </template>
 
 <style lang="sass" scoped>
-div.btnCon
-    >button
-        width: auto
-        display: inline-block
-        &:last-of-type
-            margin-left: 10px
+div.actionCon
+    margin-bottom: 20px
+
+    > button:not(:first-of-type):last-of-type
+        margin-left: 10px
+
 div.formCon
-    display: flex
-    flex-wrap: wrap
     padding: 50px
     border-radius: 10px
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 8px 24px 0px
+    box-shadow: rgba(0, 0, 0, 0.16) 0 8px 24px 0
     background-color: #fff
-    >div
-        padding-right: 30px
-        min-width: 50%
-        >label
-            &:first-child
-                font-weight: 500
-            &:last-child
-                margin-bottom: 16px
-small
-    color: red
+
+    div.row
+        > *
+            padding-right: 20px
+            margin-bottom: 10px
 </style>
