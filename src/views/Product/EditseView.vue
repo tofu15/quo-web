@@ -49,21 +49,6 @@ onBeforeMount(() => {
         Object.assign(initialSe, data)
         Object.assign(se, data)
     }).catch((error) => console.error(error))
-
-
-    // const seJson = await (await fetch('/api/product-series/' + id)).json()
-    // const seData = seJson.data
-    // const typeJson = await (await fetch('/api/product-type-list-series-edit')).json()
-    // const typeData = typeJson.data
-
-    // types 赋值
-    // typeData.forEach(e => {
-    //     types.push(e)
-    // });
-
-    // product 赋值
-    // Object.assign(initialSe, seData)
-    // Object.assign(se, seData)
 })
 // header 参数
 const headerProps = {
@@ -91,9 +76,9 @@ const headerProps = {
         }
     ]
 }
-// 原始 product 对象
+// 原始 se 对象
 const initialSe = {}
-// product 对象 绑定表单
+// se 对象 绑定表单
 const se = reactive({
     psid: null,
     psname: "",
@@ -182,10 +167,9 @@ function postData() {
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
         <div class="actionCon">
             <q-btn @click="$router.push({ name: 'product-listse' })" color="grey" label="戻る"/>
-            <!--<button @click="postData" :disabled="!isSaveAble">保存</button>-->
         </div>
         <div class="formCon">
-            <q-form @reset="Object.assign(se, initialSe)" @submit="postData">
+            <q-form greedy @reset="Object.assign(se, initialSe)" @submit="postData">
                 <div class="row">
                     <q-input v-model.trim="se.psid" label="シリーズ番号" class="col-sm-12 col-md-6" readonly outlined/>
                     <q-input :rules="[val => !!val || '入力必須です。']" v-model.trim="se.psname" label="シリーズ名"
@@ -211,29 +195,6 @@ function postData() {
                 </div>
             </q-form>
         </div>
-        <!--        <div class="formCon">-->
-        <!--            <div>-->
-        <!--                <label>シリーズ番号</label>-->
-        <!--                <input v-model.trim="se.psid" type="text" disabled>-->
-        <!--            </div>-->
-        <!--            <div>-->
-        <!--                <label>シリーズ名</label>-->
-        <!--                <input :aria-invalid="se.psname.length == 0 ? true : ''" v-model.trim="se.psname" type="text">-->
-        <!--                <small v-if="se.psname.length == 0">入力必須です。</small>-->
-        <!--            </div>-->
-        <!--            <div>-->
-        <!--                <label>タイプ</label>-->
-        <!--                <select v-model.trim="se.tid">-->
-        <!--                    <option v-for="t in types" :value="t.value">{{ t.label }}</option>-->
-        <!--                </select>-->
-        <!--            </div>-->
-        <!--            <div>-->
-        <!--                <label>備考</label>-->
-        <!--                <textarea :aria-invalid="se.notes.length == 0 ? true : ''" v-model.trim="se.notes" maxlength="10"-->
-        <!--                          cols="10" rows="5"></textarea>-->
-        <!--                <small v-if="se.notes.length == 0">入力必須です。</small>-->
-        <!--            </div>-->
-        <!--        </div>-->
     </div>
 </template>
 

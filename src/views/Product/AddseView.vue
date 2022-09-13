@@ -1,22 +1,34 @@
 <script setup>
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
-import { reactive, onBeforeMount, computed } from 'vue';
-import { onBeforeRouteLeave } from 'vue-router'
+import {reactive, onBeforeMount, computed, ref} from 'vue';
+import {onBeforeRouteLeave} from 'vue-router'
 import router from '../../../router';
-import { useQuasar } from 'quasar'
+import {useQuasar} from 'quasar'
 
 const $q = useQuasar()
 
-// 获取产品信息 和 系列类型信息
-onBeforeMount(async () => {
-    // 获取数据
-    const typeJson = await (await fetch('/api/product-type-list-series-add')).json()
-    const typeData = typeJson.data
-
-    // types 赋值
-    typeData.forEach(e => {
-        types.push(e)
-    });
+// 获取信息
+onBeforeMount(() => {
+    // 获取类型信息
+    fetch('/api/product-type-list-series-add').then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status);
+        }
+        return response.json()
+    }).then((json) => {
+        if (json.success) {
+            return json.data
+        } else {
+            throw new Error(json.message);
+        }
+    }).then((data) => {
+        data.forEach(e => {
+            types.push({
+                label: e.tname,
+                value: Number(e.tid)
+            })
+        })
+    }).catch((error) => console.error(error))
 })
 // header 参数
 const headerProps = {
@@ -45,23 +57,21 @@ const se = reactive({
     tid: null,
     notes: ""
 })
+// 原始 se 对象
+const initialSe = {
+    psname: "",
+    tid: null,
+    notes: ""
+}
+// isLoading
+const isLoading = ref(false)
 
 // types 数组
 const types = reactive([])
 
 // 是否做了任何编辑修改
 const isAnyEdit = computed(() => {
-    if (se.psname.length == 0 && se.tid === null && se.notes.length == 0) {
-        return false
-    } else {
-        return true
-    }
-})
-// 是否能够保存
-const isSaveAble = computed(() => {
-    if (!isAnyEdit.value) {
-        return false
-    } else if (se.psname.length == 0 || se.tid == null || se.notes.length == 0) {
+    if (se.psname.length === 0 && se.tid === null && se.notes.length === 0) {
         return false
     } else {
         return true
@@ -74,7 +84,7 @@ const modalData = reactive({
     auth: false
 })
 
-onBeforeRouteLeave((to, from) => {
+onBeforeRouteLeave((to) => {
     if (!isAnyEdit.value || modalData.auth) {
         return true
     } else {
@@ -93,80 +103,90 @@ onBeforeRouteLeave((to, from) => {
 })
 
 // 上传数据
-// post 上传数据
-async function postData() {
+function postData() {
     const data = {
         psname: se.psname,
         tid: se.tid,
         notes: se.notes
     }
-    let response = await fetch('/api/product-series', {
+    isLoading.value = true
+    fetch('/api/product-series', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
-    })
-    if (response.ok) {
-        let json = await response.json();
+        body: JSON.stringify(data)
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status);
+        }
+        return response.json()
+    }).then((json) => {
         if (json.success) {
             modalData.auth = true
-            router.push({ name: 'product-listse' })
+            router.push({name: 'product-listse'})
+        } else {
+            throw new Error(json.message);
         }
-    }
+    }).catch((error) => {
+        isLoading.value = false
+        $q.dialog({
+            title: 'エラー',
+            message: error.toString(),
+            cancel: false,
+            persistent: false
+        })
+    })
 }
 </script>
-            
+
 <template>
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <div class="btnCon">
-            <button @click="postData" :disabled="!isSaveAble">保存</button>
-        </div>
         <div class="formCon">
-            <div>
-                <label>シリーズ名</label>
-                <input :aria-invalid="se.psname.length == 0 ? true : ''" v-model.trim="se.psname" type="text">
-                <small v-if="se.psname.length == 0">入力必須です。</small>
-            </div>
-            <div>
-                <label>タイプ</label>
-                <select v-model.trim="se.tid">
-                    <option v-for="t in types" :value="t.tid">{{ t.tname }}</option>
-                </select>
-            </div>
-            <div>
-                <label>備考</label>
-                <textarea :aria-invalid="se.notes.length == 0 ? true : ''" v-model.trim="se.notes" maxlength="10"
-                    cols="10" rows="5"></textarea>
-                <small v-if="se.notes.length == 0">入力必須です。</small>
-            </div>
+            <q-form greedy @reset="Object.assign(se, initialSe)" @submit="postData">
+                <div class="row">
+                    <q-input :rules="[val => !!val || '入力必須です。']" v-model.trim="se.psname" label="シリーズ名"
+                             class="col-sm-12 col-md-6" outlined/>
+                    <q-select :rules="[val => !!val || '入力必須です。']" v-model="se.tid" :options="types"
+                              label="タイプ" class="col-sm-12 col-md-6" outlined emit-value map-options/>
+                    <q-input
+                        :rules="[val => !!val || '入力必須です。', val => val.length <=10 || '10文字まで。']"
+                        label="付属"
+                        class="col-sm-12 col-md-6"
+                        v-model="se.notes"
+                        no-error-icon
+                        counter
+                        autogrow
+                        outlined
+                        type="textarea"
+                    />
+                </div>
+                <div>
+                    <q-btn label="リセット" type="reset" color="secondary"/>
+                    <q-btn :loading="isLoading" label="保存" type="submit" color="primary"
+                           class="q-ml-sm"/>
+                </div>
+            </q-form>
         </div>
     </div>
 </template>
 
 <style lang="sass" scoped>
-div.btnCon
-    >button
-        width: auto
-        display: inline-block
-        &:last-of-type
-            margin-left: 10px
+div.actionCon
+    margin-bottom: 20px
+
+    > button:not(:first-of-type):last-of-type
+        margin-left: 10px
+
 div.formCon
-    display: flex
-    flex-wrap: wrap
     padding: 50px
     border-radius: 10px
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 8px 24px 0px
+    box-shadow: rgba(0, 0, 0, 0.16) 0 8px 24px 0
     background-color: #fff
-    >div
-        padding-right: 30px
-        min-width: 50%
-        >label
-            &:first-child
-                font-weight: 500
-            &:last-child
-                margin-bottom: 16px
-small
-    color: red
+
+    div.row
+        > *
+            padding-right: 20px
+            margin-bottom: 10px
 </style>

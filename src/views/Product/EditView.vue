@@ -221,7 +221,7 @@ function postData() {
             <q-btn @click="$router.push({ name: 'product-list' })" color="grey" label="戻る"/>
         </div>
         <div class="formCon">
-            <q-form @reset="Object.assign(product, initialProduct)" @submit="postData">
+            <q-form greedy @reset="Object.assign(product, initialProduct)" @submit="postData">
                 <div class="row">
                     <q-input v-model.trim="product.pid" label="製品ID" class="col-sm-12 col-md-6" readonly outlined/>
                     <q-input :rules="[val => !!val || '入力必須です。']" v-model.trim="product.pname" label="名称"

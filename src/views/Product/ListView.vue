@@ -183,7 +183,7 @@ function exportExcel(ids) {
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
         <CommonTable @exportExcel="exportExcel"
-                     @edit="(id) => this.$router.push({ name: 'product-edit', params: { id: id } })" @view="view"
+                     @edit="(id) => $router.push({ name: 'product-edit', params: { id: id } })" @view="view"
                      @deleteAll="deleteAll" @delete="deleteItem" v-bind="tableProps"></CommonTable>
     </div>
 </template>
