@@ -3,6 +3,9 @@ import {reactive, computed, onBeforeMount, ref} from 'vue'
 import {onBeforeRouteLeave} from 'vue-router'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import router from '/router';
+import {useQuasar} from 'quasar'
+
+const $q = useQuasar()
 // header 参数
 const headerProps = {
     title: '業務設定',
@@ -32,13 +35,13 @@ const modalData = reactive({
 
 // 定义业务信息
 const workData = reactive({
-    amountcheck: 0,
+    amountCheck: 0,
     expiry: 0
 })
 const isLoading = ref(false)
 // 定义初始业务信息
 const initialWorkData = {
-    amountcheck: 0,
+    amountCheck: 0,
     expiry: 0
 }
 // 从后台获取数据
@@ -62,7 +65,7 @@ onBeforeMount(() => {
 
 // 是否做了任何编辑
 const isAnyEdit = computed(() => {
-    if (workData.amountcheck === initialWorkData.amountcheck && workData.expiry === initialWorkData.expiry) {
+    if (workData.amountCheck === initialWorkData.amountCheck && workData.expiry === initialWorkData.expiry) {
         return false
     } else {
         return true
@@ -91,11 +94,11 @@ onBeforeRouteLeave((to) => {
 function postData() {
     isLoading.value = true
     const data = {
-        amountcheck: workData.amountcheck,
+        amountCheck: workData.amountCheck,
         expiry: workData.expiry
     }
     fetch('/api/system-setting', {
-        method: 'POST',
+        method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -132,7 +135,7 @@ function postData() {
                 <div class="inputCon">
                     <q-input
                         :rules="[val => !!val || '入力必須です。', val => val > 0 || '正しくありません。']"
-                        v-model.number="workData.amountcheck" label="承認金額（円）" type="number" outlined/>
+                        v-model.number="workData.amountCheck" label="承認金額（円）" type="number" outlined/>
                     <q-input
                         :rules="[val => !!val || '入力必須です。', val => val > 0 || '正しくありません。']"
                         v-model.number="workData.expiry" label="見積有効期限（日）" type="number" outlined/>
