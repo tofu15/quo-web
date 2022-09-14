@@ -190,27 +190,27 @@ function postData() {
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
         <div class="formCon">
             <q-form greedy @reset="Object.assign(form, initialForm)" @submit="postData">
-                <div>
-                    <q-input :rules="[val => !!val || '入力必須です。', val => val.length <= 12 || '12文字まで。']"
+                <div class="inputCon">
+                    <q-input class="input" :rules="[val => !!val || '入力必須です。', val => val.length <= 12 || '12文字まで。']"
                              v-model.trim="form.name"
                              label="氏名"
                              outlined/>
-                    <q-select :rules="[val => !!val || '入力必須です。']" v-model="form.dno" :options="depts"
+                    <q-select class="input" :rules="[val => !!val || '入力必須です。']" v-model="form.dno" :options="depts"
                               label="部署" outlined emit-value map-options/>
-                    <q-select :rules="[val => !!val || '入力必須です。']" v-model="form.rid" :options="rolesOfDept"
+                    <q-select class="input" :rules="[val => !!val || '入力必須です。']" v-model="form.rid" :options="rolesOfDept"
                               label="職位" outlined emit-value map-options/>
                     <q-input
-                        :rules="[val => !val || emailRegex.test(val) || '有効なメールアドレスではありません。']"
+                    class="input" :rules="[val => !val || emailRegex.test(val) || '有効なメールアドレスではありません。']"
                         v-model.trim="form.email" label="email"
                         outlined/>
                     <q-input
-                        :rules="[val => !val || telRegex.test(val) || '有効な携帯番号ではありません。']"
+                    class="input" :rules="[val => !val || telRegex.test(val) || '有効な携帯番号ではありません。']"
                         v-model.trim="form.tel" label="携帯電話"
                         outlined/>
                 </div>
-                <div>
-                    <q-btn label="リセット" type="reset" color="secondary"/>
-                    <q-btn :loading="form.isLoading" label="保存" type="submit" color="primary"/>
+                <div class="con">
+                    <q-btn class="item" label="リセット" type="reset" color="secondary"/>
+                    <q-btn class="item" :loading="form.isLoading" label="保存" type="submit" color="primary"/>
                 </div>
             </q-form>
         </div>
@@ -220,9 +220,38 @@ function postData() {
 <style lang="sass" scoped>
 .formCon
     //max-width: 800px
-    margin: 50px auto 0
-    padding: 40px 50px
+    margin: 30px auto 0
+    padding: 20px 50px
     border-radius: 15px
     box-shadow: rgba(0, 0, 0, 0.16) 0 8px 24px 0
     background-color: #fff
+
+.inputCon
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: start
+    gap:20px 80px
+    padding: 20px 0
+
+.input
+    max-width: 400px
+    // height: 80px
+    // padding: 30px
+    flex: 0 1 400px
+    // width: 400px
+    max-width: 400px
+
+.con
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: start
+    gap:20px 40px
+    padding: 10px 0px
+
+.item
+    flex: 0 0 100px
+    width: 100px
+    max-width: 100px
 </style>
