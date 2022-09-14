@@ -4,6 +4,16 @@ import LoginView from '@/views/LoginView.vue'
 import ResetPwView from '@/views/ResetPwView.vue'
 
 import HomeView from '@/views/HomeView.vue'
+import 'vue-router'
+
+declare module 'vue-router' {
+    interface RouteMeta {
+        // 是可选的
+        keepAlive?: boolean
+        // 每个路由都必须声明
+        title: string
+    }
+}
 
 // 产品
 import ProductListView from '@/views/Product/ListView.vue'
@@ -149,7 +159,7 @@ const router = createRouter({
     ]
 })
 
-async function beforeAuth(to, form) {
+router.beforeEach(async (to) => {
     if (to.name == 'resetpw') {
         return true
     }
@@ -157,7 +167,6 @@ async function beforeAuth(to, form) {
     let result
 
     let isToLogin = to.name == 'login'
-
 
 
     await fetch('/api/islogin').then((response) => {
@@ -168,7 +177,7 @@ async function beforeAuth(to, form) {
     }).then((json) => {
         if (json.success) {
             if (isToLogin) {
-                result = { name: 'home' }
+                result = {name: 'home'}
             } else {
                 result = true
             }
@@ -176,19 +185,17 @@ async function beforeAuth(to, form) {
             if (isToLogin) {
                 result = true
             } else {
-                result = { name: 'login' }
+                result = {name: 'login'}
             }
         }
-    }).catch((error) => {
+    }).catch(() => {
         result = false
     })
     return result
-}
+})
 
-router.beforeEach(router.beforeEach(beforeAuth))
-
-router.beforeResolve((to, from) => {
-    document.title = to.meta.title ? to.meta.title : 'ホームページ';
+router.beforeResolve((to) => {
+    document.title = to.meta.title ? to.meta.title : 'ホームページ'
 })
 
 export default router

@@ -1,5 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
+import { ref } from 'vue'
 
 const props = defineProps({
     moduleName: String,
@@ -10,7 +11,6 @@ const props = defineProps({
     }
 })
 
-import { ref } from 'vue'
 const expanded = ref(false)
 function nav1Click() {
     expanded.value = !expanded.value
