@@ -29,7 +29,8 @@ const headerProps = {
 
 const file = reactive({
     name: '',
-    obj: new File([""], "")
+    obj: new File([""], ""),
+    isLoading: false
 })
 
 function fileChanged(event) {
@@ -37,20 +38,71 @@ function fileChanged(event) {
     file.name = file.obj.name
 }
 
+// modal 绑定
+const modalData = reactive({
+    url: '',
+    auth: false
+})
+
+function template() {
+    fetch('/api/products/template').then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status)
+        }
+        return response.blob()
+    }).then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const fileLink = document.createElement('a');
+        fileLink.href = url;
+        fileLink.download = '製品一括インポートテンプレート.xlsx'
+        document.body.appendChild(fileLink)
+        fileLink.click()
+        fileLink.remove()
+    }).catch((error) => {
+        $q.dialog({
+            title: 'エラー',
+            message: error.toString(),
+            cancel: false,
+            persistent: false
+        })
+    })
+}
+
 function confirm() {
+    const formData = new FormData()
+    formData.append('file', file.obj)
+
     $q.dialog({
         title: '確認',
         message: 'Excelファイルをアップロードし、製品を追加します。よろしいですか？',
         cancel: true,
         persistent: false
     }).onOk(() => {
-        // console.log('>>>> OK')
-    }).onOk(() => {
-        // console.log('>>>> second OK catcher')
-    }).onCancel(() => {
-        // console.log('>>>> Cancel')
-    }).onDismiss(() => {
-        // console.log('I am triggered on both OK and Cancel')
+        file.isLoading = true
+        fetch('/api/products', {
+            method: 'POST',
+            body: formData
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error("HTTP status " + response.status);
+            }
+            return response.json()
+        }).then((json) => {
+            if (json.success) {
+                modalData.auth = true
+                router.push('/system/user')
+            } else {
+                throw new Error(json.message);
+            }
+        }).catch((error) => {
+            file.isLoading = false
+            $q.dialog({
+                title: 'エラー',
+                message: error.toString(),
+                cancel: false,
+                persistent: false
+            })
+        })
     })
 }
 </script>
@@ -63,29 +115,17 @@ function confirm() {
                 下記の雛形をご参照のうえ、インポート用に整形されたExcelファイルをご用意ください。
             </p>
             <div class="flex1">
-                <q-btn class="item" color="secondary" label="Excelファイル雛形のダウンロード"/>
-            </div> 
-            <div class="flex2">
-                <label class="btn btn-info ">
-                    <input id="upload_file" style="display:none;" type="file" accept=".xlsx" @change="fileChanged">
-                    <q-btn class="item" no-caps type="a" color="primary"
-                           :label="file.name.length === 0 ? 'ファイルを選択' : file.name"/>
-                    <!--                        <a role="button">{{ file.name.length == 0 ? 'ファイルを選択' : file.name }}</a>-->
-                </label>
-                <q-btn class="item" color="grey" label="インポート"/>
+                <q-btn @click="template" class="item" color="secondary" label="Excelファイル雛形のダウンロード"/>
             </div>
-            <!--            <div class="btnCon">-->
-            <!--                <div>-->
-            <!--                    <button class="outline secondary">Excelファイル雛形のダウンロード</button>-->
-            <!--                    <label class="btn btn-info">-->
-            <!--                        <input id="upload_file" style="display:none;" type="file" accept=".xlsx" @change="fileChanged">-->
-            <!--                        <a role="button">{{ file.name.length == 0 ? 'ファイルを選択' : file.name }}</a>-->
-            <!--                    </label>-->
-            <!--                </div>-->
-            <!--                <div>-->
-            <!--                    <button :disabled="file.name.length == 0" class="secondary" @click="confirm">インポート</button>-->
-            <!--                </div>-->
-            <!--            </div>-->
+            <div class="flex2">
+                <label class="item">
+                    <input id="upload_file" style="display:none;" type="file" accept=".xlsx" @change="fileChanged">
+                    <q-btn style="width: 100%" no-caps type="a" color="primary"
+                           :label="file.name.length === 0 ? 'ファイルを選択' : file.name"/>
+                </label>
+                <q-btn @click="confirm" :disable="file.name.length === 0" class="item" color="grey"
+                       label="インポート"/>
+            </div>
         </div>
     </div>
 </template>
@@ -113,15 +153,14 @@ function confirm() {
     justify-content: start
     align-items: center
     align-content: stretch
-    gap:20px 50px
+    gap: 20px 50px
     padding: 10px
 
 
 .item
-    flex: 0 0 270px
+    flex: 0 1 270px
     width: 270px
     max-width: 270px
-
 
 
 div.file
