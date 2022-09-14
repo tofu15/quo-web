@@ -1,8 +1,7 @@
 <script setup>
-import { reactive, computed } from 'vue'
-import { onBeforeRouteLeave } from 'vue-router'
+import {reactive, computed, onBeforeMount, ref} from 'vue'
+import {onBeforeRouteLeave} from 'vue-router'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
-import CommonModal from '@/components/Common/CommonModal.vue';
 import router from '/router';
 // header 参数
 const headerProps = {
@@ -25,96 +24,126 @@ const headerProps = {
         }
     ]
 }
-
-// modal 参数
-const modalProps = {
-    title: "確認",
-    text: "この画面から離れます。入力中のデータは保存されません。<br>よろしいですか？",
-    type: 2
-}
 // modal 绑定
 const modalData = reactive({
-    show: false,
-    url: ''
+    url: '',
+    auth: false
 })
 
-function modalEvent(result) {
-    if (result) {
-        router.push(modalData.url)
-    } else {
-        modalData.show = false
-    }
+// 定义业务信息
+const workData = reactive({
+    amountcheck: 0,
+    expiry: 0
+})
+const isLoading = ref(false)
+// 定义初始业务信息
+const initialWorkData = {
+    amountcheck: 0,
+    expiry: 0
 }
-
-onBeforeRouteLeave((to, from) => {
-    if (form.amountcheck === workData.amountcheck && form.expiry === workData.expiry) {
-        return true
-    } else {
-        if (modalData.show) {
-            return true
-        } else {
-            modalData.show = true
-            modalData.url = to.path
-            return false
+// 从后台获取数据
+onBeforeMount(() => {
+    fetch('/api/system-setting').then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status);
         }
+        return response.json()
+    }).then((json) => {
+        if (json.success) {
+            return json.data
+        } else {
+            throw new Error(json.message);
+        }
+    }).then((data) => {
+        Object.assign(workData, data)
+        Object.assign(initialWorkData, data)
+    }).catch((error) => console.error(error))
+})
+
+// 是否做了任何编辑
+const isAnyEdit = computed(() => {
+    if (workData.amountcheck === initialWorkData.amountcheck && workData.expiry === initialWorkData.expiry) {
+        return false
+    } else {
+        return true
     }
 })
 
-// 表单数据绑定
-const workData = {
-    amountcheck: 10000,
-    expiry: 180
+onBeforeRouteLeave((to) => {
+    if (!isAnyEdit.value || modalData.auth) {
+        return true
+    } else {
+        modalData.url = to.path
+        $q.dialog({
+            title: '確認',
+            message: 'この画面から離れます。入力中のデータは保存されません。よろしいですか？',
+            cancel: true,
+            persistent: false
+        }).onOk(() => {
+            modalData.auth = true
+            router.push(modalData.url)
+        })
+        return false
+    }
+})
+
+// 上传数据
+function postData() {
+    isLoading.value = true
+    const data = {
+        amountcheck: workData.amountcheck,
+        expiry: workData.expiry
+    }
+    fetch('/api/system-setting', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status);
+        }
+        return response.json()
+    }).then((json) => {
+        if (json.success) {
+            modalData.auth = true
+            router.go()
+        } else {
+            throw new Error(json.message);
+        }
+    }).catch((error) => {
+        isLoading.value = false
+        $q.dialog({
+            title: 'エラー',
+            message: error.toString(),
+            cancel: false,
+            persistent: false
+        })
+    })
 }
-
-const form = reactive({
-    amountcheck: workData.amountcheck,
-    expiry: workData.expiry
-})
-
-const amountcheckErr = computed(() => {
-    if (form.amountcheck === "") {
-        return true
-    } else if (!Number.isInteger(form.amountcheck)) {
-        return true
-    } else if (form.amountcheck <= 0) {
-        return true
-    } else {
-        return false
-    }
-})
-const expiryErr = computed(() => {
-    if (form.expiry === "") {
-        return true
-    } else if (!Number.isInteger(form.expiry)) {
-        return true
-    } else if (form.expiry <= 0) {
-        return true
-    } else {
-        return false
-    }
-})
 
 </script>
 <template>
     <div>
-        <CommonModal v-if="modalData.show" v-bind="modalProps" @modalEvent="modalEvent">
-        </CommonModal>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <form>
-            <label>承認金額（円）</label>
-            <input :aria-invalid="form.amountcheck == workData.amountcheck ? '' : amountcheckErr"
-                v-model="form.amountcheck" type="number" min="1">
-            <small v-if="amountcheckErr">有効な数値ではなりません。</small>
-            <label>見積有効期限（日）</label>
-            <input :aria-invalid="form.expiry == workData.expiry ? '' : expiryErr" v-model="form.expiry" type="number"
-                min="1">
-            <small v-if="expiryErr">有効な数値ではなりません。</small>
-            <button @click="form.amountcheck = workData.amountcheck; form.expiry = workData.expiry" class="secondary"
-                type="button">リセット</button>
-            <button
-                :disabled="(form.expiry == workData.expiry && form.amountcheck == workData.amountcheck) ? true : (amountcheckErr || expiryErr)"
-                type="button">保存</button>
-        </form>
+        <div class="formCon">
+            <q-form greedy @reset="Object.assign(workData, initialWorkData)" @submit="postData">
+                <div class="inputCon">
+                    <q-input
+                        :rules="[val => !!val || '入力必須です。', val => val > 0 || '正しくありません。']"
+                        v-model.number="workData.amountcheck" label="承認金額（円）" type="number" outlined/>
+                    <q-input
+                        :rules="[val => !!val || '入力必須です。', val => val > 0 || '正しくありません。']"
+                        v-model.number="workData.expiry" label="見積有効期限（日）" type="number" outlined/>
+                </div>
+                <div class="con">
+                    <q-btn class="item" label="リセット" type="reset" color="secondary"/>
+                    <q-btn class="item" :disable="!isAnyEdit" :loading="isLoading" label="保存" type="submit"
+                           color="primary"/>
+                </div>
+            </q-form>
+        </div>
     </div>
 </template>
 <style lang="sass" scoped>
@@ -123,13 +152,16 @@ form
     margin: 50px auto 0
     padding: 40px 50px
     border-radius: 15px
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 8px 24px 0px
+    box-shadow: rgba(0, 0, 0, 0.16) 0 8px 24px 0
     background-color: #fff
+
     label
         font-weight: 500
+
         .redText
             color: red
+
     small
-            font-weight: 500
-            color: red
+        font-weight: 500
+        color: red
 </style>
