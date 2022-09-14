@@ -134,10 +134,10 @@ function postData() {
             <q-form greedy @reset="Object.assign(workData, initialWorkData)" @submit="postData">
                 <div class="inputCon">
                     <q-input
-                        :rules="[val => !!val || '入力必須です。', val => val > 0 || '正しくありません。']"
+                        :rules="[val => !!val || '入力必須です。', val => val > 0 && Number.isInteger(val) || '正しくありません。']"
                         v-model.number="workData.amountCheck" label="承認金額（円）" type="number" outlined/>
                     <q-input
-                        :rules="[val => !!val || '入力必須です。', val => val > 0 || '正しくありません。']"
+                        :rules="[val => !!val || '入力必須です。', val => val > 0 && Number.isInteger(val) || '正しくありません。']"
                         v-model.number="workData.expiry" label="見積有効期限（日）" type="number" outlined/>
                 </div>
                 <div class="con">
@@ -151,20 +151,9 @@ function postData() {
 </template>
 <style lang="sass" scoped>
 form
-    max-width: 800px
     margin: 50px auto 0
     padding: 40px 50px
     border-radius: 15px
     box-shadow: rgba(0, 0, 0, 0.16) 0 8px 24px 0
     background-color: #fff
-
-    label
-        font-weight: 500
-
-        .redText
-            color: red
-
-    small
-        font-weight: 500
-        color: red
 </style>

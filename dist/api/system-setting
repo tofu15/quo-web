@@ -3,7 +3,7 @@
     "code": 10000,
     "message": "操作成功！",
     "data": {
-     "amountcheck": 1000,
+     "amountCheck": 1000,
      "expiry": 1000
      }
 }
