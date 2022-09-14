@@ -1,9 +1,9 @@
 <script setup>
-import {reactive, computed, onBeforeMount, watch} from 'vue'
-import {onBeforeRouteLeave} from 'vue-router'
+import { reactive, computed, onBeforeMount, watch } from 'vue'
+import { onBeforeRouteLeave } from 'vue-router'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import router from '/router';
-import {useQuasar} from 'quasar'
+import { useQuasar } from 'quasar'
 
 const $q = useQuasar()
 
@@ -192,25 +192,19 @@ function postData() {
             <q-form greedy @reset="Object.assign(form, initialForm)" @submit="postData">
                 <div class="inputCon">
                     <q-input class="input" :rules="[val => !!val || '入力必須です。', val => val.length <= 12 || '12文字まで。']"
-                             v-model.trim="form.name"
-                             label="氏名"
-                             outlined/>
+                        v-model.trim="form.name" label="氏名" outlined />
                     <q-select class="input" :rules="[val => !!val || '入力必須です。']" v-model="form.dno" :options="depts"
-                              label="部署" outlined emit-value map-options/>
-                    <q-select class="input" :rules="[val => !!val || '入力必須です。']" v-model="form.rid" :options="rolesOfDept"
-                              label="職位" outlined emit-value map-options/>
-                    <q-input
-                    class="input" :rules="[val => !val || emailRegex.test(val) || '有効なメールアドレスではありません。']"
-                        v-model.trim="form.email" label="email"
-                        outlined/>
-                    <q-input
-                    class="input" :rules="[val => !val || telRegex.test(val) || '有効な携帯番号ではありません。']"
-                        v-model.trim="form.tel" label="携帯電話"
-                        outlined/>
+                        label="部署" outlined emit-value map-options />
+                    <q-select class="input" :rules="[val => !!val || '入力必須です。']" v-model="form.rid"
+                        :options="rolesOfDept" label="職位" outlined emit-value map-options />
+                    <q-input class="input" :rules="[val => !val || emailRegex.test(val) || '有効なメールアドレスではありません。']"
+                        v-model.trim="form.email" label="email" outlined />
+                    <q-input class="input" :rules="[val => !val || telRegex.test(val) || '有効な携帯番号ではありません。']"
+                        v-model.trim="form.tel" label="携帯電話" outlined />
                 </div>
                 <div class="con">
-                    <q-btn class="item" label="リセット" type="reset" color="secondary"/>
-                    <q-btn class="item" :loading="form.isLoading" label="保存" type="submit" color="primary"/>
+                    <q-btn class="item" label="リセット" type="reset" color="secondary" />
+                    <q-btn class="item" :loading="form.isLoading" label="保存" type="submit" color="primary" />
                 </div>
             </q-form>
         </div>
@@ -231,7 +225,7 @@ function postData() {
     flex-direction: row
     flex-wrap: wrap
     justify-content: start
-    gap:20px 80px
+    gap: 20px 80px
     padding: 20px 0
 
 .input
@@ -247,7 +241,7 @@ function postData() {
     flex-direction: row
     flex-wrap: wrap
     justify-content: start
-    gap:20px 40px
+    gap: 20px 40px
     padding: 10px 0px
 
 .item
