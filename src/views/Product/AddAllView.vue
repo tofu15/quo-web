@@ -62,17 +62,17 @@ function confirm() {
             <p>
                 下記の雛形をご参照のうえ、インポート用に整形されたExcelファイルをご用意ください。
             </p>
-            <div class="file">
-                <q-btn color="secondary" label="Excelファイル雛形のダウンロード"/>
-                <label class="btn btn-info">
+            <div class="flex1">
+                <q-btn class="item" color="secondary" label="Excelファイル雛形のダウンロード"/>
+            </div> 
+            <div class="flex2">
+                <label class="btn btn-info ">
                     <input id="upload_file" style="display:none;" type="file" accept=".xlsx" @change="fileChanged">
-                    <q-btn no-caps type="a" color="primary"
+                    <q-btn class="item" no-caps type="a" color="primary"
                            :label="file.name.length === 0 ? 'ファイルを選択' : file.name"/>
                     <!--                        <a role="button">{{ file.name.length == 0 ? 'ファイルを選択' : file.name }}</a>-->
                 </label>
-            </div>
-            <div class="import">
-                <q-btn color="grey" label="インポート"/>
+                <q-btn class="item" color="grey" label="インポート"/>
             </div>
             <!--            <div class="btnCon">-->
             <!--                <div>-->
@@ -96,6 +96,33 @@ function confirm() {
     border-radius: 10px
     box-shadow: rgba(0, 0, 0, 0.16) 0 8px 24px 0
     background-color: #fff
+
+.flex1
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: start
+    align-items: center
+    align-content: center
+    padding: 10px
+
+.flex2
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: start
+    align-items: center
+    align-content: stretch
+    gap:20px 50px
+    padding: 10px
+
+
+.item
+    flex: 0 0 270px
+    width: 270px
+    max-width: 270px
+
+
 
 div.file
 
