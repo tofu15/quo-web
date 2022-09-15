@@ -134,10 +134,10 @@ function postData() {
             <q-form greedy @reset="Object.assign(workData, initialWorkData)" @submit="postData">
                 <div class="inputCon">
                     <q-input
-                        :rules="[val => !!val || '入力必須です。', val => val > 0 && Number.isInteger(val) || '正しくありません。']"
+                        class="input" :rules="[val => !!val || '入力必須です。', val => val > 0 && Number.isInteger(val) || '正しくありません。']"
                         v-model.number="workData.amountCheck" label="承認金額（円）" type="number" outlined/>
                     <q-input
-                        :rules="[val => !!val || '入力必須です。', val => val > 0 && Number.isInteger(val) || '正しくありません。']"
+                        class="input" :rules="[val => !!val || '入力必須です。', val => val > 0 && Number.isInteger(val) || '正しくありません。']"
                         v-model.number="workData.expiry" label="見積有効期限（日）" type="number" outlined/>
                 </div>
                 <div class="con">
@@ -156,4 +156,31 @@ form
     border-radius: 15px
     box-shadow: rgba(0, 0, 0, 0.16) 0 8px 24px 0
     background-color: #fff
+
+.input
+    max-width: 350px
+    flex: 0 1 350px
+
+.inputCon
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: start
+    gap: 20px 80px
+    padding: 20px 0
+
+.con
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: start
+    gap: 20px 20px
+    padding: 10px 0px
+
+.item
+    flex: 0 0 100px
+    width: 100px
+    max-width: 100px
+
+
 </style>
