@@ -1,0 +1,175 @@
+{
+    "success": true,
+    "code": 10000,
+    "message": "操作成功！",
+    "data": [
+        {
+            "eno": 1021,
+            "ename": "aaa",
+            "dname": "销售部",
+            "rname": "部長",
+            "tel": "88526",
+            "email": "133333"
+        },
+        {
+            "eno": 1020,
+            "ename": "aaa",
+            "dname": "销售部",
+            "rname": "部長",
+            "tel": "88526",
+            "email": "133333"
+        },
+        {
+            "eno": 1019,
+            "ename": "aaa",
+            "dname": "销售部",
+            "rname": "部長",
+            "tel": "88526",
+            "email": "133333"
+        },
+        {
+            "eno": 1018,
+            "ename": "sds",
+            "dname": "销售部",
+            "rname": "課長",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1017,
+            "ename": "sds",
+            "dname": "销售部",
+            "rname": "課長",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1016,
+            "ename": "888888",
+            "dname": "销售部",
+            "rname": "営業員",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1015,
+            "ename": "888888",
+            "dname": "销售部",
+            "rname": "営業員",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1014,
+            "ename": "gvh",
+            "dname": "销售部",
+            "rname": "部長",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1013,
+            "ename": "gvh",
+            "dname": "销售部",
+            "rname": "部長",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1012,
+            "ename": "ytutfuj",
+            "dname": "销售部",
+            "rname": "営業員",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1011,
+            "ename": "ytutfuj",
+            "dname": "销售部",
+            "rname": "営業員",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1010,
+            "ename": "gertet",
+            "dname": "产品部",
+            "rname": "部長",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1009,
+            "ename": "gertet",
+            "dname": "产品部",
+            "rname": "部長",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1008,
+            "ename": "hjhbgbg",
+            "dname": "销售部",
+            "rname": "営業員",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1007,
+            "ename": "hjhbgbg",
+            "dname": "销售部",
+            "rname": "営業員",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1006,
+            "ename": "hjsdagd",
+            "dname": "产品部",
+            "rname": "部長",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1005,
+            "ename": "hjsdagd",
+            "dname": "产品部",
+            "rname": "部長",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1004,
+            "ename": "dfeferf",
+            "dname": "产品部",
+            "rname": "営業員",
+            "tel": null,
+            "email": null
+        },
+        {
+            "eno": 1003,
+            "ename": "山下",
+            "dname": "仓储部",
+            "rname": "営業員",
+            "tel": "222333000",
+            "email": "15981387800@163.com"
+        },
+        {
+            "eno": 1002,
+            "ename": "田中",
+            "dname": "产品部",
+            "rname": "課長",
+            "tel": "1222000",
+            "email": "18743390710@163.com"
+        },
+        {
+            "eno": 1001,
+            "ename": "木村",
+            "dname": "销售部",
+            "rname": "部長",
+            "tel": "133300",
+            "email": "13029088526@163.com"
+        }
+    ]
+}

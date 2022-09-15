@@ -75,7 +75,8 @@ const tableProps = reactive({
     action: {
         view: "all",
         edit: "all",
-        delete: "all"
+        delete: "all",
+        export: "all"
     }
 })
 

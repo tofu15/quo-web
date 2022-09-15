@@ -13,7 +13,7 @@ const props = defineProps({
     }
 })
 // 声明触发的事件
-const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel']);
+const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel', 'reset']);
 
 
 const table = reactive({
@@ -399,7 +399,8 @@ function filterTypes(t) {
         <div class="operationCon">
             <q-btn color="red" label="削除" v-if="props.action.hasOwnProperty('delete')" :disabled="!isDeleteAble"
                    class="del" @click="deleteAll"/>
-            <q-btn color="primary" label="エクスポート" :disabled="!iSAnySelected" @click="exportExcel"/>
+            <q-btn color="primary" v-if="props.action.hasOwnProperty('export')" label="エクスポート"
+                   :disabled="!iSAnySelected" @click="exportExcel"/>
         </div>
         <div class="countCon">
             <p>表示件数</p>
@@ -486,6 +487,10 @@ function filterTypes(t) {
                                :disabled="props.action.delete !== 'all' && !props.action.delete.includes(product[Object.keys(product)[0]])"
                                @click="$emit('delete', product[Object.keys(product)[0]])" round color="red"
                                icon="r_delete" size="10px"/>
+                        <q-btn v-if="props.action.hasOwnProperty('reset')"
+                               :disabled="props.action.reset !== 'all' && !props.action.reset.includes(product[Object.keys(product)[0]])"
+                               @click="$emit('reset', product[Object.keys(product)[0]])" round color="warning"
+                               icon="r_replay" size="10px"/>
                     </td>
                 </tr>
                 </tbody>
@@ -509,7 +514,7 @@ function filterTypes(t) {
 
 <style lang="sass" scoped>
 div.tableCon
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 8px 24px 0px
+    box-shadow: rgba(0, 0, 0, 0.16) 0 8px 24px 0
     border-radius: 15px
     background-color: #ffffff
     padding: 28px

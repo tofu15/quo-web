@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
 import MainView from '@/views/MainView.vue'
 import LoginView from '@/views/LoginView.vue'
 import ResetPwView from '@/views/ResetPwView.vue'
@@ -28,6 +28,8 @@ import ProductAddseView from '@/views/Product/AddseView.vue'
 // 系统设置
 import NewUser from '@/views/System/NewUser.vue'
 import Work from '@/views/System/Work.vue'
+import UserList from '@/views/System/UserList.vue'
+import UserEdit from '@/views/System/UserEdit.vue'
 
 
 const router = createRouter({
@@ -142,6 +144,24 @@ const router = createRouter({
                     component: NewUser,
                     meta: {
                         title: "新規ユーザー",
+                        keepAlive: false
+                    }
+                },
+                {
+                    path: '/system/user',
+                    name: 'system-user',
+                    component: UserList,
+                    meta: {
+                        title: "ユーザー管理",
+                        keepAlive: true
+                    }
+                },
+                {
+                    path: '/system/user/:id',
+                    name: 'system-user-edit',
+                    component: UserEdit,
+                    meta: {
+                        title: "ユーザー編集",
                         keepAlive: false
                     }
                 },
