@@ -249,11 +249,14 @@ function postData() {
 <template>
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <q-btn label="戻る" color="grey" @click="$router.push({ name: 'system-user'})"/>
+        
         <div class="formCon">
+            <div class="con">
+            <q-btn class="item" label="戻る" color="grey" @click="$router.push({ name: 'system-user'})"/>
+            </div>
             <q-form greedy @reset="Object.assign(form, initialForm)" @submit="postData">
                 <div class="inputCon">
-                    <q-input class="input" readonly v-model="form.id" label="従業員番号"
+                    <q-input class="input input1" readonly v-model="form.id" label="従業員番号"
                              outlined/>
                     <q-input class="input"
                              :rules="[val => !!val || '入力必須です。', val => val.length <= 12 || '12文字まで。']"
@@ -300,6 +303,8 @@ function postData() {
     // padding: 30px
     flex: 0 1 400px
     // width: 400px
+.input1
+    padding-bottom: 20px
 
 .con
     display: flex
