@@ -80,7 +80,7 @@ onBeforeMount(() => {
     }).catch((error) => console.log(error))
 
     // 获取用户信息
-    Get('/api/user-' + route.params.id).then((rsp) => {
+    Get('/api/user/' + route.params.id).then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -249,10 +249,10 @@ function postData() {
 <template>
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        
+
         <div class="formCon">
             <div class="con">
-            <q-btn class="item" label="戻る" color="grey" @click="$router.push({ name: 'system-user'})"/>
+                <q-btn class="item" label="戻る" color="grey" @click="$router.push({ name: 'system-user'})"/>
             </div>
             <q-form greedy @reset="Object.assign(form, initialForm)" @submit="postData">
                 <div class="inputCon">
@@ -302,7 +302,7 @@ function postData() {
     // height: 80px
     // padding: 30px
     flex: 0 1 400px
-    // width: 400px
+// width: 400px
 .input1
     padding-bottom: 20px
 

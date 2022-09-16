@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import CommonNavItemVue from './CommonNavItem.vue';
 
 const MAINMODULE = ['ホーム', '製品管理', '在庫管理', '見積管理', '注文管理', '顧客管理', 'データ分析', 'システム設定']
@@ -14,12 +14,12 @@ let items = [
         url: '/product',
         haveSub: true,
         subs: [
-            { name: '製品一覧', url: '/list' },
-            { name: '新規製品', url: '/add' },
-            { name: '新規製品一括インポート', url: '/addall' },
-            { name: '生産計画確認申請承認', url: '/verify' },
-            { name: 'シリーズ一覧', url: '/listse' },
-            { name: '新規シリーズ', url: '/addse' }
+            {name: '製品一覧', url: '/list'},
+            {name: '新規製品', url: '/add'},
+            {name: '新規製品一括インポート', url: '/addall'},
+            {name: '生産計画確認申請承認', url: '/verify'},
+            {name: 'シリーズ一覧', url: '/listse'},
+            {name: '新規シリーズ', url: '/addse'}
         ]
     },
     {
@@ -27,9 +27,9 @@ let items = [
         url: '/stock',
         haveSub: true,
         subs: [
-            { name: '在庫一覧', url: '/list' },
-            { name: '入出庫記入', url: '/record' },
-            { name: '入出庫履歴', url: '/history' }
+            {name: '在庫一覧', url: '/list'},
+            {name: '入出庫記入', url: '/record'},
+            {name: '入出庫履歴', url: '/history'}
         ]
     },
     {
@@ -37,9 +37,9 @@ let items = [
         url: '/estimate',
         haveSub: true,
         subs: [
-            { name: '見積書一覧', url: '/list' },
-            { name: '見積書作成', url: '/add' },
-            { name: '承認待ち見積書', url: '/verify' }
+            {name: '見積書一覧', url: '/list'},
+            {name: '見積書作成', url: '/add'},
+            {name: '承認待ち見積書', url: '/verify'}
         ]
     },
     {
@@ -47,8 +47,8 @@ let items = [
         url: '/order',
         haveSub: true,
         subs: [
-            { name: '注文一覧', url: '/list' },
-            { name: '出庫待ち注文', url: '/verify' }
+            {name: '注文一覧', url: '/list'},
+            {name: '出庫待ち注文', url: '/verify'}
         ]
     },
     {
@@ -56,8 +56,8 @@ let items = [
         url: '/client',
         haveSub: true,
         subs: [
-            { name: '顧客一覧', url: '/list' },
-            { name: '新規見込み顧客', url: '/add' }
+            {name: '顧客一覧', url: '/list'},
+            {name: '新規見込み顧客', url: '/add'}
         ]
     },
     {
@@ -70,8 +70,8 @@ let items = [
         url: '/settings',
         haveSub: true,
         subs: [
-            { name: '個人情報', url: '/profile' },
-            { name: 'パスワード変更', url: '/pwd' }
+            {name: '個人情報', url: '/profile'},
+            {name: 'パスワード変更', url: '/pwd'}
         ]
     },
     {
@@ -79,10 +79,10 @@ let items = [
         url: '/system',
         haveSub: true,
         subs: [
-            { name: '新規ユーザー', url: '/newuser' },
-            { name: 'ユーザー管理', url: '/user' },
-            { name: '権限設定', url: '/permission' },
-            { name: '業務設定', url: '/work' },
+            {name: '新規ユーザー', url: '/newuser'},
+            {name: 'ユーザー管理', url: '/user'},
+            {name: '権限設定', url: '/permission'},
+            {name: '業務設定', url: '/work'},
         ]
     }
 ]
