@@ -189,40 +189,40 @@ const router = createRouter({
     ]
 })
 
-router.beforeEach(async (to) => {
-    if (to.name == 'resetpw') {
-        return true
-    }
-
-    let result
-
-    let isToLogin = to.name == 'login'
-
-
-    await fetch('/api/islogin').then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            if (isToLogin) {
-                result = {name: 'home'}
-            } else {
-                result = true
-            }
-        } else {
-            if (isToLogin) {
-                result = true
-            } else {
-                result = {name: 'login'}
-            }
-        }
-    }).catch(() => {
-        result = false
-    })
-    return result
-})
+// router.beforeEach(async (to) => {
+//     if (to.name == 'resetpw') {
+//         return true
+//     }
+//
+//     let result
+//
+//     let isToLogin = to.name == 'login'
+//
+//
+//     await fetch('/api/islogin').then((response) => {
+//         if (!response.ok) {
+//             throw new Error("HTTP status " + response.status);
+//         }
+//         return response.json()
+//     }).then((json) => {
+//         if (json.success) {
+//             if (isToLogin) {
+//                 result = {name: 'home'}
+//             } else {
+//                 result = true
+//             }
+//         } else {
+//             if (isToLogin) {
+//                 result = true
+//             } else {
+//                 result = {name: 'login'}
+//             }
+//         }
+//     }).catch(() => {
+//         result = false
+//     })
+//     return result
+// })
 
 router.beforeResolve((to) => {
     document.title = to.meta.title ? to.meta.title : 'ホームページ'
