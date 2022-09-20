@@ -20,18 +20,8 @@ import ProductAddseView from '@/views/Product/AddseView.vue'
 import NewUser from '@/views/System/NewUser.vue'
 import Work from '@/views/System/Work.vue'
 import UserList from '@/views/System/UserList.vue'
+import UserPer from '@/views/System/Test.vue'
 import UserEdit from '@/views/System/UserEdit.vue'
-import UserPer from '@/views/System/UserPer.vue'
-
-declare module 'vue-router' {
-    interface RouteMeta {
-        // 是可选的
-        keepAlive?: boolean
-        // 每个路由都必须声明
-        title: string
-    }
-}
-
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -227,5 +217,14 @@ const router = createRouter({
 router.beforeResolve((to) => {
     document.title = to.meta.title ? to.meta.title : 'ホームページ'
 })
+
+declare module 'vue-router' {
+    interface RouteMeta {
+        // 是可选的
+        keepAlive?: boolean
+        // 每个路由都必须声明
+        title: string
+    }
+}
 
 export default router
