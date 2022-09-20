@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {reactive, computed, onBeforeMount, watch} from 'vue'
+import {computed, onBeforeMount, reactive, watch} from 'vue'
 import {Get, Put} from "@/script/api";
 import MainViewHeader from '@/components/Common/MainViewHeader.vue'
 import {useQuasar} from 'quasar'
@@ -273,10 +273,10 @@ function save() {
 <template>
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <QSelect outlined v-model="form.dno" :options="depts"
-                  label="部署" emit-value map-options/>
-        <QSelect outlined v-model="form.rid"
-                  :options="rolesOfDept" label="職位" emit-value map-options/>
+        <q-select v-model="form.dno" :options="depts"
+                  label="部署" outlined emit-value map-options/>
+        <q-select v-model="form.rid"
+                  :options="rolesOfDept" label="職位" outlined emit-value map-options/>
         <div v-if="!(form.rid === null || form.isGeting === true)">
             <q-checkbox v-model="permissionOfRole[0]" :label="permissionList[0].name"/>
             <q-checkbox v-model="permissionOfRole[1]" :label="permissionList[1].name"/>
