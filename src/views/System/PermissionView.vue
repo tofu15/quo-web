@@ -273,9 +273,9 @@ function save() {
 <template>
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <q-select v-model="form.dno" :options="depts"
+        <QSelect v-model="form.dno" :options="depts"
                   label="部署" outlined emit-value map-options/>
-        <q-select v-model="form.rid"
+        <QSelect v-model="form.rid"
                   :options="rolesOfDept" label="職位" outlined emit-value map-options/>
         <div v-if="!(form.rid === null || form.isGeting === true)">
             <q-checkbox v-model="permissionOfRole[0]" :label="permissionList[0].name"/>
