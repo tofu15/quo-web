@@ -273,10 +273,13 @@ function save() {
 <template>
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <q-select class="input" :rules="[val => !!val || '入力必須です。']" v-model="form.dno" :options="depts"
-                  label="部署" outlined emit-value map-options/>
-        <q-select class="input" :rules="[val => !!val || '入力必須です。']" v-model="form.rid"
-                  :options="rolesOfDept" label="職位" outlined emit-value map-options/>
+        <q-form>
+            <q-select v-model="form.dno" :options="depts"
+                      label="部署" outlined emit-value map-options/>
+            <q-select v-model="form.rid"
+                      :options="rolesOfDept" label="職位" outlined emit-value map-options/>
+        </q-form>
+
         <div v-if="!(form.rid === null || form.isGeting === true)">
             <q-checkbox v-model="permissionOfRole[0]" :label="permissionList[0].name"/>
             <q-checkbox v-model="permissionOfRole[1]" :label="permissionList[1].name"/>
