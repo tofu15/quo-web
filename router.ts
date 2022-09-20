@@ -21,7 +21,7 @@ import NewUser from '@/views/System/NewUser.vue'
 import Work from '@/views/System/Work.vue'
 import UserList from '@/views/System/UserList.vue'
 import UserEdit from '@/views/System/UserEdit.vue'
-import UserPer from '@/views/System/UserEdit.vue'
+import UserPer from '@/views/System/UserPer.vue'
 
 declare module 'vue-router' {
     interface RouteMeta {
@@ -140,6 +140,15 @@ const router = createRouter({
                     }
                 },
                 {
+                    path: '/system/permission',
+                    name: 'system-per',
+                    component: UserPer,
+                    meta: {
+                        title: "権限設定",
+                        keepAlive: false
+                    }
+                },
+                {
                     path: '/system/newuser',
                     name: 'system-newuser',
                     component: NewUser,
@@ -163,15 +172,6 @@ const router = createRouter({
                     component: UserEdit,
                     meta: {
                         title: "ユーザー編集",
-                        keepAlive: false
-                    }
-                },
-                {
-                    path: '/system/permission',
-                    name: 'system-per',
-                    component: UserPer,
-                    meta: {
-                        title: "権限設定",
                         keepAlive: false
                     }
                 },
