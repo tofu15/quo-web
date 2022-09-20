@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import {reactive, onBeforeMount} from 'vue'
+import {onBeforeMount, reactive} from 'vue'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
-import router from '../../../router';
-import {Get, Post, Put, Delete} from "@/script/api";
+import {Delete, Get, Post, Put} from "@/script/api";
 import {useQuasar} from 'quasar'
 
 const $q = useQuasar()
@@ -112,7 +111,6 @@ function deleteItem(id: number) {
             } else if (!rsp.success) {
                 throw new Error(rsp.message)
             } else {
-                // router.go(0)
                 emit('reload')
             }
         }).catch((error) => {
@@ -140,7 +138,6 @@ function deleteAll(ids: number[]) {
             } else if (!rsp.success) {
                 throw new Error(rsp.message)
             } else {
-                // router.go(0)
                 emit('reload')
             }
         }).catch((error) => {
@@ -168,7 +165,6 @@ function reset(id: number) {
             } else if (!rsp.success) {
                 throw new Error(rsp.message)
             } else {
-                // router.go(0)
                 emit('reload')
             }
         }).catch((error) => {

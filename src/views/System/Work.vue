@@ -1,11 +1,12 @@
 <script setup>
-import {reactive, computed, onBeforeMount, ref} from 'vue'
+import {computed, onBeforeMount, reactive, ref} from 'vue'
 import {onBeforeRouteLeave} from 'vue-router'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
-import router from '/router';
+import router from 'router';
 import {useQuasar} from 'quasar'
 
 const $q = useQuasar()
+const emit = defineEmits(['reload'])
 // header 参数
 const headerProps = {
     title: '業務設定',
@@ -111,7 +112,7 @@ function postData() {
     }).then((json) => {
         if (json.success) {
             modalData.auth = true
-            router.go()
+            emit("reload")
         } else {
             throw new Error(json.message);
         }
@@ -134,10 +135,12 @@ function postData() {
             <q-form greedy @reset="Object.assign(workData, initialWorkData)" @submit="postData">
                 <div class="inputCon">
                     <q-input
-                        class="input" :rules="[val => !!val || '入力必須です。', val => val > 0 && Number.isInteger(val) || '正しくありません。']"
+                        class="input"
+                        :rules="[val => !!val || '入力必須です。', val => val > 0 && Number.isInteger(val) || '正しくありません。']"
                         v-model.number="workData.amountCheck" label="承認金額（円）" type="number" outlined/>
                     <q-input
-                        class="input" :rules="[val => !!val || '入力必須です。', val => val > 0 && Number.isInteger(val) || '正しくありません。']"
+                        class="input"
+                        :rules="[val => !!val || '入力必須です。', val => val > 0 && Number.isInteger(val) || '正しくありません。']"
                         v-model.number="workData.expiry" label="見積有効期限（日）" type="number" outlined/>
                 </div>
                 <div class="con">
@@ -175,7 +178,7 @@ form
     flex-wrap: wrap
     justify-content: start
     gap: 20px 20px
-    padding: 10px 0px
+    padding: 10px 0
 
 .item
     flex: 0 0 100px

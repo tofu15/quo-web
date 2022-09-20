@@ -3,10 +3,9 @@ import {computed, onBeforeMount, reactive, watch} from 'vue'
 import {Get, Put} from "@/script/api";
 import MainViewHeader from '@/components/Common/MainViewHeader.vue'
 import {useQuasar} from 'quasar'
-import router from "../../../router";
 
 const $q = useQuasar()
-
+const emit = defineEmits(['reload'])
 // header 参数
 const headerProps = {
     title: '権限設定',
@@ -256,7 +255,7 @@ function save() {
         } else if (!rsp.success) {
             throw new Error(rsp.message)
         } else {
-            router.go(0)
+            emit("reload")
         }
     }).catch((error) => {
         form.isLoading = false

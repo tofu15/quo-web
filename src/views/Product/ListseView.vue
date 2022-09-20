@@ -1,11 +1,11 @@
 <script setup>
-import {reactive, onBeforeMount} from 'vue'
+import {onBeforeMount, reactive} from 'vue'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
-import router from '../../../router';
 import {useQuasar} from 'quasar'
 
 const $q = useQuasar()
+const emit = defineEmits(['reload'])
 
 // header 参数
 const headerProps = {
@@ -106,7 +106,7 @@ function deleteItem(id) {
             return response.json()
         }).then((json) => {
             if (json.success) {
-                router.go()
+                emit('reload')
             } else {
                 throw new Error(json.message)
             }
@@ -141,7 +141,7 @@ function deleteAll(ids) {
             return response.json()
         }).then((json) => {
             if (json.success) {
-                router.go()
+                emit('reload')
             } else {
                 throw new Error(json.message)
             }
