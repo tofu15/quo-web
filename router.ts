@@ -64,7 +64,7 @@ const router = createRouter({
                     component: ProductListView,
                     meta: {
                         title: "製品一覧",
-                        keepAlive: true
+                        keepAlive: false
                     }
                 },
                 {
@@ -109,7 +109,7 @@ const router = createRouter({
                     component: ProductListseView,
                     meta: {
                         title: "シリーズ一覧",
-                        keepAlive: true
+                        keepAlive: false
                     }
                 },
                 {
@@ -154,7 +154,7 @@ const router = createRouter({
                     component: UserList,
                     meta: {
                         title: "ユーザー管理",
-                        keepAlive: true
+                        keepAlive: false
                     }
                 },
                 {

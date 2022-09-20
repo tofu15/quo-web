@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {reactive, computed, onBeforeMount, watch} from 'vue'
+import {computed, onBeforeMount, reactive, watch} from 'vue'
 import {onBeforeRouteLeave} from 'vue-router'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import router from '../../../router'
@@ -231,6 +231,7 @@ function postData() {
         } else if (!rsp.success) {
             throw new Error(rsp.message)
         } else {
+            form.isLoading = false
             router.push({name: 'system-user'})
         }
     }).catch((error) => {

@@ -89,6 +89,7 @@ function confirm() {
             return response.json()
         }).then((json) => {
             if (json.success) {
+                file.isLoading = false
                 modalData.auth = true
                 router.push('/system/user')
             } else {

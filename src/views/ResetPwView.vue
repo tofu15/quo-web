@@ -1,5 +1,5 @@
 <script setup>
-import {reactive, ref} from 'vue'
+import {reactive} from 'vue'
 import router from '/router'
 import {useQuasar} from 'quasar'
 
@@ -33,6 +33,7 @@ function postData() {
         return response.json()
     }).then((json) => {
         if (json.success) {
+            form.isLoading = false
             router.push('/login')
         } else {
             throw new Error(json.message);
