@@ -1,4 +1,3 @@
-import {createRouter, createWebHistory} from 'vue-router'
 import MainView from '@/views/MainView.vue'
 import LoginView from '@/views/LoginView.vue'
 import ResetPwView from '@/views/ResetPwView.vue'
@@ -20,9 +19,10 @@ import ProductAddseView from '@/views/Product/AddseView.vue'
 import NewUser from '@/views/System/NewUser.vue'
 import Work from '@/views/System/Work.vue'
 import UserList from '@/views/System/UserList.vue'
-import UserPer from '@/views/System/Test.vue'
+import UserPer from '@/views/System/UserPer.vue'
 import UserEdit from '@/views/System/UserEdit.vue'
-import Test from '@/views/System/UserEdit.vue'
+
+import {createRouter, createWebHistory} from 'vue-router'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
