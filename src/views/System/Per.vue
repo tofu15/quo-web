@@ -274,10 +274,12 @@ function save() {
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
         <q-form>
-            <q-select v-model="form.dno" :options="depts"
-                      label="部署" outlined emit-value map-options/>
-            <q-select v-model="form.rid"
-                      :options="rolesOfDept" label="職位" outlined emit-value map-options/>
+            <div>
+                <q-select v-model="form.dno" :options="depts"
+                          label="部署" outlined emit-value map-options/>
+                <q-select v-model="form.rid"
+                          :options="rolesOfDept" label="職位" outlined emit-value map-options/>
+            </div>
         </q-form>
 
         <div v-if="!(form.rid === null || form.isGeting === true)">
