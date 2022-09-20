@@ -6,6 +6,23 @@ import ResetPwView from '@/views/ResetPwView.vue'
 import HomeView from '@/views/HomeView.vue'
 import 'vue-router'
 
+// 产品
+import ProductListView from '@/views/Product/ListView.vue'
+import ProductDetailView from '@/views/Product/DetailView.vue'
+import ProductEditView from '@/views/Product/EditView.vue'
+import ProductAddView from '@/views/Product/AddView.vue'
+import ProductAddAllView from '@/views/Product/AddAllView.vue'
+import ProductListseView from '@/views/Product/ListseView.vue'
+import ProductEditseView from '@/views/Product/EditseView.vue'
+import ProductAddseView from '@/views/Product/AddseView.vue'
+
+// 系统设置
+import NewUser from '@/views/System/NewUser.vue'
+import Work from '@/views/System/Work.vue'
+import UserList from '@/views/System/UserList.vue'
+import UserEdit from '@/views/System/UserEdit.vue'
+import UserPermission from '@/views/System/Per.vue'
+
 declare module 'vue-router' {
     interface RouteMeta {
         // 是可选的
@@ -14,23 +31,6 @@ declare module 'vue-router' {
         title: string
     }
 }
-
-// 产品
-import ProductListView from '@/views/Product/ListView.vue'
-import ProductDetailView from '@/views/Product/DetailView.vue'
-import ProductEditView from '@/views/Product/EditView.vue'
-import ProductAddView from '@/views/Product/AddView.vue'
-import ProductAddAllView from '@/views/Product/AddAllView.vue'
-
-import ProductListseView from '@/views/Product/ListseView.vue'
-import ProductEditseView from '@/views/Product/EditseView.vue'
-import ProductAddseView from '@/views/Product/AddseView.vue'
-// 系统设置
-import NewUser from '@/views/System/NewUser.vue'
-import Work from '@/views/System/Work.vue'
-import UserList from '@/views/System/UserList.vue'
-import UserEdit from '@/views/System/UserEdit.vue'
-import UserPermission from '@/views/System/PermissionView.vue'
 
 
 const router = createRouter({
