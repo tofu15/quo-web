@@ -1,33 +1,15 @@
 <script setup lang="ts">
 import {computed, onBeforeMount, reactive, watch} from 'vue'
+import {onBeforeRouteLeave} from 'vue-router'
+import MainViewHeader from '@/components/Common/MainViewHeader.vue';
+import router from '../../../router'
 import {Get, Put} from "@/script/api";
-import MainViewHeader from '@/components/Common/MainViewHeader.vue'
 import {useQuasar} from 'quasar'
-import router from "../../../router";
+import {useRoute} from "@modules/vue-router";
+
+const route = useRoute()
 
 const $q = useQuasar()
-
-// header 参数
-const headerProps = {
-    title: '権限設定',
-    urls: [
-        {
-            text: 'ホーム',
-            isUrl: true,
-            url: '/'
-        },
-        {
-            text: ' / システム設定',
-            isUrl: false,
-            url: ''
-        },
-        {
-            text: ' / 権限設定',
-            isUrl: false,
-            url: ''
-        }
-    ]
-}
 
 // 定义接口
 interface Dept {
@@ -52,88 +34,14 @@ interface RoleRaw {
     dno: number
 }
 
-interface formIn {
-    dno: number | null
-    rid: number | null
-    isLoading: boolean
-    isGeting: boolean
-}
 
-// 定义权限
-interface permission {
-    id: number
-    name: string
-}
-
-const permissionList: permission[] = [
-    {
-        id: 1,
-        name: '製品閲覧'
-    },
-    {
-        id: 2,
-        name: '製品編集'
-    },
-    {
-        id: 3,
-        name: '製品削除'
-    },
-    {
-        id: 4,
-        name: '新規製品'
-    },
-    {
-        id: 5,
-        name: '生産計画'
-    },
-    {
-        id: 6,
-        name: 'シリーズ一覧'
-    },
-    {
-        id: 7,
-        name: 'シリーズ編集'
-    },
-    {
-        id: 8,
-        name: 'シリーズ削除'
-    },
-    {
-        id: 9,
-        name: '新規シリーズ'
-    },
-    {
-        id: 10,
-        name: 'システム設定'
-    }
-]
-
-// 定义响应式变量
+// 获取部门和职位信息
 const depts: Dept[] = reactive([])
 const roles: Role[] = reactive([])
 const rolesOfDept = computed(() => {
     return roles.filter(role => role.dno === form.dno)
 })
-const permissionOfRole: Array<boolean> = reactive([])
-const inPermissionOfRole: Array<boolean> = reactive([])
-const form: formIn = reactive({
-    dno: null,
-    rid: null,
-    isLoading: false,
-    isGeting: false
-})
 
-//是否做了任何修改
-const isEdited = computed<boolean>(() => {
-    for (const [i, b] of permissionOfRole.entries()) {
-        if (inPermissionOfRole[i] !== b) {
-            return true
-        }
-    }
-    return false
-})
-
-// 加载页面前 1.获取部门和职位信息 2.初始化权限列表
 onBeforeMount(() => {
     // 获取部门信息
     Get('/api/dept').then((rsp) => {
@@ -171,92 +79,159 @@ onBeforeMount(() => {
         })
     }).catch((error) => console.log(error))
 
-    // 初始化权限列表
-    permissionList.forEach(() => {
-        permissionOfRole.push(false)
-        inPermissionOfRole.push(false)
-    })
-})
-
-// 观察 dno 变化时 重置 rid
-watch(() => form.dno,
-    (dno, olddno) => {
-        if (olddno !== null) {
-            form.rid = null
-        }
-    }
-)
-
-// 观察职位id更改 向后端请求权限信息
-watch(
-    () => form.rid,
-    async (rid) => {
-        // 如果id修改为null 忽略修改
-        if (rid === null) {
-            return
-        }
-        // 设置正在加载状态 重置当前权限列表
-        permissionOfRole.fill(false)
-        inPermissionOfRole.fill(false)
-        form.isGeting = true
-        // 请求数据
-        let result: boolean = await Get('/api/authority/' + rid).then((rsp) => {
-            if (rsp instanceof Error) {
-                throw rsp
-            } else if (!rsp.success) {
-                throw new Error(rsp.message)
-            } else {
-                return rsp.data as number[]
-            }
-        }).then((data) => {
-            for (const n of data) {
-                permissionOfRole[n - 1] = true
-                inPermissionOfRole[n - 1] = true
-            }
-            return true
-        }).catch((error) => {
-            form.isLoading = false
-            $q.dialog({
-                title: 'エラー',
-                message: error.toString(),
-                cancel: false,
-                persistent: false
-            })
-            return false
-        })
-        // 如果失败 还原加载状态 结束处理
-        if (!result) {
-            form.rid = null
-            form.isGeting = false
-            return
-        }
-        form.isGeting = false
-    }
-)
-
-// 重置数据
-function reset() {
-    inPermissionOfRole.forEach((value, index) => {
-        permissionOfRole[index] = value
-    })
-}
-
-// 保存数据
-function save() {
-    const data: Array<number> = []
-    permissionOfRole.forEach((value, index) => {
-        if (value) {
-            data.push(index + 1)
-        }
-    })
-    form.isLoading = true
-    Put('/api/authority/' + form.rid, data).then((rsp) => {
+    // 获取用户信息
+    Get('/api/user/' + route.params.id).then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
             throw new Error(rsp.message)
         } else {
-            router.go(0)
+            return rsp.data as FormRaw
+        }
+    }).then((data) => {
+        form.id = data.eno
+        initialForm.id = data.eno
+        form.name = data.ename
+        initialForm.name = data.ename
+        form.dno = data.dno
+        initialForm.dno = data.dno
+        form.rid = data.rid
+        initialForm.rid = data.rid
+        form.email = data.email
+        initialForm.email = data.email
+        form.tel = data.tel
+        initialForm.tel = data.tel
+    }).catch((error) => console.log(error))
+})
+
+// header 参数
+const headerProps = {
+    title: 'ユーザー編集',
+    urls: [
+        {
+            text: 'ホーム',
+            isUrl: true,
+            url: '/'
+        },
+        {
+            text: ' / システム設定 / ',
+            isUrl: false,
+            url: ''
+        },
+        {
+            text: 'ユーザー管理',
+            isUrl: true,
+            url: '/system/user'
+        },
+        {
+            text: ' / ユーザー編集',
+            isUrl: false,
+            url: ''
+        }
+    ]
+}
+
+// modal 绑定
+const modalData = reactive({
+    url: '',
+    auth: false
+})
+
+const isAnyEdit = computed(() => {
+    if (form.name === initialForm.name && form.dno === initialForm.dno && form.rid === initialForm.rid && form.email === initialForm.email && form.tel === initialForm.tel) {
+        return false
+    } else {
+        return true
+    }
+})
+
+onBeforeRouteLeave((to) => {
+    if (!isAnyEdit.value || modalData.auth) {
+        return true
+    } else {
+        modalData.url = to.path
+        $q.dialog({
+            title: '確認',
+            message: 'この画面から離れます。入力中のデータは保存されません。よろしいですか？',
+            cancel: true,
+            persistent: false
+        }).onOk(() => {
+            modalData.auth = true
+            router.push(modalData.url)
+        })
+        return false
+    }
+})
+
+// 表单动态绑定
+interface FormIn {
+    id: null | number
+    name: string
+    dno: null | number
+    rid: null | number
+    email: string
+    tel: string
+    isLoading: boolean
+}
+
+interface FormRaw {
+    eno: number
+    ename: string
+    dno: number
+    rid: number
+    tel: string
+    email: string
+}
+
+const form: FormIn = reactive({
+    id: null,
+    name: '',
+    dno: null,
+    rid: null,
+    email: '',
+    tel: '',
+    isLoading: false
+})
+// 初始表单
+const initialForm: FormIn = reactive({
+    id: null,
+    name: '',
+    dno: null,
+    rid: null,
+    email: '',
+    tel: '',
+    isLoading: false
+})
+
+// 观察 dno 变化时 重置 rid
+watch(() => form.dno, (dno, olddno) => {
+    if (olddno !== null) {
+        form.rid = null
+    }
+})
+
+const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
+const telRegex = /^0[5789]0-[0-9]{4}-[0-9]{4}$/
+
+
+// post 上传数据
+function postData() {
+    form.isLoading = true
+    const data = {
+        eno: form.id,
+        ename: form.name,
+        rid: form.rid,
+        tel: form.tel,
+        email: form.email
+    }
+    Put('/api/user/' + route.params.id, data).then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
+        } else {
+            router.push({name: 'system-user'})
         }
     }).catch((error) => {
         form.isLoading = false
@@ -268,36 +243,79 @@ function save() {
         })
     })
 }
+
 </script>
 
 <template>
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <q-form>
-            <div>
-                <q-select v-model="form.dno" :options="depts" label="部署" outlined emit-value map-options/>
-                <q-select v-model="form.rid" :options="rolesOfDept" label="職位" outlined emit-value map-options/>
-            </div>
-        </q-form>
 
-        <div v-if="!(form.rid === null || form.isGeting === true)">
-            <q-checkbox v-model="permissionOfRole[0]" :label="permissionList[0].name"/>
-            <q-checkbox v-model="permissionOfRole[1]" :label="permissionList[1].name"/>
-            <q-checkbox v-model="permissionOfRole[2]" :label="permissionList[2].name"/>
-            <q-checkbox v-model="permissionOfRole[3]" :label="permissionList[3].name"/>
-            <q-checkbox v-model="permissionOfRole[4]" :label="permissionList[4].name"/>
-            <q-checkbox v-model="permissionOfRole[5]" :label="permissionList[5].name"/>
-            <q-checkbox v-model="permissionOfRole[6]" :label="permissionList[6].name"/>
-            <q-checkbox v-model="permissionOfRole[7]" :label="permissionList[7].name"/>
-            <q-checkbox v-model="permissionOfRole[8]" :label="permissionList[8].name"/>
-            <q-checkbox v-model="permissionOfRole[9]" :label="permissionList[9].name"/>
-            <q-btn @click="reset" label="リセット" color="secondary"/>
-            <q-btn @click="save" :loading="form.isLoading" :disable="!isEdited"
-                   label="保存" color="primary"/>
+        <div class="formCon">
+            <div class="con">
+                <q-btn class="item" label="戻る" color="grey" @click="$router.push({ name: 'system-user'})"/>
+            </div>
+            <q-form greedy @reset="Object.assign(form, initialForm)" @submit="postData">
+                <div class="inputCon">
+                    <q-input class="input input1" readonly v-model="form.id" label="従業員番号"
+                             outlined/>
+                    <q-input class="input"
+                             :rules="[val => !!val || '入力必須です。', val => val.length <= 12 || '12文字まで。']"
+                             v-model.trim="form.name" label="氏名" outlined/>
+                    <q-select class="input" :rules="[val => !!val || '入力必須です。']" v-model="form.dno" :options="depts"
+                              label="部署" outlined emit-value map-options/>
+                    <q-select class="input" :rules="[val => !!val || '入力必須です。']" v-model="form.rid"
+                              :options="rolesOfDept" label="職位" outlined emit-value map-options/>
+                    <q-input class="input" :rules="[val => !val || emailRegex.test(val) || '有効なメールアドレスではありません。']"
+                             v-model.trim="form.email" label="email" outlined/>
+                    <q-input class="input" :rules="[val => !val || telRegex.test(val) || '有効な携帯番号ではありません。']"
+                             v-model.trim="form.tel" label="携帯電話" outlined/>
+                </div>
+                <div class="con">
+                    <q-btn class="item" label="リセット" type="reset" color="secondary"/>
+                    <q-btn class="item" :loading="form.isLoading" :disable="!isAnyEdit" label="保存" type="submit"
+                           color="primary"/>
+                </div>
+            </q-form>
         </div>
     </div>
 </template>
 
-<style scoped>
+<style lang="sass" scoped>
+.formCon
+    //max-width: 800px
+    margin: 30px auto 0
+    padding: 20px 50px
+    border-radius: 15px
+    box-shadow: rgba(0, 0, 0, 0.16) 0 8px 24px 0
+    background-color: #fff
 
+.inputCon
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: start
+    gap: 20px 80px
+    padding: 20px 0
+
+.input
+    max-width: 400px
+    // height: 80px
+    // padding: 30px
+    flex: 0 1 400px
+// width: 400px
+.input1
+    padding-bottom: 20px
+
+.con
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: start
+    gap: 20px 40px
+    padding: 10px 0
+
+.item
+    flex: 0 0 100px
+    width: 100px
+    max-width: 100px
 </style>
