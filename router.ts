@@ -22,6 +22,7 @@ import Work from '@/views/System/Work.vue'
 import UserList from '@/views/System/UserList.vue'
 import UserPer from '@/views/System/Test.vue'
 import UserEdit from '@/views/System/UserEdit.vue'
+import Test from '@/views/System/UserEdit.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
