@@ -53,7 +53,7 @@ let items = [
     },
     {
         moduleName: '顧客管理',
-        url: '/client',
+        url: '/customer',
         haveSub: true,
         subs: [
             {name: '顧客一覧', url: '/list'},

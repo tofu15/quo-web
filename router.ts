@@ -14,11 +14,14 @@ import ProductAddAllView from '@/views/Product/AddAllView.vue'
 import ProductListseView from '@/views/Product/ListseView.vue'
 import ProductEditseView from '@/views/Product/EditseView.vue'
 import ProductAddseView from '@/views/Product/AddseView.vue'
+// 系统设置
 import Work from '@/views/System/Work.vue'
 import NewUser from '@/views/System/NewUser.vue'
 import UserList from '@/views/System/UserList.vue'
 import UserPer from '@/views/System/UserPer.vue'
 import UserEdit from '@/views/System/UserEdit.vue'
+// 顾客
+import CustomerList from '@/views/Customer/List.vue'
 
 import {createRouter, createWebHistory} from 'vue-router'
 
@@ -170,6 +173,42 @@ const router = createRouter({
                     component: Work,
                     meta: {
                         title: "業務設定",
+                        keepAlive: false
+                    }
+                },
+                {
+                    path: '/customer/list',
+                    name: 'customer-list',
+                    component: CustomerList,
+                    meta: {
+                        title: "顧客一覧",
+                        keepAlive: false
+                    }
+                },
+                {
+                    path: '/customer/detail/:id',
+                    name: 'customer-detail',
+                    component: CustomerList,
+                    meta: {
+                        title: "顧客詳細情報",
+                        keepAlive: false
+                    }
+                },
+                {
+                    path: '/customer/edit/:id',
+                    name: 'customer-edit',
+                    component: CustomerList,
+                    meta: {
+                        title: "顧客編集",
+                        keepAlive: false
+                    }
+                },
+                {
+                    path: '/customer/add',
+                    name: 'customer-add',
+                    component: CustomerList,
+                    meta: {
+                        title: "新規見込み顧客",
                         keepAlive: false
                     }
                 }

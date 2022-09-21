@@ -200,6 +200,20 @@ const filteredData = computed(() => {
                 }
                 return false
             })
+            // 日期过滤
+        } else if (filter.type === "date" && filter.date != null && filter.date.length !== 0) {
+            result = result.filter(item => {
+                let key = Object.keys(item)[index]
+                let str = item[key]
+                return str === filter.date;
+            })
+            // 日期范围过滤
+        } else if (filter.type === "dateRange" && filter.dateRange.from != null && filter.dateRange.to != null) {
+            result = result.filter(item => {
+                let key = Object.keys(item)[index]
+                let str = item[key]
+                return (str >= filter.dateRange.from && str <= filter.dateRange.to);
+            })
         }
     })
 
@@ -301,6 +315,18 @@ function defaultFilters() {
                 select: null,
                 selects: []
             }
+        } else if (e.type === "date") {
+            result[index] = {
+                type: "date",
+                text: "",
+                date: null,
+                dateRange: {
+                    from: null,
+                    to: null
+                },
+                select: null,
+                selects: []
+            }
         } else {
             result[index] = {
                 type: "select",
@@ -375,6 +401,29 @@ function filterTypes(t) {
                 value: 'multiSelect'
             }
         ]
+    } else if (t === 'date') {
+        return [
+            {
+                label: 'テキスト',
+                value: 'string'
+            },
+            {
+                label: '日付',
+                value: 'date'
+            },
+            {
+                label: '日付範囲',
+                value: 'dateRange'
+            },
+            {
+                label: '選択',
+                value: 'select'
+            },
+            {
+                label: '複数選択',
+                value: 'multiSelect'
+            }
+        ]
     } else {
         return [
             {
@@ -418,7 +467,7 @@ function filterTypes(t) {
             <table>
                 <thead>
                 <tr v-if="table.filterOpen" class="filterCon">
-                    <td></td>
+                    <td v-if="props.action.hasOwnProperty('delete') || props.action.hasOwnProperty('export')"></td>
                     <td v-for="(header, index) in props.headers">
                         <q-select outlined v-model="table.filters[index].type" :options="filterTypes(header.type)"
                                   dense map-options emit-value options-dense/>
@@ -426,7 +475,7 @@ function filterTypes(t) {
                     <td></td>
                 </tr>
                 <tr class="filterInput">
-                    <td></td>
+                    <td v-if="props.action.hasOwnProperty('delete') || props.action.hasOwnProperty('export')"></td>
                     <td v-for="(header, index) in props.headers">
                         <q-input type="text" outlined v-model="table.filters[index].text" placeholder="テキスト"
                                  v-if="table.filters[index].type === 'string'" dense/>
@@ -445,10 +494,55 @@ function filterTypes(t) {
                         <q-select multiple v-else-if="table.filters[index].type === 'multiSelect'" outlined
                                   v-model="table.filters[index].selects" :options="tableSelectData[index]" emit-value
                                   clearable dense options-dense use-chips/>
+                        <q-input dense outlined v-else-if="table.filters[index].type === 'date'"
+                                 v-model="table.filters[index].date" mask="date" style="padding: 0">
+                            <template v-slot:append>
+                                <q-icon name="r_event" class="cursor-pointer">
+                                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                        <q-date today-btn v-model="table.filters[index].date">
+                                            <div class="row items-center justify-end">
+                                                <q-btn v-close-popup label="Close" color="primary" flat/>
+                                            </div>
+                                        </q-date>
+                                    </q-popup-proxy>
+                                </q-icon>
+                            </template>
+                        </q-input>
+                        <div v-else-if="table.filters[index].type === 'dateRange'">
+                            <q-input dense outlined
+                                     v-model="table.filters[index].dateRange.from" mask="date" style="padding: 0">
+                                <template v-slot:append>
+                                    <q-icon name="r_event" class="cursor-pointer">
+                                        <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                            <q-date range today-btn v-model="table.filters[index].dateRange">
+                                                <div class="row items-center justify-end">
+                                                    <q-btn v-close-popup label="Close" color="primary" flat/>
+                                                </div>
+                                            </q-date>
+                                        </q-popup-proxy>
+                                    </q-icon>
+                                </template>
+                            </q-input>
+                            <br>
+                            <q-input dense outlined
+                                     v-model="table.filters[index].dateRange.to" mask="date" style="padding: 0">
+                                <template v-slot:append>
+                                    <q-icon name="r_event" class="cursor-pointer">
+                                        <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                                            <q-date range today-btn v-model="table.filters[index].dateRange">
+                                                <div class="row items-center justify-end">
+                                                    <q-btn v-close-popup label="Close" color="primary" flat/>
+                                                </div>
+                                            </q-date>
+                                        </q-popup-proxy>
+                                    </q-icon>
+                                </template>
+                            </q-input>
+                        </div>
                     </td>
                 </tr>
                 <tr class="tableHeader">
-                    <th>
+                    <th v-if="props.action.hasOwnProperty('delete') || props.action.hasOwnProperty('export')">
                         <q-checkbox :model-value="table.isAllSelected" @click="allSelectClick" dense/>
                     </th>
                     <th @click="sortClick(header.name)" v-for="header in props.headers">{{ header.name }}
@@ -468,7 +562,7 @@ function filterTypes(t) {
                 </thead>
                 <tbody>
                 <tr v-for="product in tableData" :key="product[Object.keys(product)[0]]">
-                    <td>
+                    <td v-if="props.action.hasOwnProperty('delete') || props.action.hasOwnProperty('export')">
                         <q-checkbox v-model="selectMap.get(product[Object.keys(product)[0]]).value" dense/>
                     </td>
                     <td v-for="(value, key, index) in product">
