@@ -1,6 +1,6 @@
 <script setup>
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
-import {reactive, onBeforeMount, computed, watch, ref} from 'vue';
+import {computed, onBeforeMount, reactive, ref, watch} from 'vue';
 import {onBeforeRouteLeave} from 'vue-router'
 import {useQuasar} from 'quasar'
 import router from '../../../router';
@@ -177,6 +177,7 @@ function postData() {
         return response.json()
     }).then((json) => {
         if (json.success) {
+            isLoading.value = false
             modalData.auth = true
             router.push({name: 'product-list'})
         } else {

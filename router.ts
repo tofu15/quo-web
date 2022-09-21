@@ -1,4 +1,3 @@
-import {createRouter, createWebHistory} from 'vue-router'
 import MainView from '@/views/MainView.vue'
 import LoginView from '@/views/LoginView.vue'
 import ResetPwView from '@/views/ResetPwView.vue'
@@ -6,32 +5,24 @@ import ResetPwView from '@/views/ResetPwView.vue'
 import HomeView from '@/views/HomeView.vue'
 import 'vue-router'
 
-declare module 'vue-router' {
-    interface RouteMeta {
-        // 是可选的
-        keepAlive?: boolean
-        // 每个路由都必须声明
-        title: string
-    }
-}
-
 // 产品
 import ProductListView from '@/views/Product/ListView.vue'
 import ProductDetailView from '@/views/Product/DetailView.vue'
 import ProductEditView from '@/views/Product/EditView.vue'
 import ProductAddView from '@/views/Product/AddView.vue'
 import ProductAddAllView from '@/views/Product/AddAllView.vue'
-
 import ProductListseView from '@/views/Product/ListseView.vue'
 import ProductEditseView from '@/views/Product/EditseView.vue'
 import ProductAddseView from '@/views/Product/AddseView.vue'
+
 // 系统设置
 import NewUser from '@/views/System/NewUser.vue'
 import Work from '@/views/System/Work.vue'
 import UserList from '@/views/System/UserList.vue'
+import UserPer from '@/views/System/UserPer.vue'
 import UserEdit from '@/views/System/UserEdit.vue'
-import UserPermission from '@/views/System/PermissionView.vue'
 
+import {createRouter, createWebHistory} from 'vue-router'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -73,7 +64,7 @@ const router = createRouter({
                     component: ProductListView,
                     meta: {
                         title: "製品一覧",
-                        keepAlive: true
+                        keepAlive: false
                     }
                 },
                 {
@@ -118,7 +109,7 @@ const router = createRouter({
                     component: ProductListseView,
                     meta: {
                         title: "シリーズ一覧",
-                        keepAlive: true
+                        keepAlive: false
                     }
                 },
                 {
@@ -140,6 +131,15 @@ const router = createRouter({
                     }
                 },
                 {
+                    path: '/system/permission',
+                    name: 'system-per',
+                    component: UserPer,
+                    meta: {
+                        title: "権限設定",
+                        keepAlive: false
+                    }
+                },
+                {
                     path: '/system/newuser',
                     name: 'system-newuser',
                     component: NewUser,
@@ -154,7 +154,7 @@ const router = createRouter({
                     component: UserList,
                     meta: {
                         title: "ユーザー管理",
-                        keepAlive: true
+                        keepAlive: false
                     }
                 },
                 {
@@ -163,15 +163,6 @@ const router = createRouter({
                     component: UserEdit,
                     meta: {
                         title: "ユーザー編集",
-                        keepAlive: false
-                    }
-                },
-                {
-                    path: '/system/permission',
-                    name: 'system-permission',
-                    component: UserPermission,
-                    meta: {
-                        title: "権限設定",
                         keepAlive: false
                     }
                 },
@@ -227,5 +218,14 @@ const router = createRouter({
 router.beforeResolve((to) => {
     document.title = to.meta.title ? to.meta.title : 'ホームページ'
 })
+
+declare module 'vue-router' {
+    interface RouteMeta {
+        // 是可选的
+        keepAlive?: boolean
+        // 每个路由都必须声明
+        title: string
+    }
+}
 
 export default router

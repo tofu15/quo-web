@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import {reactive, onBeforeMount} from 'vue'
+import {onBeforeMount, reactive} from 'vue'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
-import router from '../../../router';
-import {Get, Post, Put, Delete} from "@/script/api";
+import {Delete, Get, Post, Put} from "@/script/api";
 import {useQuasar} from 'quasar'
 
 const $q = useQuasar()
+const emit = defineEmits(['reload'])
 // header 参数
 const headerProps = {
     title: 'ユーザー管理',
@@ -105,13 +105,13 @@ function deleteItem(id: number) {
         cancel: true,
         persistent: false
     }).onOk(() => {
-        Delete('/api/product/' + id).then((rsp) => {
+        Delete('/api/user/' + id).then((rsp) => {
             if (rsp instanceof Error) {
                 throw rsp
             } else if (!rsp.success) {
                 throw new Error(rsp.message)
             } else {
-                router.go(0)
+                emit('reload')
             }
         }).catch((error) => {
             $q.dialog({
@@ -138,7 +138,7 @@ function deleteAll(ids: number[]) {
             } else if (!rsp.success) {
                 throw new Error(rsp.message)
             } else {
-                router.go(0)
+                emit('reload')
             }
         }).catch((error) => {
             $q.dialog({
@@ -165,7 +165,7 @@ function reset(id: number) {
             } else if (!rsp.success) {
                 throw new Error(rsp.message)
             } else {
-                router.go(0)
+                emit('reload')
             }
         }).catch((error) => {
             $q.dialog({
