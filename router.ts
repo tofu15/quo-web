@@ -14,10 +14,8 @@ import ProductAddAllView from '@/views/Product/AddAllView.vue'
 import ProductListseView from '@/views/Product/ListseView.vue'
 import ProductEditseView from '@/views/Product/EditseView.vue'
 import ProductAddseView from '@/views/Product/AddseView.vue'
-
-// 系统设置
-import NewUser from '@/views/System/NewUser.vue'
 import Work from '@/views/System/Work.vue'
+import NewUser from '@/views/System/NewUser.vue'
 import UserList from '@/views/System/UserList.vue'
 import UserPer from '@/views/System/UserPer.vue'
 import UserEdit from '@/views/System/UserEdit.vue'

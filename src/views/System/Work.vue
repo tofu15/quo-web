@@ -1,8 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import {computed, onBeforeMount, reactive, ref} from 'vue'
 import {onBeforeRouteLeave} from 'vue-router'
-import MainViewHeader from '@/components/Common/MainViewHeader.vue';
-import router from 'router';
+import MainViewHeader from '@/components/Common/MainViewHeader.vue'
+import router from '../../../router'
 import {useQuasar} from 'quasar'
 
 const $q = useQuasar()
