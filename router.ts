@@ -22,6 +22,7 @@ import UserPer from '@/views/System/UserPer.vue'
 import UserEdit from '@/views/System/UserEdit.vue'
 // 顾客
 import CustomerList from '@/views/Customer/List.vue'
+import CustomerDetail from '@/views/Customer/Detail.vue'
 
 import {createRouter, createWebHistory} from 'vue-router'
 
@@ -188,7 +189,7 @@ const router = createRouter({
                 {
                     path: '/customer/detail/:id',
                     name: 'customer-detail',
-                    component: CustomerList,
+                    component: CustomerDetail,
                     meta: {
                         title: "顧客詳細情報",
                         keepAlive: false
@@ -217,40 +218,40 @@ const router = createRouter({
     ]
 })
 
-// router.beforeEach(async (to) => {
-//     if (to.name == 'resetpw') {
-//         return true
-//     }
-//
-//     let result
-//
-//     let isToLogin = to.name == 'login'
-//
-//
-//     await fetch('/api/islogin').then((response) => {
-//         if (!response.ok) {
-//             throw new Error("HTTP status " + response.status);
-//         }
-//         return response.json()
-//     }).then((json) => {
-//         if (json.success) {
-//             if (isToLogin) {
-//                 result = {name: 'home'}
-//             } else {
-//                 result = true
-//             }
-//         } else {
-//             if (isToLogin) {
-//                 result = true
-//             } else {
-//                 result = {name: 'login'}
-//             }
-//         }
-//     }).catch(() => {
-//         result = false
-//     })
-//     return result
-// })
+router.beforeEach(async (to) => {
+    if (to.name == 'resetpw') {
+        return true
+    }
+
+    let result
+
+    let isToLogin = to.name == 'login'
+
+
+    await fetch('/api/islogin').then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status);
+        }
+        return response.json()
+    }).then((json) => {
+        if (json.success) {
+            if (isToLogin) {
+                result = {name: 'home'}
+            } else {
+                result = true
+            }
+        } else {
+            if (isToLogin) {
+                result = true
+            } else {
+                result = {name: 'login'}
+            }
+        }
+    }).catch(() => {
+        result = false
+    })
+    return result
+})
 
 router.beforeResolve((to) => {
     document.title = to.meta.title ? to.meta.title : 'ホームページ'
