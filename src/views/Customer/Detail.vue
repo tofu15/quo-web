@@ -44,7 +44,7 @@ interface Cus {
     fax: string
     contact: string
     ename: string
-    esource: string
+    csource: string
     ftime: string
 }
 
@@ -109,7 +109,7 @@ onBeforeMount(() => {
         })
         detailProps.data[0].data.push({
             name: 'ソース',
-            data: data.esource
+            data: data.csource
         })
         detailProps.data[0].data.push({
             name: '作成者',
