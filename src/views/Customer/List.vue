@@ -12,7 +12,7 @@ const headerProps = {
         {
             text: 'ホーム',
             isUrl: true,
-            url: '/'
+            url: '/home'
         },
         {
             text: ' / 顧客管理',
