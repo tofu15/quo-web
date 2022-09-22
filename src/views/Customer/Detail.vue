@@ -127,10 +127,6 @@ const detailProps: DetailProps = reactive({
         {
             name: '基本情報',
             data: []
-        },
-        {
-            name: '詳細情報',
-            data: []
         }
     ],
     action: [
