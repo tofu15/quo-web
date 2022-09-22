@@ -101,7 +101,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
-    <div>
+    <div class="tableCon">
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
         <CommonTable
             @view="(id) => $router.push({ name: 'customer-detail', params: { id: id } })"
@@ -110,6 +110,7 @@ onBeforeMount(() => {
     </div>
 </template>
 
-<style scoped>
-
+<style lang="sass" scoped>
+div.tableCon
+    max-width: 1400px
 </style>

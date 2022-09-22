@@ -181,7 +181,7 @@ function reset(id: number) {
 </script>
 
 <template>
-    <div>
+    <div class="tableCon">
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
         <CommonTable
             @edit="(id) => $router.push({ name: 'system-user-edit', params: { id: id } })"
@@ -189,5 +189,7 @@ function reset(id: number) {
     </div>
 </template>
 
-<style scoped>
+<style lang="sass" scoped>
+div.tableCon
+    max-width: 1200px
 </style>

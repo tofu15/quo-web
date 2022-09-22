@@ -182,7 +182,7 @@ function exportExcel(ids) {
 }
 </script>
 <template>
-    <div>
+    <div class="tableCon">
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
         <CommonTable @exportExcel="exportExcel"
                      @edit="(id) => $router.push({ name: 'product-edit', params: { id: id } })" @view="view"
@@ -190,4 +190,6 @@ function exportExcel(ids) {
     </div>
 </template>
 <style lang="sass" scoped>
+div.tableCon
+    max-width: 1400px
 </style>

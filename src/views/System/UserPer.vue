@@ -272,33 +272,121 @@ function save() {
 <template>
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <q-form>
-            <div>
-                <q-select v-model="form.dno" :options="depts"
+        <div class="formCon">
+            <div class="inputCon">
+                <q-select class="input" v-model="form.dno" :options="depts"
                           label="部署" outlined emit-value map-options/>
-                <q-select v-model="form.rid"
+                <q-select class="input" v-model="form.rid"
                           :options="rolesOfDept" label="職位" outlined emit-value map-options/>
             </div>
-        </q-form>
 
-        <div v-if="!(form.rid === null || form.isGeting === true)">
-            <q-checkbox v-model="permissionOfRole[0]" :label="permissionList[0].name"/>
-            <q-checkbox v-model="permissionOfRole[1]" :label="permissionList[1].name"/>
-            <q-checkbox v-model="permissionOfRole[2]" :label="permissionList[2].name"/>
-            <q-checkbox v-model="permissionOfRole[3]" :label="permissionList[3].name"/>
-            <q-checkbox v-model="permissionOfRole[4]" :label="permissionList[4].name"/>
-            <q-checkbox v-model="permissionOfRole[5]" :label="permissionList[5].name"/>
-            <q-checkbox v-model="permissionOfRole[6]" :label="permissionList[6].name"/>
-            <q-checkbox v-model="permissionOfRole[7]" :label="permissionList[7].name"/>
-            <q-checkbox v-model="permissionOfRole[8]" :label="permissionList[8].name"/>
-            <q-checkbox v-model="permissionOfRole[9]" :label="permissionList[9].name"/>
-            <q-btn @click="reset" label="リセット" color="secondary"/>
-            <q-btn @click="save" :loading="form.isLoading" :disable="!isEdited"
-                   label="保存" color="primary"/>
+
+            <div v-if="!(form.rid === null || form.isGeting === true)">
+                <table class="table">
+                    <tr>
+                        <th>モジュール</th>
+                        <th colspan="2">権限項目</th>
+                    </tr>
+                    <tr>
+                        <th rowspan="3">製品</th>
+                        <td>製品管理</td>
+                        <td>
+                            <div class="inputCon">
+                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[0]"
+                                            :label="permissionList[0].name"/>
+                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[1]"
+                                            :label="permissionList[1].name"/>
+                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[2]"
+                                            :label="permissionList[2].name"/>
+                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[3]"
+                                            :label="permissionList[3].name"/>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>シリーズ管理</td>
+                        <td>
+                            <div class="inputCon">
+                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[5]"
+                                            :label="permissionList[5].name"/>
+                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[6]"
+                                            :label="permissionList[6].name"/>
+                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[7]"
+                                            :label="permissionList[7].name"/>
+                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[8]"
+                                            :label="permissionList[8].name"/>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>生産計画</td>
+                        <td>
+                            <div class="inputCon">
+                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[4]"
+                                            :label="permissionList[4].name"/>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>システム</th>
+                        <td>システム設定</td>
+                        <td>
+                            <q-checkbox dense v-model="permissionOfRole[9]" :label="permissionList[9].name"/>
+                        </td>
+                    </tr>
+                </table>
+                <div class="con">
+                    <q-btn class="item" @click="reset" label="リセット" color="secondary"/>
+                    <q-btn class="item" @click="save" :loading="form.isLoading" :disable="!isEdited"
+                           label="保存" color="primary"/>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
-<style scoped>
+<style lang="sass" scoped>
+.formCon
+    margin: 50px auto 0
+    padding: 40px 50px
+    border-radius: 15px
+    box-shadow: rgba(0, 0, 0, 0.16) 0 8px 24px 0
+    background-color: #fff
+
+.inputCon
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: start
+    gap: 20px 6%
+    padding: 0
+
+.input
+    flex: 0 1 47%
+    padding: 0
+
+.con
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: start
+    gap: 20px 20px
+    padding: 10px 0
+
+.item
+    flex: 0 0 100px
+
+.table
+    border-collapse: collapse
+    border-radius: 80px 20px
+    width: 100%
+    padding: 0
+    margin: 20px 0
+
+table.table th, table.table td
+    border: 1px solid lightgrey
+    padding: 1rem
+    text-align: left
+
 
 </style>
