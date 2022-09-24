@@ -1,7 +1,8 @@
 <script setup>
-import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
-import router from '../../../router';
+import {ref} from 'vue'
+import {RouterLink} from 'vue-router'
+import router from '../../router';
+
 const expanded = ref(false)
 
 function userBtnClicked() {
@@ -11,7 +12,7 @@ function userBtnClicked() {
 function logout() {
     document.cookie = 'a=; max-age=0; Path=/api; HttpOnly; Secure; SameSite=Lax;';
     document.cookie = "b=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    router.push({ name: 'login' });
+    router.push({name: 'login'});
 }
 </script>
 
@@ -59,24 +60,29 @@ header.commonHeader
     display: flex
     align-items: center
     justify-content: space-between
-    >.space
+
+    > .space
         flex: 1 0
-    >.name
+
+    > .name
         font-weight: 500
         padding: 0 10px
-    >a.logo
+
+    > a.logo
         display: block
         margin: 0 20px
         transition: opacity var(--transition)
+
         &:hover
             opacity: 0.7
-        >img
+
+        > img
             height: 25px
-    
+
     .userCon
         position: relative
         height: 100%
-    
+
     .userBtn
         cursor: pointer
         height: 100%
@@ -84,38 +90,45 @@ header.commonHeader
         align-items: center
         margin-right: 10px
         padding: 0 10px
+
         &:hover
             background-color: rgb(242, 242, 242)
-        >div
+
+        > div
             margin-right: 5px
+
         svg
             height: 20px
             fill: rgb(89, 89, 89)
+
         svg.popupBtn
             height: 15px
 
 // popup
 .popup
     display: none
+
 .userBtn[aria-expanded="true"]
     background-color: rgb(242, 242, 242)
-    +.popup
+
+    + .popup
         position: absolute
         background-color: #fff
         display: flex
         flex-direction: column
         right: 10px
         width: 150px
-        border-radius: 0px 0px 3px 3px
-        box-shadow: rgba(0, 0, 0, 0.15) 2px 4px 20px 0px
+        border-radius: 0 0 3px 3px
+        box-shadow: rgba(0, 0, 0, 0.15) 2px 4px 20px 0
         border: 1px solid rgb(182, 182, 182)
-        >a
+
+        > a
             cursor: pointer
             color: inherit
             text-decoration: none
-            padding: 10px 0
-            padding-left: 15px
+            padding: 10px 0 10px 15px
+
             &:hover
                 background-color: rgb(242, 242, 242)
-    
+
 </style>

@@ -1,31 +1,61 @@
-<script setup>
+<script setup lang="ts">
 import {computed, onBeforeMount, reactive, watch} from 'vue'
 import {onBeforeRouteLeave} from 'vue-router'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
-import router from '/router';
+import router from '@/router';
 import {useQuasar} from 'quasar'
+import {Get, Post} from "@/script/api";
 
 const $q = useQuasar()
 
+// 定义接口
+interface Dept {
+    label: string
+    value: number
+}
+
+interface DeptRaw {
+    dname: string
+    dno: number
+}
+
+interface Role {
+    label: string
+    value: number
+    dno: number
+}
+
+interface RoleRaw {
+    rname: string
+    rid: number
+    dno: number
+}
+
+interface FormIn {
+    name: string
+    dno: null | number
+    rid: null | number
+    email: string
+    tel: string
+    isLoading: boolean
+}
+
 // 获取部门和职位信息
-const depts = reactive([])
-const roles = reactive([])
+const depts: Dept[] = reactive([])
+const roles: Role[] = reactive([])
 const rolesOfDept = computed(() => {
     return roles.filter(role => role.dno === form.dno)
 })
 
 onBeforeMount(() => {
     // 获取部门信息
-    fetch('/api/dept').then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            return json.data
+    Get('/api/dept').then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
         } else {
-            throw new Error(json.message);
+            return rsp.data as DeptRaw[]
         }
     }).then((data) => {
         data.forEach(e => {
@@ -34,19 +64,15 @@ onBeforeMount(() => {
                 value: e.dno
             })
         })
-    }).catch((error) => console.error(error))
-
+    }).catch((error) => console.log(error))
     // 获取职位信息
-    fetch('/api/role').then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            return json.data
+    Get('/api/role').then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
         } else {
-            throw new Error(json.message);
+            return rsp.data as RoleRaw[]
         }
     }).then((data) => {
         data.forEach(e => {
@@ -56,7 +82,7 @@ onBeforeMount(() => {
                 dno: e.dno
             })
         })
-    }).catch((error) => console.error(error))
+    }).catch((error) => console.log(error))
 })
 
 // header 参数
@@ -114,7 +140,7 @@ onBeforeRouteLeave((to) => {
 })
 
 // 表单动态绑定
-const form = reactive({
+const form: FormIn = reactive({
     name: '',
     dno: null,
     rid: null,
@@ -154,24 +180,15 @@ function postData() {
         tel: form.tel,
         email: form.email
     }
-    fetch('/api/user', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
+    Post('/api/user', data).then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
+        } else {
             form.isLoading = false
             modalData.auth = true
             router.push('/system/user')
-        } else {
-            throw new Error(json.message);
         }
     }).catch((error) => {
         form.isLoading = false
@@ -236,7 +253,6 @@ function postData() {
     // padding: 30px
     flex: 0 1 400px
     // width: 400px
-    max-width: 400px
 
 .con
     display: flex
@@ -244,7 +260,7 @@ function postData() {
     flex-wrap: wrap
     justify-content: start
     gap: 20px 40px
-    padding: 10px 0px
+    padding: 10px 0
 
 .item
     flex: 0 0 100px

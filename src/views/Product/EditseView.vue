@@ -2,7 +2,7 @@
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import {computed, onBeforeMount, reactive, ref} from 'vue';
 import {onBeforeRouteLeave, useRoute} from 'vue-router'
-import router from '../../../router';
+import router from '../../router';
 import {useQuasar} from 'quasar'
 
 const route = useRoute()

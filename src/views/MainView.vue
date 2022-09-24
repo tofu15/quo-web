@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import {KeepAlive, ref} from 'vue'
 import {RouterView} from 'vue-router'
 import CommonHeader from '@/components/Common/CommonHeader.vue'

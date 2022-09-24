@@ -1,7 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import {reactive} from 'vue'
-import router from '/router';
+import router from '../router';
 import {useQuasar} from 'quasar'
+import {Post} from "@/script/api";
 
 const $q = useQuasar()
 
@@ -22,27 +23,18 @@ function postData() {
         flag: form.flag ? "1" : "0"
     }
 
-    fetch('/api/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
+    Post('/api/login', data).then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
+        } else {
             form.isLoading = false
-            if (json.code === 10001) {
+            if (rsp.code === 10001) {
                 router.push('/resetpw')
             } else {
                 router.push('/home')
             }
-        } else {
-            throw new Error(json.message);
         }
     }).catch((error) => {
         form.isLoading = false
@@ -60,7 +52,6 @@ function postData() {
     <div class="app">
         <header>
             <a href="/"><img src="/images/logo.png" alt="logo"></a>
-
         </header>
         <main>
             <div>
@@ -119,7 +110,7 @@ main
         min-width: 480px
         padding: 50px 50px 20px
         border-radius: 15px
-        box-shadow: rgba(0, 0, 0, 0.16) 0px 8px 24px 0px
+        box-shadow: rgba(0, 0, 0, 0.16) 0 8px 24px 0
         background-color: #fff
 
         h1

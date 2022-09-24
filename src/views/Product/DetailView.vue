@@ -1,8 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import CommonDetail from '@/components/Common/CommonDetail.vue';
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import {useRoute} from 'vue-router'
-import {reactive, onBeforeMount} from 'vue';
+import {onBeforeMount, reactive} from 'vue';
+import {Get} from "@/script/api";
 
 const route = useRoute()
 // header 参数
@@ -32,19 +33,47 @@ const headerProps = {
     ]
 }
 
+interface Product {
+    pid: number
+    pname: string
+    tname: string
+    psname: string
+    stock: number
+    price: number
+    connection: string
+    noise: "あり" | "なし"
+    bass: "あり" | "なし"
+    waterproof: string
+    mic: "あり" | "なし"
+    packageInfo: string
+    pinterface: string
+}
+
+interface DetailProps {
+    data: Array<DetailPropsData>
+    action: Array<String>
+}
+
+interface DetailPropsData {
+    name: string
+    data: Array<DetailPropsDataOfData>
+}
+
+interface DetailPropsDataOfData {
+    name: string
+    data: string | number
+}
+
 // 调用后端接口 获取信息 修改 detailProps
 onBeforeMount(() => {
     const id = route.params.id
-    fetch('/api/product/' + id).then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            return json.data
+    Get('/api/product/' + id).then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
         } else {
-            throw new Error(json.message);
+            return rsp.data as Product
         }
     }).then((data) => {
         // 基本情報
@@ -104,7 +133,7 @@ onBeforeMount(() => {
     }).catch((error) => console.error(error))
 })
 // 详细信息参数
-const detailProps = reactive({
+const detailProps: DetailProps = reactive({
     data: [
         {
             name: '基本情報',

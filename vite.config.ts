@@ -6,6 +6,14 @@ import {quasar, transformAssetUrls} from '@quasar/vite-plugin'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+    server: {
+        proxy: {
+            '/api': {
+                target: 'https://quo.litiangang.com:9876',
+                changeOrigin: true
+            },
+        }
+    },
     plugins: [
         vue({
             template: {transformAssetUrls}

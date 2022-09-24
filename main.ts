@@ -1,8 +1,8 @@
-import { createApp } from 'vue'
+import {createApp} from 'vue'
 import App from './App.vue'
-import router from './router.js'
+import router from './src/router.js'
 
-import { Quasar, Dialog } from 'quasar'
+import {Dialog, Quasar} from 'quasar'
 import quasarLang from 'quasar/lang/ja'
 import quasarIconSet from 'quasar/icon-set/material-icons-round'
 

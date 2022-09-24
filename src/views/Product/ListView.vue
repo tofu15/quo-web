@@ -2,7 +2,7 @@
 import {onBeforeMount, reactive} from 'vue'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
-import router from '../../../router';
+import router from '../../router';
 import {useQuasar} from 'quasar'
 
 const $q = useQuasar()

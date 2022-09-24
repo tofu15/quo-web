@@ -2,7 +2,7 @@
 import {computed, onBeforeMount, reactive, watch} from 'vue'
 import {onBeforeRouteLeave} from 'vue-router'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
-import router from '../../../router'
+import router from '../../router'
 import {Get, Put} from "@/script/api";
 import {useQuasar} from 'quasar'
 import {useRoute} from "@modules/vue-router";
@@ -232,6 +232,7 @@ function postData() {
             throw new Error(rsp.message)
         } else {
             form.isLoading = false
+            modalData.auth = true
             router.push({name: 'system-user'})
         }
     }).catch((error) => {

@@ -2,8 +2,9 @@
 import {computed, onBeforeMount, reactive, ref} from 'vue'
 import {onBeforeRouteLeave} from 'vue-router'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue'
-import router from '../../../router'
+import router from '@/router'
 import {useQuasar} from 'quasar'
+import {Get, Put} from "@/script/api"
 
 const $q = useQuasar()
 const emit = defineEmits(['reload'])
@@ -35,7 +36,12 @@ const modalData = reactive({
 })
 
 // 定义业务信息
-const workData = reactive({
+interface workIn {
+    amountCheck: number
+    expiry: number
+}
+
+const workData: workIn = reactive({
     amountCheck: 0,
     expiry: 0
 })
@@ -47,21 +53,18 @@ const initialWorkData = {
 }
 // 从后台获取数据
 onBeforeMount(() => {
-    fetch('/api/system-setting').then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            return json.data
+    Get('/api/system-setting').then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
         } else {
-            throw new Error(json.message);
+            return rsp.data as workIn
         }
     }).then((data) => {
         Object.assign(workData, data)
         Object.assign(initialWorkData, data)
-    }).catch((error) => console.error(error))
+    }).catch((error) => console.log(error))
 })
 
 // 是否做了任何编辑
@@ -98,23 +101,14 @@ function postData() {
         amountCheck: workData.amountCheck,
         expiry: workData.expiry
     }
-    fetch('/api/system-setting', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            modalData.auth = true
-            emit("reload")
+    Put('/api/system-setting', data).then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
         } else {
-            throw new Error(json.message);
+            isLoading.value = false
+            emit("reload")
         }
     }).catch((error) => {
         isLoading.value = false

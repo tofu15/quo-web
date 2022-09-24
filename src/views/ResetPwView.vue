@@ -1,7 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import {reactive} from 'vue'
-import router from '/router'
+import router from '@/router'
 import {useQuasar} from 'quasar'
+import {Post} from "@/script/api"
 
 const $q = useQuasar()
 
@@ -20,23 +21,14 @@ function postData() {
 
     const data = {newpwd: form.newpwd1}
 
-    fetch('/api/resetpw', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
+    Post('/api/resetpw', data).then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
+        } else {
             form.isLoading = false
             router.push('/login')
-        } else {
-            throw new Error(json.message);
         }
     }).catch((error) => {
         form.isLoading = false
@@ -64,7 +56,7 @@ function postData() {
                     <q-input outlined :type="form.isPwd ? 'password' : 'text'" v-model.trim="form.pwd" label="初期パスワード"
                              lazy-rules :rules="[
                           val => val && val.length > 0 || '初期パスワードを入力してください。',
-                          val => val == '000000' || '初期パスワードが正しくありません。'
+                          val => val === '000000' || '初期パスワードが正しくありません。'
                         ]">
                         <template v-slot:append>
                             <q-icon :name="form.isPwd ? 'r_visibility_off' : 'r_visibility'" class="cursor-pointer"
@@ -131,7 +123,7 @@ main
         min-width: 480px
         padding: 50px 50px 20px
         border-radius: 15px
-        box-shadow: rgba(0, 0, 0, 0.16) 0px 8px 24px 0px
+        box-shadow: rgba(0, 0, 0, 0.16) 0 8px 24px 0
         background-color: #fff
 
         h1

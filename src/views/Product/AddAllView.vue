@@ -1,8 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import {reactive} from 'vue';
 import {useQuasar} from 'quasar'
-import router from '../../../router';
+import router from '../../router';
 
 const $q = useQuasar()
 
@@ -33,8 +33,12 @@ const file = reactive({
     isLoading: false
 })
 
-function fileChanged(event) {
-    file.obj = event.target.files[0]
+function fileChanged(e: Event) {
+    const target = e.target as HTMLInputElement
+    if (!target.files) {
+        return
+    }
+    file.obj = target.files[0]
     file.name = file.obj.name
 }
 

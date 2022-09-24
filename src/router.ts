@@ -1,3 +1,7 @@
+// 基础依赖
+import {createRouter, createWebHistory} from 'vue-router'
+import {Get} from "@/script/api";
+
 import MainView from '@/views/MainView.vue'
 import LoginView from '@/views/LoginView.vue'
 import ResetPwView from '@/views/ResetPwView.vue'
@@ -23,8 +27,6 @@ import UserEdit from '@/views/System/UserEdit.vue'
 // 顾客
 import CustomerList from '@/views/Customer/List.vue'
 import CustomerDetail from '@/views/Customer/Detail.vue'
-
-import {createRouter, createWebHistory} from 'vue-router'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -223,34 +225,25 @@ router.beforeEach(async (to) => {
         return true
     }
 
-    let result
-
     let isToLogin = to.name == 'login'
 
-
-    await fetch('/api/islogin').then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
+    return Get('/api/islogin').then((rsp) => {
+        if (rsp instanceof Error) {
+            return false
+        } else if (rsp.success) {
             if (isToLogin) {
-                result = {name: 'home'}
+                return {name: 'home'}
             } else {
-                result = true
+                return true
             }
         } else {
             if (isToLogin) {
-                result = true
+                return true
             } else {
-                result = {name: 'login'}
+                return {name: 'login'}
             }
         }
-    }).catch(() => {
-        result = false
     })
-    return result
 })
 
 router.beforeResolve((to) => {

@@ -3,7 +3,7 @@ import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import {computed, onBeforeMount, reactive, ref, watch} from 'vue';
 import {onBeforeRouteLeave, useRoute} from 'vue-router'
 import {useQuasar} from 'quasar'
-import router from '../../../router';
+import router from '../../router';
 
 const route = useRoute()
 const $q = useQuasar()
