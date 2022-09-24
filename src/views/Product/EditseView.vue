@@ -1,28 +1,39 @@
-<script setup>
+<script setup lang="ts">
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import {computed, onBeforeMount, reactive, ref} from 'vue';
 import {onBeforeRouteLeave, useRoute} from 'vue-router'
 import router from '../../router';
 import {useQuasar} from 'quasar'
+import {Get, Put} from "@/script/api";
 
 const route = useRoute()
 const $q = useQuasar()
+
+// 定义接口
+interface Type {
+    label: string
+    value: number
+}
+
+interface Se {
+    psid: null | number
+    psname: string
+    tid: null | number
+    notes: string
+}
 
 // 获取产品信息 和 系列类型信息
 onBeforeMount(() => {
     // 获取数据
     const id = route.params.id
     // 获取类型信息
-    fetch('/api/product-type-list-series-edit').then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            return json.data
+    Get('/api/product-type-list-series-edit').then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
         } else {
-            throw new Error(json.message);
+            return rsp.data as { tname: string, tid: number }[]
         }
     }).then((data) => {
         data.forEach(e => {
@@ -31,24 +42,21 @@ onBeforeMount(() => {
                 value: Number(e.tid)
             })
         })
-    }).catch((error) => console.error(error))
+    }).catch((error) => console.log(error))
 
     // 获取系列信息
-    fetch('/api/product-series/' + id).then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            return json.data
+    Get('/api/product-series/' + id).then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
         } else {
-            throw new Error(json.message);
+            return rsp.data as Se
         }
     }).then((data) => {
         Object.assign(initialSe, data)
         Object.assign(se, data)
-    }).catch((error) => console.error(error))
+    }).catch((error) => console.log(error))
 })
 // header 参数
 const headerProps = {
@@ -77,9 +85,14 @@ const headerProps = {
     ]
 }
 // 原始 se 对象
-const initialSe = {}
+const initialSe: Se = {
+    psid: null,
+    psname: "",
+    tid: null,
+    notes: ""
+}
 // se 对象 绑定表单
-const se = reactive({
+const se: Se = reactive({
     psid: null,
     psname: "",
     tid: null,
@@ -89,7 +102,7 @@ const se = reactive({
 const isLoading = ref(false)
 
 // types 数组
-const types = reactive([])
+const types: Type[] = reactive([])
 
 // 是否做了任何编辑修改
 const isAnyEdit = computed(() => {
@@ -132,24 +145,15 @@ function postData() {
         notes: se.notes
     }
     isLoading.value = true
-    fetch('/api/product-series/' + route.params.id, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
+    Put('/api/product-series/' + route.params.id, data).then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
+        } else {
             isLoading.value = false
             modalData.auth = true
             router.push({name: 'product-listse'})
-        } else {
-            throw new Error(json.message);
         }
     }).catch((error) => {
         isLoading.value = false

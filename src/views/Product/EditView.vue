@@ -1,29 +1,54 @@
-<script setup>
+<script setup lang="ts">
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import {computed, onBeforeMount, reactive, ref, watch} from 'vue';
 import {onBeforeRouteLeave, useRoute} from 'vue-router'
 import {useQuasar} from 'quasar'
 import router from '../../router';
+import {Get, Put} from "@/script/api";
 
 const route = useRoute()
 const $q = useQuasar()
 
+// 定义接口
+interface Type {
+    label: string
+    value: number
+}
+
+interface Se {
+    label: string
+    value: number
+    tid: number
+}
+
+interface ProductIn {
+    pid: number
+    pname: string
+    tid: number
+    tname: string
+    psid: number | null
+    psname: string
+    stock: number
+    price: number
+    connection: string
+    noise: "あり" | "なし" | ""
+    bass: "あり" | "なし" | ""
+    waterproof: string
+    mic: "あり" | "なし" | ""
+    packageInfo: string
+    pinterface: string
+}
+
 // 页面加载前获取信息
 onBeforeMount(() => {
-    // 取得ID
-    const id = route.params.id
-
     // 获取类型信息
-    fetch('/api/product-type-list-edit').then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            return json.data
+    Get('/api/product-type-list-add').then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
         } else {
-            throw new Error(json.message);
+            return rsp.data as { tname: string, tid: number }[]
         }
     }).then((data) => {
         data.forEach(e => {
@@ -35,16 +60,13 @@ onBeforeMount(() => {
     }).catch((error) => console.error(error))
 
     // 获取系列信息
-    fetch('/api/product-series-list-edit').then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            return json.data
+    Get('/api/product-series-list-add').then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
         } else {
-            throw new Error(json.message);
+            return rsp.data as { psname: string, psid: number, tid: number }[]
         }
     }).then((data) => {
         data.forEach(e => {
@@ -57,16 +79,14 @@ onBeforeMount(() => {
     }).catch((error) => console.error(error))
 
     // 获取产品信息
-    fetch('/api/product/' + id).then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            return json.data
+    const id = route.params.id
+    Get('/api/product/' + id).then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
         } else {
-            throw new Error(json.message);
+            return rsp.data as ProductIn
         }
     }).then((data) => {
         Object.assign(initialProduct, data)
@@ -100,9 +120,9 @@ const headerProps = {
     ]
 }
 // 原始 product 对象
-const initialProduct = {}
+const initialProduct = <ProductIn>{}
 // product 对象 绑定表单
-const product = reactive({
+const product: ProductIn = reactive({
     pid: 0,
     pname: "",
     tid: 0,
@@ -123,9 +143,9 @@ const product = reactive({
 const isLoading = ref(false)
 
 // types 数组
-const types = reactive([])
+const types: Type[] = reactive([])
 // series 数组
-const series = reactive([])
+const series: Se[] = reactive([])
 const seriesOfType = computed(() => {
     return series.filter(s => s.tid === product.tid)
 })
@@ -184,24 +204,15 @@ function postData() {
         packageInfo: product.packageInfo
     }
     isLoading.value = true
-    fetch('/api/product/' + route.params.id, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
+    Put('/api/product/' + route.params.id, data).then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
+        } else {
             isLoading.value = false
             modalData.auth = true
             router.push({name: 'product-list'})
-        } else {
-            throw new Error(json.message);
         }
     }).catch((error) => {
         isLoading.value = false
