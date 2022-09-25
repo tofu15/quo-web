@@ -1,18 +1,20 @@
-<script setup>
+<script setup lang="ts">
 import {ref} from 'vue'
 import {RouterLink} from 'vue-router'
-import router from '../../router';
 
+// 声明接受的 props
+const props = defineProps<{
+    ename: string | null
+    dname: string | null
+    rname: string | null
+}>()
+
+// 是否打开下拉框
 const expanded = ref(false)
 
+// 切换下拉框
 function userBtnClicked() {
     expanded.value = !expanded.value
-}
-
-function logout() {
-    document.cookie = 'a=; max-age=0; Path=/api; HttpOnly; Secure; SameSite=Lax;';
-    document.cookie = "b=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    router.push({name: 'login'});
 }
 </script>
 
@@ -20,9 +22,9 @@ function logout() {
     <header class="commonHeader">
         <RouterLink class="logo" to="/"><img src="/images/logo.png" alt="logo"></RouterLink>
         <div class="space"></div>
-        <div class="name">営業部</div>
-        <div class="name">部長</div>
-        <div class="name">山田太郎</div>
+        <div class="name">{{ props.dname ? dname : "" }}</div>
+        <div class="name">{{ props.rname ? rname : "" }}</div>
+        <div class="name">{{ props.ename ? ename : "" }}</div>
         <div class="userCon">
             <div :aria-expanded="expanded" class="userBtn" @click="userBtnClicked">
                 <div>
@@ -40,7 +42,7 @@ function logout() {
             </div>
             <div class="popup">
                 <a href="/">個人設定</a>
-                <a @click="logout">ログアウト</a>
+                <a href="/">ログアウト</a>
             </div>
         </div>
     </header>

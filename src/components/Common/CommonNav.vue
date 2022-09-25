@@ -1,91 +1,121 @@
 <script setup lang="ts">
-import CommonNavItemVue from './CommonNavItem.vue';
+import CommonNavItemVue from './CommonNavItem.vue'
+import {computed, inject} from "vue"
+import type {UserPermission} from "@/script/interface"
+import {DefaultUserPermission} from "@/script/interface"
 
-const MAINMODULE = ['ホーム', '製品管理', '在庫管理', '見積管理', '注文管理', '顧客管理', 'データ分析', 'システム設定']
+const Permission = inject<UserPermission>('Permission', DefaultUserPermission)
 
-let items = [
-    {
+interface item {
+    moduleName: string
+    url: string
+    haveSub: boolean
+    subs?: { name: string, url: string }[]
+}
+
+const items = computed<item[]>(() => {
+    let items: item[] = []
+    // 主页
+    items.push({
         moduleName: 'ホーム',
         url: '/home',
         haveSub: false
-    },
-    {
+    })
+    // 产品
+    let product: item = {
         moduleName: '製品管理',
         url: '/product',
         haveSub: true,
-        subs: [
-            {name: '製品一覧', url: '/list'},
-            {name: '新規製品', url: '/add'},
-            {name: '新規製品一括インポート', url: '/addall'},
-            {name: '生産計画確認申請承認', url: '/verify'},
-            {name: 'シリーズ一覧', url: '/listse'},
-            {name: '新規シリーズ', url: '/addse'}
-        ]
-    },
-    {
-        moduleName: '在庫管理',
-        url: '/stock',
-        haveSub: true,
-        subs: [
-            {name: '在庫一覧', url: '/list'},
-            {name: '入出庫記入', url: '/record'},
-            {name: '入出庫履歴', url: '/history'}
-        ]
-    },
-    {
-        moduleName: '見積管理',
-        url: '/estimate',
-        haveSub: true,
-        subs: [
-            {name: '見積書一覧', url: '/list'},
-            {name: '見積書作成', url: '/add'},
-            {name: '承認待ち見積書', url: '/verify'}
-        ]
-    },
-    {
-        moduleName: '注文管理',
-        url: '/order',
-        haveSub: true,
-        subs: [
-            {name: '注文一覧', url: '/list'},
-            {name: '出庫待ち注文', url: '/verify'}
-        ]
-    },
-    {
-        moduleName: '顧客管理',
-        url: '/customer',
-        haveSub: true,
-        subs: [
-            {name: '顧客一覧', url: '/list'},
-            {name: '新規見込み顧客', url: '/add'}
-        ]
-    },
-    {
-        moduleName: 'データ分析',
-        url: '/analysis',
-        haveSub: false
-    },
-    {
-        moduleName: '個人設定',
-        url: '/settings',
-        haveSub: true,
-        subs: [
-            {name: '個人情報', url: '/profile'},
-            {name: 'パスワード変更', url: '/pwd'}
-        ]
-    },
-    {
-        moduleName: 'システム設定',
-        url: '/system',
-        haveSub: true,
-        subs: [
-            {name: '新規ユーザー', url: '/newuser'},
-            {name: 'ユーザー管理', url: '/user'},
-            {name: '権限設定', url: '/permission'},
-            {name: '業務設定', url: '/work'},
-        ]
+        subs: []
     }
-]
+    if (Permission.ProductView) {
+        product.subs?.push({name: '製品一覧', url: '/list'})
+    }
+    if (Permission.ProductAdd) {
+        product.subs?.push({name: '新規製品', url: '/add'}, {name: '新規製品一括インポート', url: '/addall'})
+    }
+    if (Permission.ProductPlan) {
+        product.subs?.push({name: '生産計画確認申請承認', url: '/verify'})
+    }
+    if (Permission.ProductSeriesView) {
+        product.subs?.push({name: 'シリーズ一覧', url: '/listse'})
+    }
+    if (Permission.ProductSeriesAdd) {
+        product.subs?.push({name: '新規シリーズ', url: '/addse'})
+    }
+    if (product.subs?.length != 0) {
+        items.push(product)
+    }
+    // 系统设置
+    if (Permission.SystemSettings) {
+        items.push({
+            moduleName: 'システム設定',
+            url: '/system',
+            haveSub: true,
+            subs: [
+                {name: '新規ユーザー', url: '/newuser'},
+                {name: 'ユーザー管理', url: '/user'},
+                {name: '権限設定', url: '/permission'},
+                {name: '業務設定', url: '/work'},
+            ]
+        })
+    }
+
+    items.push({
+            moduleName: '在庫管理',
+            url: '/stock',
+            haveSub: true,
+            subs: [
+                {name: '在庫一覧', url: '/list'},
+                {name: '入出庫記入', url: '/record'},
+                {name: '入出庫履歴', url: '/history'}
+            ]
+        },
+        {
+            moduleName: '見積管理',
+            url: '/estimate',
+            haveSub: true,
+            subs: [
+                {name: '見積書一覧', url: '/list'},
+                {name: '見積書作成', url: '/add'},
+                {name: '承認待ち見積書', url: '/verify'}
+            ]
+        },
+        {
+            moduleName: '注文管理',
+            url: '/order',
+            haveSub: true,
+            subs: [
+                {name: '注文一覧', url: '/list'},
+                {name: '出庫待ち注文', url: '/verify'}
+            ]
+        },
+        {
+            moduleName: '顧客管理',
+            url: '/customer',
+            haveSub: true,
+            subs: [
+                {name: '顧客一覧', url: '/list'},
+                {name: '新規見込み顧客', url: '/add'}
+            ]
+        },
+        {
+            moduleName: 'データ分析',
+            url: '/analysis',
+            haveSub: false
+        },
+        {
+            moduleName: '個人設定',
+            url: '/settings',
+            haveSub: true,
+            subs: [
+                {name: '個人情報', url: '/profile'},
+                {name: 'パスワード変更', url: '/pwd'}
+            ]
+        })
+
+    return items
+})
 </script>
 
 <template>
