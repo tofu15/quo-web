@@ -120,7 +120,23 @@ const headerProps = {
     ]
 }
 // 原始 product 对象
-const initialProduct = <ProductIn>{}
+const initialProduct: ProductIn = {
+    pid: 0,
+    pname: "",
+    tid: 0,
+    tname: "",
+    psid: 0,
+    psname: "",
+    price: 0,
+    stock: 0,
+    connection: "",
+    noise: "",
+    bass: "",
+    waterproof: "",
+    mic: "",
+    packageInfo: "",
+    pinterface: ""
+}
 // product 对象 绑定表单
 const product: ProductIn = reactive({
     pid: 0,

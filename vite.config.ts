@@ -11,7 +11,7 @@ export default defineConfig({
             '/api': {
                 target: 'https://quo.litiangang.com:9876',
                 changeOrigin: true
-            },
+            }
         }
     },
     plugins: [
