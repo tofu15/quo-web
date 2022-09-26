@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {inject, onBeforeMount, reactive} from 'vue'
+import {computed, inject, onBeforeMount, reactive} from 'vue'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
 import {useQuasar} from 'quasar'
-import type {UserPermission} from "@/script/interface"
+import type {TableAction, TablePropsWithoutAction, UserPermission} from "@/script/interface"
 import {DefaultUserPermission} from "@/script/interface"
 
 const Permission = inject<UserPermission>('Permission', DefaultUserPermission)
@@ -31,8 +31,34 @@ const headerProps = {
         }
     ]
 }
+
+const deleteEnableIds: number[] = []
+const actions = computed<TableAction[]>(() => {
+    let result: TableAction[] = []
+    result.push({
+        name: "export",
+        all: true,
+        ids: []
+    })
+    if (Permission.ProductEdit) {
+        result.push({
+            name: "edit",
+            all: true,
+            ids: []
+        })
+    }
+    if (Permission.ProductDelete) {
+        result.push({
+            name: "delete",
+            all: false,
+            ids: deleteEnableIds
+        })
+    }
+
+    return result
+})
 // 调用后端接口 获取表格信息
-onBeforeMount( async () => {
+onBeforeMount(async () => {
     // 系列列表
     await fetch('/api/product-series').then((response) => {
         if (!response.ok) {
@@ -47,37 +73,29 @@ onBeforeMount( async () => {
         }
     }).catch((error) => console.error(error))
     // 是否可删除信息
-    if(Permission.ProductDelete) {
-        await fetch('/api/product-series-del-enable').then((response) => {
-            if (!response.ok) {
-                throw new Error("HTTP status " + response.status);
-            }
-            return response.json()
-        }).then((json) => {
-            if (json.success) {
-                json.data.forEach((element: { delEnable: boolean; psid: number; }) => {
-                    if (element.delEnable) {
-                        tableProps.action.delete.push(element.psid)
-                    }
-                })
-            } else {
-                throw new Error(json.message);
-            }
-        }).catch((error) => console.error(error))
-    } else {
-        delete tableProps.action.delete
-    }
-
-    if(!Permission.ProductEdit) {
-        delete tableProps.action.edit
-    }
+    await fetch('/api/product-series-del-enable').then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status);
+        }
+        return response.json()
+    }).then((json) => {
+        if (json.success) {
+            json.data.forEach((element: { delEnable: boolean; psid: number; }) => {
+                if (element.delEnable) {
+                    deleteEnableIds.push(element.psid)
+                }
+            })
+        } else {
+            throw new Error(json.message);
+        }
+    }).catch((error) => console.error(error))
 
 
     emit('loaded')
 })
 
 // table 参数
-const tableProps: any = reactive({
+const tableProps: TablePropsWithoutAction = reactive({
     data: [],
     headers: [
         {
@@ -96,12 +114,7 @@ const tableProps: any = reactive({
             name: "備考",
             type: "string"
         }
-    ],
-    action: {
-        export: "all",
-        delete: [],
-        edit: "all"
-    }
+    ]
 })
 
 function deleteItem(id: number) {
@@ -203,9 +216,10 @@ function exportExcel(ids: number[]) {
 <template>
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <CommonTable @exportExcel="exportExcel" @edit="(id) => $router.push({ name: 'product-editse', params: { id: id } })"
+        <CommonTable @exportExcel="exportExcel"
+                     @edit="(id) => $router.push({ name: 'product-editse', params: { id: id } })"
                      @deleteAll="deleteAll"
-                     @delete="deleteItem" v-bind="tableProps"></CommonTable>
+                     @delete="deleteItem" v-bind="tableProps" :actions="actions"></CommonTable>
     </div>
 </template>
 <style lang="sass" scoped>
