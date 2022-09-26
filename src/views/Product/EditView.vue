@@ -7,6 +7,7 @@ import router from '../../router';
 import {Get, Put} from "@/script/api";
 
 const route = useRoute()
+const emit = defineEmits(['loaded'])
 const $q = useQuasar()
 
 // 定义接口
@@ -40,9 +41,9 @@ interface ProductIn {
 }
 
 // 页面加载前获取信息
-onBeforeMount(() => {
+onBeforeMount( async () => {
     // 获取类型信息
-    Get('/api/product-type-list-add').then((rsp) => {
+    await Get('/api/product-type-list-add').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -60,7 +61,7 @@ onBeforeMount(() => {
     }).catch((error) => console.error(error))
 
     // 获取系列信息
-    Get('/api/product-series-list-add').then((rsp) => {
+    await Get('/api/product-series-list-add').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -80,7 +81,7 @@ onBeforeMount(() => {
 
     // 获取产品信息
     const id = route.params.id
-    Get('/api/product/' + id).then((rsp) => {
+    await Get('/api/product/' + id).then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -92,6 +93,8 @@ onBeforeMount(() => {
         Object.assign(initialProduct, data)
         Object.assign(product, data)
     }).catch((error) => console.error(error))
+
+    emit('loaded')
 })
 // header 参数
 const headerProps = {

@@ -7,6 +7,7 @@ import {useQuasar} from 'quasar'
 import {Get, Post} from "@/script/api";
 
 const $q = useQuasar()
+const emit = defineEmits(['loaded'])
 
 // 定义接口
 interface Type {
@@ -32,6 +33,7 @@ onBeforeMount(() => {
                 value: Number(e.tid)
             })
         })
+        emit('loaded')
     }).catch((error) => console.log(error))
 })
 // header 参数

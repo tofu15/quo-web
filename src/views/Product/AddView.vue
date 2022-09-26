@@ -7,7 +7,7 @@ import router from '@/router';
 import {Get, Post} from "@/script/api";
 
 const $q = useQuasar()
-
+const emit = defineEmits(['loaded'])
 // 定义接口
 interface Type {
     label: string
@@ -35,9 +35,9 @@ interface Product {
 }
 
 // 获取产品信息 和 系列类型信息
-onBeforeMount(() => {
+onBeforeMount(async () => {
     // 获取类型信息
-    Get('/api/product-type-list-add').then((rsp) => {
+    await Get('/api/product-type-list-add').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -55,7 +55,7 @@ onBeforeMount(() => {
     }).catch((error) => console.error(error))
 
     // 获取系列信息
-    Get('/api/product-series-list-add').then((rsp) => {
+    await Get('/api/product-series-list-add').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -72,6 +72,7 @@ onBeforeMount(() => {
             })
         })
     }).catch((error) => console.error(error))
+    emit('loaded')
 })
 // header 参数
 const headerProps = {

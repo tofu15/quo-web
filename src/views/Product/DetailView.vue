@@ -4,8 +4,13 @@ import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import {useRoute} from 'vue-router'
 import {onBeforeMount, reactive} from 'vue';
 import {Get} from "@/script/api";
+import type {UserPermission} from "@/script/interface"
+import {DefaultUserPermission} from "@/script/interface"
+import {inject} from "@modules/vue";
 
+const Permission = inject<UserPermission>('Permission', DefaultUserPermission)
 const route = useRoute()
+const emit = defineEmits(['loaded'])
 // header 参数
 const headerProps = {
     title: '製品詳細情報',
@@ -130,6 +135,10 @@ onBeforeMount(() => {
             name: '付属',
             data: data.packageInfo
         })
+        if(Permission.ProductEdit) {
+            detailProps.action.push('edit')
+        }
+        emit('loaded')
     }).catch((error) => console.error(error))
 })
 // 详细信息参数
@@ -145,8 +154,7 @@ const detailProps: DetailProps = reactive({
         }
     ],
     action: [
-        'return',
-        'edit'
+        'return'
     ]
 })
 </script>

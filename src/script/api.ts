@@ -16,7 +16,7 @@ export function Get(url: string): Promise<Rsp | Error> {
     })
 }
 
-export function Post(url: string, json: Object): Promise<Rsp | Error> {
+export function Post(url: string, json?: Object): Promise<Rsp | Error> {
     return fetch(url, {
         method: 'POST',
         headers: {

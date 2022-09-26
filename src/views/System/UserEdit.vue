@@ -8,7 +8,7 @@ import {useQuasar} from 'quasar'
 import {useRoute} from "@modules/vue-router";
 
 const route = useRoute()
-
+const emit = defineEmits(['loaded'])
 const $q = useQuasar()
 
 // 定义接口
@@ -42,9 +42,9 @@ const rolesOfDept = computed(() => {
     return roles.filter(role => role.dno === form.dno)
 })
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
     // 获取部门信息
-    Get('/api/dept').then((rsp) => {
+    await Get('/api/dept').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -61,7 +61,7 @@ onBeforeMount(() => {
         })
     }).catch((error) => console.log(error))
     // 获取职位信息
-    Get('/api/role').then((rsp) => {
+    await Get('/api/role').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -80,7 +80,7 @@ onBeforeMount(() => {
     }).catch((error) => console.log(error))
 
     // 获取用户信息
-    Get('/api/user/' + route.params.id).then((rsp) => {
+    await Get('/api/user/' + route.params.id).then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -102,6 +102,8 @@ onBeforeMount(() => {
         form.tel = data.tel
         initialForm.tel = data.tel
     }).catch((error) => console.log(error))
+
+    emit('loaded')
 })
 
 // header 参数

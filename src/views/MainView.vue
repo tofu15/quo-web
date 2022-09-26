@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import {KeepAlive, onBeforeMount, provide, reactive, ref} from 'vue'
-import {RouterView} from 'vue-router'
+import {onBeforeMount, provide, reactive, ref} from 'vue'
+import {onBeforeRouteUpdate, RouterView} from 'vue-router'
 import CommonHeader from '@/components/Common/CommonHeader.vue'
 import CommonNavVue from '@/components/Common/CommonNav.vue'
 import {Get} from "@/script/api";
+import { useRoute } from 'vue-router'
 import type {UserPermission} from "@/script/interface"
 import {DefaultUserPermission} from "@/script/interface"
+import router from "@/router";
+const route = useRoute()
 // 状态 key
 const key = ref(0)
+const loading = ref<boolean>(true)
 
 // 定义接口
 interface MenuData {
@@ -29,11 +33,13 @@ const empDto: EmpDto = reactive({
 })
 
 // 注入用户权限信息
+const mids: number[] = reactive([])
 const Permission: UserPermission = reactive(DefaultUserPermission)
 provide('Permission', Permission)
 
-// 页面加载前 获取用户信息
+// 页面加载前
 onBeforeMount(async () => {
+    // 获取用户信息
     await Get('/api/menu').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
@@ -43,6 +49,7 @@ onBeforeMount(async () => {
             return rsp.data as MenuData
         }
     }).then((data) => {
+        mids.push(...data.mids)
         // 製品閲覧
         if (data.mids.includes(1)) {
             Permission.ProductView = true
@@ -85,20 +92,36 @@ onBeforeMount(async () => {
         }
         Object.assign(empDto, data.empDto)
     }).catch((error) => console.error(error))
+    // 判断权限
+    if(route.meta.mid != 0 && !mids.includes(route.meta.mid)) {
+        await router.push({name: 'NoPermission'})
+    // 判断是否为异步页面
+    } else if (!route.meta.needLoading) {
+        loading.value = false
+    }
+})
+// 路由更新前
+onBeforeRouteUpdate((to) => {
+    loading.value = true
+    // 判断权限
+    if (to.meta.mid != 0 && !mids.includes(to.meta.mid)) {
+        router.push({name: 'NoPermission'})
+        // 判断是否为异步页面
+    } else if (!to.meta.needLoading) {
+        loading.value = false
+    }
 })
 </script>
 
 <template>
     <CommonHeader v-bind="empDto"></CommonHeader>
     <CommonNavVue></CommonNavVue>
-    <div class="mainCon">
-        <router-view v-if="$route.meta.keepAlive" class="main" :key="key" @reload="key+=1" v-slot="{ Component }">
-            <keep-alive>
-                <component :is="Component"/>
-            </keep-alive>
+    <div v-show="!loading" class="mainCon">
+        <router-view class="main" :key="key" @reload="key+=1" @loaded="loading = false">
         </router-view>
-        <router-view class="main" :key="key" @reload="key+=1" v-else>
-        </router-view>
+    </div>
+    <div v-show="loading" class="loadingCon q-pa-md flex flex-center">
+        <q-circular-progress indeterminate rounded size="70px" color="primary"/>
     </div>
 </template>
 
@@ -108,6 +131,14 @@ onBeforeMount(async () => {
     min-height: calc(100vh - 60px)
     margin-top: 60px
     margin-left: 260px
+
+.loadingCon
+    position: fixed
+    top: 60px
+    left: 260px
+    right: 0
+    height: 50vh
+    z-index: 998
 
 .main
     max-width: 1024px

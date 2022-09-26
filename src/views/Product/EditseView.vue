@@ -7,6 +7,7 @@ import {useQuasar} from 'quasar'
 import {Get, Put} from "@/script/api";
 
 const route = useRoute()
+const emit = defineEmits(['loaded'])
 const $q = useQuasar()
 
 // 定义接口
@@ -23,11 +24,11 @@ interface Se {
 }
 
 // 获取产品信息 和 系列类型信息
-onBeforeMount(() => {
+onBeforeMount(async () => {
     // 获取数据
     const id = route.params.id
     // 获取类型信息
-    Get('/api/product-type-list-series-edit').then((rsp) => {
+    await Get('/api/product-type-list-series-edit').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -45,7 +46,7 @@ onBeforeMount(() => {
     }).catch((error) => console.log(error))
 
     // 获取系列信息
-    Get('/api/product-series/' + id).then((rsp) => {
+    await Get('/api/product-series/' + id).then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -57,6 +58,8 @@ onBeforeMount(() => {
         Object.assign(initialSe, data)
         Object.assign(se, data)
     }).catch((error) => console.log(error))
+
+    emit('loaded')
 })
 // header 参数
 const headerProps = {

@@ -1,11 +1,14 @@
-<script setup>
-import {onBeforeMount, reactive} from 'vue'
+<script setup lang="ts">
+import {inject, onBeforeMount, reactive} from 'vue'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
 import {useQuasar} from 'quasar'
+import type {UserPermission} from "@/script/interface"
+import {DefaultUserPermission} from "@/script/interface"
 
+const Permission = inject<UserPermission>('Permission', DefaultUserPermission)
 const $q = useQuasar()
-const emit = defineEmits(['reload'])
+const emit = defineEmits(['reload', 'loaded'])
 
 // header 参数
 const headerProps = {
@@ -29,9 +32,9 @@ const headerProps = {
     ]
 }
 // 调用后端接口 获取表格信息
-onBeforeMount(() => {
+onBeforeMount( async () => {
     // 系列列表
-    fetch('/api/product-series').then((response) => {
+    await fetch('/api/product-series').then((response) => {
         if (!response.ok) {
             throw new Error("HTTP status " + response.status);
         }
@@ -44,26 +47,37 @@ onBeforeMount(() => {
         }
     }).catch((error) => console.error(error))
     // 是否可删除信息
-    fetch('/api/product-series-del-enable').then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            json.data.forEach(element => {
-                if (element.delEnable) {
-                    tableProps.action.delete.push(element.psid)
-                }
-            })
-        } else {
-            throw new Error(json.message);
-        }
-    }).catch((error) => console.error(error))
+    if(Permission.ProductDelete) {
+        await fetch('/api/product-series-del-enable').then((response) => {
+            if (!response.ok) {
+                throw new Error("HTTP status " + response.status);
+            }
+            return response.json()
+        }).then((json) => {
+            if (json.success) {
+                json.data.forEach((element: { delEnable: boolean; psid: number; }) => {
+                    if (element.delEnable) {
+                        tableProps.action.delete.push(element.psid)
+                    }
+                })
+            } else {
+                throw new Error(json.message);
+            }
+        }).catch((error) => console.error(error))
+    } else {
+        delete tableProps.action.delete
+    }
+
+    if(!Permission.ProductEdit) {
+        delete tableProps.action.edit
+    }
+
+
+    emit('loaded')
 })
 
 // table 参数
-const tableProps = reactive({
+const tableProps: any = reactive({
     data: [],
     headers: [
         {
@@ -84,13 +98,13 @@ const tableProps = reactive({
         }
     ],
     action: {
-        edit: "all",
+        export: "all",
         delete: [],
-        export: "all"
+        edit: "all"
     }
 })
 
-function deleteItem(id) {
+function deleteItem(id: number) {
     $q.dialog({
         title: '確認',
         message: '該当シリーズを削除します。よろしいですか？',
@@ -121,7 +135,7 @@ function deleteItem(id) {
     })
 }
 
-function deleteAll(ids) {
+function deleteAll(ids: number[]) {
     $q.dialog({
         title: '確認',
         message: ids.length + "件のシリーズを削除します。よろしいですか？",

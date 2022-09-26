@@ -6,6 +6,7 @@ import {reactive, onBeforeMount} from 'vue';
 import {Get} from "@/script/api";
 
 const route = useRoute()
+const emit = defineEmits(['loaded'])
 // header 参数
 const headerProps = {
     title: '顧客詳細情報',
@@ -64,9 +65,9 @@ interface DetailPropsDataOfData {
 }
 
 // 调用后端接口 获取信息 修改 detailProps
-onBeforeMount(() => {
+onBeforeMount(async () => {
     const id = route.params.id
-    Get('/api/customer/' + id).then((rsp) => {
+    await Get('/api/customer/' + id).then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -120,6 +121,8 @@ onBeforeMount(() => {
             data: data.ftime
         })
     }).catch((error) => console.log(error))
+
+    emit('loaded')
 })
 // 详细信息参数
 const detailProps: DetailProps = reactive({

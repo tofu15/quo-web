@@ -6,7 +6,7 @@ import router from '../../router';
 import {useQuasar} from 'quasar'
 
 const $q = useQuasar()
-const emit = defineEmits(['reload'])
+const emit = defineEmits(['reload', 'loaded'])
 // header 参数
 const headerProps = {
     title: '製品一覧',
@@ -38,6 +38,7 @@ onBeforeMount(() => {
     }).then((json) => {
         if (json.success) {
             tableProps.data.push(...json.data)
+            emit('loaded')
         } else {
             throw new Error(json.message);
         }

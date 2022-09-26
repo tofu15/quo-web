@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import {ref} from 'vue'
 import {RouterLink} from 'vue-router'
+import {Post} from "@/script/api";
+import router from "@/router";
+import {useQuasar} from "@modules/quasar";
 
+const $q = useQuasar()
 // 声明接受的 props
 const props = defineProps<{
     ename: string | null
@@ -15,6 +19,25 @@ const expanded = ref(false)
 // 切换下拉框
 function userBtnClicked() {
     expanded.value = !expanded.value
+}
+
+function logout() {
+    Post('/api/logout').then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
+        } else {
+            router.push({name: 'login'})
+        }
+    }).catch((error) => {
+        $q.dialog({
+            title: 'エラー',
+            message: error.toString(),
+            cancel: false,
+            persistent: false
+        })
+    })
 }
 </script>
 
@@ -42,7 +65,7 @@ function userBtnClicked() {
             </div>
             <div class="popup">
                 <a href="/">個人設定</a>
-                <a href="/">ログアウト</a>
+                <a @click.prevent="logout">ログアウト</a>
             </div>
         </div>
     </header>

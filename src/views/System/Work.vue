@@ -7,7 +7,7 @@ import {useQuasar} from 'quasar'
 import {Get, Put} from "@/script/api"
 
 const $q = useQuasar()
-const emit = defineEmits(['reload'])
+const emit = defineEmits(['reload', 'loaded'])
 // header 参数
 const headerProps = {
     title: '業務設定',
@@ -52,8 +52,8 @@ const initialWorkData = {
     expiry: 0
 }
 // 从后台获取数据
-onBeforeMount(() => {
-    Get('/api/system-setting').then((rsp) => {
+onBeforeMount(async () => {
+    await Get('/api/system-setting').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -65,6 +65,8 @@ onBeforeMount(() => {
         Object.assign(workData, data)
         Object.assign(initialWorkData, data)
     }).catch((error) => console.log(error))
+
+    emit('loaded')
 })
 
 // 是否做了任何编辑

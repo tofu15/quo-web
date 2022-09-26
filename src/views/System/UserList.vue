@@ -6,7 +6,7 @@ import {Delete, Get, Post, Put} from "@/script/api";
 import {useQuasar} from 'quasar'
 
 const $q = useQuasar()
-const emit = defineEmits(['reload'])
+const emit = defineEmits(['reload', 'loaded'])
 // header 参数
 const headerProps = {
     title: 'ユーザー管理',
@@ -83,8 +83,8 @@ const tableProps: TableProps = reactive({
 })
 
 // 调用后端接口 获取表格信息
-onBeforeMount(() => {
-    Get('/api/users').then((rsp) => {
+onBeforeMount(async () => {
+    await Get('/api/users').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -95,6 +95,8 @@ onBeforeMount(() => {
     }).then((data) => {
         tableProps.data.push(...data)
     }).catch((error) => console.log(error))
+
+    emit('loaded')
 })
 
 // 删除单个用户

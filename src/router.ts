@@ -7,6 +7,7 @@ import LoginView from '@/views/LoginView.vue'
 import ResetPwView from '@/views/ResetPwView.vue'
 
 import HomeView from '@/views/HomeView.vue'
+import NoPermission from '@/views/NoPermission.vue'
 import 'vue-router'
 
 // 产品
@@ -36,7 +37,9 @@ const router = createRouter({
             name: 'login',
             component: LoginView,
             meta: {
-                title: "ログイン"
+                title: "ログイン",
+                needLoading: false,
+                mid: 0
             }
         },
         {
@@ -44,7 +47,9 @@ const router = createRouter({
             name: 'resetpw',
             component: ResetPwView,
             meta: {
-                title: "初期パスワード変更"
+                title: "初期パスワード変更",
+                needLoading: false,
+                mid: 0
             }
         },
         {
@@ -59,7 +64,18 @@ const router = createRouter({
                     component: HomeView,
                     meta: {
                         title: "ホームページ",
-                        keepAlive: false
+                        needLoading: false,
+                        mid: 0
+                    }
+                },
+                {
+                    path: '/no-permission',
+                    name: 'NoPermission',
+                    component: NoPermission,
+                    meta: {
+                        title: "権限がありません",
+                        needLoading: false,
+                        mid: 0
                     }
                 },
                 {
@@ -68,7 +84,8 @@ const router = createRouter({
                     component: ProductListView,
                     meta: {
                         title: "製品一覧",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 1
                     }
                 },
                 {
@@ -77,7 +94,8 @@ const router = createRouter({
                     component: ProductDetailView,
                     meta: {
                         title: "製品詳細情報",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 1
                     }
                 },
                 {
@@ -86,7 +104,8 @@ const router = createRouter({
                     component: ProductEditView,
                     meta: {
                         title: "製品情報編集",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 2
                     }
                 },
                 {
@@ -95,7 +114,8 @@ const router = createRouter({
                     component: ProductAddView,
                     meta: {
                         title: "新規製品",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 4
                     }
                 },
                 {
@@ -104,7 +124,8 @@ const router = createRouter({
                     component: ProductAddAllView,
                     meta: {
                         title: "新規製品一括インポート",
-                        keepAlive: false
+                        needLoading: false,
+                        mid: 4
                     }
                 },
                 {
@@ -113,7 +134,8 @@ const router = createRouter({
                     component: ProductListseView,
                     meta: {
                         title: "シリーズ一覧",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 6
                     }
                 },
                 {
@@ -122,7 +144,8 @@ const router = createRouter({
                     component: ProductEditseView,
                     meta: {
                         title: "シリーズ編集",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 7
                     }
                 },
                 {
@@ -131,7 +154,8 @@ const router = createRouter({
                     component: ProductAddseView,
                     meta: {
                         title: "新規シリーズ",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 9
                     }
                 },
                 {
@@ -140,7 +164,8 @@ const router = createRouter({
                     component: UserPer,
                     meta: {
                         title: "権限設定",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 10
                     }
                 },
                 {
@@ -149,7 +174,8 @@ const router = createRouter({
                     component: NewUser,
                     meta: {
                         title: "新規ユーザー",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 10
                     }
                 },
                 {
@@ -158,7 +184,8 @@ const router = createRouter({
                     component: UserList,
                     meta: {
                         title: "ユーザー管理",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 10
                     }
                 },
                 {
@@ -167,7 +194,8 @@ const router = createRouter({
                     component: UserEdit,
                     meta: {
                         title: "ユーザー編集",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 10
                     }
                 },
                 {
@@ -176,7 +204,8 @@ const router = createRouter({
                     component: Work,
                     meta: {
                         title: "業務設定",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 10
                     }
                 },
                 {
@@ -185,7 +214,8 @@ const router = createRouter({
                     component: CustomerList,
                     meta: {
                         title: "顧客一覧",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 0
                     }
                 },
                 {
@@ -194,7 +224,8 @@ const router = createRouter({
                     component: CustomerDetail,
                     meta: {
                         title: "顧客詳細情報",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 0
                     }
                 },
                 {
@@ -203,7 +234,8 @@ const router = createRouter({
                     component: CustomerList,
                     meta: {
                         title: "顧客編集",
-                        keepAlive: false
+                        needLoading: true,
+                        mid: 0
                     }
                 },
                 {
@@ -212,7 +244,8 @@ const router = createRouter({
                     component: CustomerList,
                     meta: {
                         title: "新規見込み顧客",
-                        keepAlive: false
+                        needLoading: false,
+                        mid: 0
                     }
                 }
             ]
@@ -256,6 +289,8 @@ declare module 'vue-router' {
         keepAlive?: boolean
         // 每个路由都必须声明
         title: string
+        needLoading: boolean
+        mid: number
     }
 }
 

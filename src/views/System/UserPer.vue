@@ -5,7 +5,7 @@ import MainViewHeader from '@/components/Common/MainViewHeader.vue'
 import {useQuasar} from 'quasar'
 
 const $q = useQuasar()
-const emit = defineEmits(['reload'])
+const emit = defineEmits(['reload', 'loaded'])
 // header 参数
 const headerProps = {
     title: '権限設定',
@@ -133,9 +133,9 @@ const isEdited = computed<boolean>(() => {
 })
 
 // 加载页面前 1.获取部门和职位信息 2.初始化权限列表
-onBeforeMount(() => {
+onBeforeMount( async () => {
     // 获取部门信息
-    Get('/api/dept').then((rsp) => {
+    await Get('/api/dept').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -152,7 +152,7 @@ onBeforeMount(() => {
         })
     }).catch((error) => console.log(error))
     // 获取职位信息
-    Get('/api/role').then((rsp) => {
+    await Get('/api/role').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -175,6 +175,7 @@ onBeforeMount(() => {
         permissionOfRole.push(false)
         inPermissionOfRole.push(false)
     })
+    emit('loaded')
 })
 
 // 观察 dno 变化时 重置 rid

@@ -4,7 +4,7 @@ import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
 import {Get} from "@/script/api";
 
-const emit = defineEmits(['reload'])
+const emit = defineEmits(['reload', 'loaded'])
 // header 参数
 const headerProps = {
     title: '顧客一覧',
@@ -85,8 +85,8 @@ const tableProps: TableProps = reactive({
 })
 
 // 调用后端接口 获取表格信息
-onBeforeMount(() => {
-    Get('/api/customer').then((rsp) => {
+onBeforeMount(async () => {
+    await Get('/api/customer').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -97,6 +97,8 @@ onBeforeMount(() => {
     }).then((data) => {
         tableProps.data.push(...data)
     }).catch((error) => console.log(error))
+
+    emit('loaded')
 })
 </script>
 
