@@ -169,11 +169,41 @@ function deleteAll(ids: number[]) {
         })
     })
 }
+
+function exportExcel(ids: number[]) {
+    fetch('/api/productseries-export', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ids)
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status)
+        }
+        return response.blob()
+    }).then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const fileLink = document.createElement('a');
+        fileLink.href = url;
+        fileLink.download = 'シリーズエクスポート.xlsx'
+        document.body.appendChild(fileLink)
+        fileLink.click()
+        fileLink.remove()
+    }).catch((error) => {
+        $q.dialog({
+            title: 'エラー',
+            message: error.toString(),
+            cancel: false,
+            persistent: false
+        })
+    })
+}
 </script>
 <template>
     <div>
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <CommonTable @edit="(id) => $router.push({ name: 'product-editse', params: { id: id } })"
+        <CommonTable @exportExcel="exportExcel" @edit="(id) => $router.push({ name: 'product-editse', params: { id: id } })"
                      @deleteAll="deleteAll"
                      @delete="deleteItem" v-bind="tableProps"></CommonTable>
     </div>
