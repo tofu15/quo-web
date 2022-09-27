@@ -1,22 +1,51 @@
-<script setup>
-import {ref, reactive, computed, watch} from 'vue'
+<script setup lang="ts">
+import type {Ref} from 'vue'
+import {computed, reactive, ref, watch} from 'vue'
+
 // prop 定义
-const props = defineProps({
-    data: {
-        type: Array
-    },
+interface TableProps {
+    data: any[]
     headers: {
-        type: Array
-    },
-    action: {
-        type: Object
-    }
-})
+        name: string
+        type: string
+        decimal?: boolean
+    }[]
+    actions: {
+        name: string
+        all: boolean
+        ids: number[]
+    }[]
+}
+
+const props = defineProps<TableProps>()
 // 声明触发的事件
 const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel', 'reset']);
 
+// 声明接口
+interface TableIn {
+    filterOpen: boolean
+    filters: Filter[]
+    everyPage: string
+    page: number
+    isAllSelected: boolean
+}
 
-const table = reactive({
+interface Filter {
+    type: string
+    text: string
+    select: string | number | null
+    selects: (string | number)[]
+    num?: number | ""
+    from?: number | ""
+    to?: number | ""
+    date?: string | null
+    dateRange?: {
+        from: string | null
+        to: string | null
+    }
+}
+
+const table: TableIn = reactive({
     filterOpen: false,
     filters: defaultFilters(),
     everyPage: "20",
@@ -31,7 +60,7 @@ const sort = reactive({
 })
 
 // 排序事件
-function sortClick(header) {
+function sortClick(header: string) {
     if (!sort.isSort || sort.header !== header) {
         sort.isSort = true
         sort.header = header
@@ -47,35 +76,31 @@ function sortClick(header) {
 
 
 // 选择 Map
-const selectMap = reactive(new Map())
+const selectMap: Map<number, Ref<boolean>> = reactive(new Map())
 // 设置选择 Map
 watch(props, () => {
     props.data.forEach((value) => {
         let id = value[Object.keys(value)[0]]
-        selectMap.set(id, ref(false))
+        selectMap.set(id as number, ref(false))
     })
 }, {immediate: true})
 
 // 全选按钮点击
 function allSelectClick() {
-    let to
-    if (table.isAllSelected === true) {
-        to = false
-    } else {
-        to = true
-    }
-    tableData.value.forEach((item) => {
-        let id = item[Object.keys(item)[0]]
-        selectMap.get(id).value = to
+    let to: boolean
+    to = !table.isAllSelected
+    tableData.value.forEach((item: any) => {
+        let id = item[Object.keys(item)[0]] as number
+        (selectMap.get(id) as Ref<boolean>).value = to
     })
 }
 
 // 判断是否全选
 watch(selectMap, (selectMap) => {
     let result = true
-    tableData.value.forEach((item) => {
+    tableData.value.forEach((item: any) => {
         let id = item[Object.keys(item)[0]]
-        if (selectMap.get(id).value == false) {
+        if (!(selectMap.get(id) as Ref<boolean>).value) {
             result = false
         }
     })
@@ -92,7 +117,7 @@ const everyPage = computed(() => {
 })
 
 const numOfPages = computed(() => {
-    let result = 1
+    let result: number
     if (everyPage.value === 0 || filteredData.value.length === 0) {
         result = 1
     } else {
@@ -116,7 +141,7 @@ const sortedData = computed(() => {
             }
         })
         if (type === 'number') {
-            result.sort((a, b) => {
+            result.sort((a: any, b: any) => {
                 const key = Object.keys(a)[index]
                 const aNum = a[key]
                 const bNum = b[key]
@@ -129,7 +154,7 @@ const sortedData = computed(() => {
                 }
             })
         } else {
-            result.sort((a, b) => {
+            result.sort((a: any, b: any) => {
                 const key = Object.keys(a)[index]
                 const aStr = a[key]
                 const bStr = b[key]
@@ -154,43 +179,39 @@ const filteredData = computed(() => {
     table.filters.forEach((filter, index) => {
         // 文本过滤
         if (filter.type === "string" && filter.text.length !== 0) {
-            result = result.filter(item => {
+            result = result.filter((item: any) => {
                 let key = Object.keys(item)[index]
                 let str = String(item[key]).toLowerCase()
                 return str.includes(filter.text.toLowerCase());
             })
             // 数字过滤
         } else if (filter.type === "number" && filter.num !== "") {
-            result = result.filter(item => {
+            result = result.filter((item: any) => {
                 let key = Object.keys(item)[index]
                 let num = item[key]
                 return num === filter.num;
             })
             // 数字范围过滤
         } else if (filter.type === "numberRange" && (filter.from !== "" || filter.to !== "")) {
-            result = result.filter(item => {
+            result = result.filter((item: any) => {
                 let key = Object.keys(item)[index]
                 let num = item[key]
-                if (filter.from !== "" && filter.to !== "" && num >= filter.from && num <= filter.to) {
+                if (filter.from !== "" && filter.to !== "" && num >= (filter.from as number) && num <= (filter.to as number)) {
                     return true
-                } else if (filter.from === "" && num <= filter.to) {
+                } else if (filter.from === "" && num <= (filter.to as number)) {
                     return true
-                } else if (filter.to === "" && num >= filter.from) {
-                    return true
-                } else {
-                    return false
-                }
+                } else return filter.to === "" && num >= (filter.from as number);
             })
             // 单选过滤
         } else if (filter.type === "select" && filter.select != null) {
-            result = result.filter(item => {
+            result = result.filter((item: any) => {
                 let key = Object.keys(item)[index]
                 let str = item[key]
                 return str === filter.select;
             })
             // 多选过滤
-        } else if (filter.type === "multiSelect" && filter.selects != null && filter.selects.length !== 0) {
-            result = result.filter(item => {
+        } else if (filter.type === "multiSelect" && filter.selects.length !== 0) {
+            result = result.filter((item: any) => {
                 let key = Object.keys(item)[index]
                 let str = item[key]
                 for (const select of filter.selects) {
@@ -202,17 +223,17 @@ const filteredData = computed(() => {
             })
             // 日期过滤
         } else if (filter.type === "date" && filter.date != null && filter.date.length !== 0) {
-            result = result.filter(item => {
+            result = result.filter((item: any) => {
                 let key = Object.keys(item)[index]
                 let str = item[key]
                 return str === filter.date;
             })
             // 日期范围过滤
-        } else if (filter.type === "dateRange" && filter.dateRange.from != null && filter.dateRange.to != null) {
-            result = result.filter(item => {
+        } else if (filter.type === "dateRange" && (filter.dateRange as { from: string, to: string }).from != null && (filter.dateRange as { from: string, to: string }).to != null) {
+            result = result.filter((item: any) => {
                 let key = Object.keys(item)[index]
                 let str = item[key]
-                return (str >= filter.dateRange.from && str <= filter.dateRange.to);
+                return (str >= (filter.dateRange as { from: string, to: string }).from && str <= (filter.dateRange as { from: string, to: string }).to)
             })
         }
     })
@@ -239,10 +260,14 @@ watch(tableData, () => {
         selectMap.set(key, ref(false))
     })
 })
+// 判断是否有操作行
+const hasAction = computed<boolean>(() => {
+    return props.actions.some(action => action.name === 'view' || action.name === 'edit' || action.name === 'delete' || action.name === 'reset')
+})
 // 判断是否有选中
 const iSAnySelected = computed(() => {
     let result = false;
-    selectMap.forEach((value, key) => {
+    selectMap.forEach((value) => {
         if (value.value) {
             result = true
         }
@@ -252,16 +277,16 @@ const iSAnySelected = computed(() => {
 // 判断是否可选择删除
 const isDeleteAble = computed(() => {
     let result = true
-    if (!props.action.hasOwnProperty("delete")) {
+    if (!props.actions.some(action => action.name == "delete")) {
         return false
-    } else if (props.action.delete === "all") {
+    } else if (props.actions.some(action => action.name == "delete" && action.all)) {
         return iSAnySelected.value
     } else {
         if (!iSAnySelected.value) {
             return false
         } else {
             selectMap.forEach((value, key) => {
-                if (value.value && !props.action.delete.includes(key)) {
+                if (value.value && !props.actions.some(action => action.name == "delete" && action.ids.includes(key))) {
                     result = false
                 }
             })
@@ -271,13 +296,13 @@ const isDeleteAble = computed(() => {
 })
 // 选择器数据
 const tableSelectData = computed(() => {
-    let resultSet = []
-    let result = []
+    let resultSet: Set<any>[] = []
+    let result: any[] = []
     props.headers.forEach((value, index) => {
         resultSet[index] = new Set()
-        result[index] = new Array()
+        result[index] = []
     })
-    props.data.forEach((item, index) => {
+    props.data.forEach((item: any) => {
         Object.entries(item).forEach(([key, value], i) => {
             resultSet[i].add(value)
         })
@@ -295,8 +320,8 @@ const tableSelectData = computed(() => {
 })
 
 // 默认筛选器
-function defaultFilters() {
-    let result = []
+function defaultFilters(): Filter[] {
+    let result: Filter[] = []
     props.headers.forEach((e, index) => {
         if (e.type === "string") {
             result[index] = {
@@ -341,7 +366,7 @@ function defaultFilters() {
 
 // 删除多个
 function deleteAll() {
-    let result = new Array()
+    let result: number[] = []
     selectMap.forEach((value, key) => {
         if (value.value) {
             result.push(key)
@@ -352,7 +377,7 @@ function deleteAll() {
 
 // 导出 excel
 function exportExcel() {
-    let result = new Array()
+    let result: number[] = []
     selectMap.forEach((value, key) => {
         if (value.value) {
             result.push(key)
@@ -362,7 +387,7 @@ function exportExcel() {
 }
 
 // 各个类型的筛选模式
-function filterTypes(t) {
+function filterTypes(t: string) {
     if (t === 'string') {
         return [
             {
@@ -446,9 +471,10 @@ function filterTypes(t) {
 <template>
     <div class="tableCon">
         <div class="operationCon">
-            <q-btn color="red" label="削除" v-if="props.action.hasOwnProperty('delete')" :disabled="!isDeleteAble"
+            <q-btn color="red" label="削除" v-if="props.actions.some(action => action.name === 'delete')"
+                   :disabled="!isDeleteAble"
                    class="del" @click="deleteAll"/>
-            <q-btn color="primary" v-if="props.action.hasOwnProperty('export')" label="エクスポート"
+            <q-btn color="primary" v-if="props.actions.some(action => action.name === 'export')" label="エクスポート"
                    :disabled="!iSAnySelected" @click="exportExcel"/>
         </div>
         <div class="countCon">
@@ -467,7 +493,7 @@ function filterTypes(t) {
             <table>
                 <thead>
                 <tr v-if="table.filterOpen" class="filterCon">
-                    <td v-if="props.action.hasOwnProperty('delete') || props.action.hasOwnProperty('export')"></td>
+                    <td v-if="props.actions.some(action => action.name === 'delete' || action.name === 'export')"></td>
                     <td v-for="(header, index) in props.headers">
                         <q-select outlined v-model="table.filters[index].type" :options="filterTypes(header.type)"
                                   dense map-options emit-value options-dense/>
@@ -475,7 +501,7 @@ function filterTypes(t) {
                     <td></td>
                 </tr>
                 <tr class="filterInput">
-                    <td v-if="props.action.hasOwnProperty('delete') || props.action.hasOwnProperty('export')"></td>
+                    <td v-if="props.actions.some(action => action.name === 'delete' || action.name === 'export')"></td>
                     <td v-for="(header, index) in props.headers">
                         <q-input type="text" outlined v-model="table.filters[index].text" placeholder="テキスト"
                                  v-if="table.filters[index].type === 'string'" dense/>
@@ -542,10 +568,11 @@ function filterTypes(t) {
                     </td>
                 </tr>
                 <tr class="tableHeader">
-                    <th v-if="props.action.hasOwnProperty('delete') || props.action.hasOwnProperty('export')">
+                    <th v-if="props.actions.some(action => action.name === 'delete' || action.name === 'export')">
                         <q-checkbox :model-value="table.isAllSelected" @click="allSelectClick" dense/>
                     </th>
-                    <th @click="sortClick(header.name)" v-for="header in props.headers">{{ header.name }}
+                    <th class="sortHeader" @click="sortClick(header.name)" v-for="header in props.headers">
+                        {{ header.name }}
                         <span v-if="sort.isSort === true && sort.header === header.name && sort.isAscending === true">
                                 <q-icon style="rotate: 180deg;" name="r_sort" size="20px"/>
                             </span>
@@ -557,32 +584,32 @@ function filterTypes(t) {
                                 <q-icon name="r_swap_vert" size="20px"/>
                             </span>
                     </th>
-                    <th>操作</th>
+                    <th v-if="hasAction">操作</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="product in tableData" :key="product[Object.keys(product)[0]]">
-                    <td v-if="props.action.hasOwnProperty('delete') || props.action.hasOwnProperty('export')">
+                    <td v-if="props.actions.some(action => action.name === 'delete' || action.name === 'export')">
                         <q-checkbox v-model="selectMap.get(product[Object.keys(product)[0]]).value" dense/>
                     </td>
                     <td v-for="(value, key, index) in product">
                         {{ props.headers[index].decimal ? value.toFixed(2) : value }}
                     </td>
-                    <td>
-                        <q-btn v-if="props.action.hasOwnProperty('view')"
-                               :disable="props.action.view !== 'all' && !props.action.view.includes(product[Object.keys(product)[0]])"
+                    <td v-if="hasAction">
+                        <q-btn v-if="props.actions.some(action => action.name === 'view')"
+                               :disable="props.actions.some(action => action.name === 'view' && action.all === false && !action.ids.includes(product[Object.keys(product)[0]]))"
                                @click="$emit('view', product[Object.keys(product)[0]])" round color="primary"
                                icon="r_visibility" size="10px"/>
-                        <q-btn v-if="props.action.hasOwnProperty('edit')"
-                               :disable="props.action.edit !== 'all' && !props.action.edit.includes(product[Object.keys(product)[0]])"
+                        <q-btn v-if="props.actions.some(action => action.name === 'edit')"
+                               :disable="props.actions.some(action => action.name === 'edit' && action.all === false && !action.ids.includes(product[Object.keys(product)[0]]))"
                                @click="$emit('edit', product[Object.keys(product)[0]])" round color="secondary"
                                icon="r_edit" size="10px"/>
-                        <q-btn v-if="props.action.hasOwnProperty('delete')"
-                               :disabled="props.action.delete !== 'all' && !props.action.delete.includes(product[Object.keys(product)[0]])"
+                        <q-btn v-if="props.actions.some(action => action.name === 'delete')"
+                               :disable="props.actions.some(action => action.name === 'delete' && action.all === false && !action.ids.includes(product[Object.keys(product)[0]]))"
                                @click="$emit('delete', product[Object.keys(product)[0]])" round color="red"
                                icon="r_delete" size="10px"/>
-                        <q-btn v-if="props.action.hasOwnProperty('reset')"
-                               :disabled="props.action.reset !== 'all' && !props.action.reset.includes(product[Object.keys(product)[0]])"
+                        <q-btn v-if="props.actions.some(action => action.name === 'reset')"
+                               :disable="props.actions.some(action => action.name === 'reset' && action.all === false && !action.ids.includes(product[Object.keys(product)[0]]))"
                                @click="$emit('reset', product[Object.keys(product)[0]])" round color="warning"
                                icon="r_replay" size="10px"/>
                     </td>
@@ -612,10 +639,6 @@ div.tableCon
     border-radius: 15px
     background-color: #ffffff
     padding: 28px
-    // button, select, label
-        // line-height: 1
-        // width: auto
-        // display: inline-block
 
     > div.operationCon
         margin-bottom: 16px
@@ -669,10 +692,10 @@ div.tableCon
                 border-width: 1px 0 1px 0
                 border-style: solid
                 border-color: rgb(228, 228, 228)
+                user-select: none
 
-                &:not(:first-child)
+                &.sortHeader
                     cursor: pointer
-                    user-select: none
 
                     &:hover
                         background: rgba(0, 0, 0, 0.04)

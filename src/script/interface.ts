@@ -38,6 +38,7 @@ export type TablePropsWithoutAction = {
 export type TableHeader = {
     name: string
     type: string
+    decimal?: boolean
 }
 
 export type TableAction = {

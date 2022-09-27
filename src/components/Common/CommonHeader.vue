@@ -148,6 +148,7 @@ header.commonHeader
         border: 1px solid rgb(182, 182, 182)
 
         > a
+            user-select: none
             cursor: pointer
             color: inherit
             text-decoration: none

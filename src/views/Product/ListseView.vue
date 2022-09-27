@@ -5,6 +5,7 @@ import CommonTable from '@/components/Common/CommonTable.vue';
 import {useQuasar} from 'quasar'
 import type {TableAction, TablePropsWithoutAction, UserPermission} from "@/script/interface"
 import {DefaultUserPermission} from "@/script/interface"
+import {Get} from "@/script/api";
 
 const Permission = inject<UserPermission>('Permission', DefaultUserPermission)
 const $q = useQuasar()
@@ -60,34 +61,33 @@ const actions = computed<TableAction[]>(() => {
 // 调用后端接口 获取表格信息
 onBeforeMount(async () => {
     // 系列列表
-    await fetch('/api/product-series').then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            tableProps.data.push(...json.data)
+    await Get('/api/product-series').then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
         } else {
-            throw new Error(json.message);
+            return rsp.data as (number | string)[][]
         }
+    }).then((data) => {
+        tableProps.data.push(...data)
     }).catch((error) => console.error(error))
+
     // 是否可删除信息
-    await fetch('/api/product-series-del-enable').then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            json.data.forEach((element: { delEnable: boolean; psid: number; }) => {
-                if (element.delEnable) {
-                    deleteEnableIds.push(element.psid)
-                }
-            })
+    await Get('/api/product-series-del-enable').then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
         } else {
-            throw new Error(json.message);
+            return rsp.data as { delEnable: boolean, psid: number }[]
         }
+    }).then((data) => {
+        data.forEach((element) => {
+            if (element.delEnable) {
+                deleteEnableIds.push(element.psid)
+            }
+        })
     }).catch((error) => console.error(error))
 
 
