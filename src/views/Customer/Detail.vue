@@ -2,9 +2,12 @@
 import CommonDetail from '@/components/Common/CommonDetail.vue';
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import {useRoute} from 'vue-router'
-import {reactive, onBeforeMount} from 'vue';
+import {inject, onBeforeMount, reactive} from 'vue';
 import {Get} from "@/script/api";
+import type {UserPermission} from "@/script/interface"
+import {DefaultUserPermission} from "@/script/interface"
 
+const Permission = inject<UserPermission>('Permission', DefaultUserPermission)
 const route = useRoute()
 const emit = defineEmits(['loaded'])
 // header 参数
@@ -122,6 +125,10 @@ onBeforeMount(async () => {
         })
     }).catch((error) => console.log(error))
 
+    if (Permission.CustomerEdit) {
+        detailProps.action.push('edit')
+    }
+
     emit('loaded')
 })
 // 详细信息参数
@@ -133,8 +140,7 @@ const detailProps: DetailProps = reactive({
         }
     ],
     action: [
-        'return',
-        'edit'
+        'return'
     ]
 })
 </script>

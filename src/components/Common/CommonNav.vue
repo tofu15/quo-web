@@ -46,6 +46,82 @@ const items = computed<item[]>(() => {
     if (product.subs?.length != 0) {
         items.push(product)
     }
+
+    // 库存
+    let stock: item = {
+        moduleName: '在庫管理',
+        url: '/stock',
+        haveSub: true,
+        subs: []
+    }
+    if (Permission.StockView) {
+        stock.subs?.push({name: '在庫一覧', url: '/list'})
+    }
+    if (Permission.StockRecord) {
+        stock.subs?.push({name: '入出庫履歴', url: '/record'})
+    }
+    if (stock.subs?.length != 0) {
+        items.push(stock)
+    }
+
+    // 顾客
+    let customer: item = {
+        moduleName: '顧客管理',
+        url: '/customer',
+        haveSub: true,
+        subs: []
+    }
+    if (Permission.StockView) {
+        customer.subs?.push({name: '顧客一覧', url: '/list'})
+    }
+    if (Permission.StockRecord) {
+        customer.subs?.push({name: '新規見込み顧客', url: '/add'})
+    }
+    if (customer.subs?.length != 0) {
+        items.push(customer)
+    }
+
+    // todo
+    // items.push(
+    // {
+    //     moduleName: '見積管理',
+    //     url: '/estimate',
+    //     haveSub: true,
+    //     subs: [
+    //         {name: '見積書一覧', url: '/list'},
+    //         {name: '見積書作成', url: '/add'},
+    //         {name: '承認待ち見積書', url: '/verify'}
+    //     ]
+    // },
+    // {
+    //     moduleName: '注文管理',
+    //     url: '/order',
+    //     haveSub: true,
+    //     subs: [
+    //         {name: '注文一覧', url: '/list'},
+    //         {name: '出庫待ち注文', url: '/verify'}
+    //     ]
+    // },
+    // {
+    //     moduleName: 'データ分析',
+    //     url: '/analysis',
+    //     haveSub: false
+    // }
+    // )
+
+    // 个人设置
+    items.push(
+        {
+            moduleName: '個人設定',
+            url: '/settings',
+            haveSub: true,
+            subs: [
+                {name: '個人情報', url: '/profile'},
+                {name: 'パスワード変更', url: '/pwd'}
+            ]
+        }
+    )
+
     // 系统设置
     if (Permission.SystemSettings) {
         items.push({
@@ -60,59 +136,6 @@ const items = computed<item[]>(() => {
             ]
         })
     }
-
-    items.push({
-            moduleName: '在庫管理',
-            url: '/stock',
-            haveSub: true,
-            subs: [
-                {name: '在庫一覧', url: '/list'},
-                {name: '入出庫記入', url: '/record'},
-                {name: '入出庫履歴', url: '/history'}
-            ]
-        },
-        {
-            moduleName: '見積管理',
-            url: '/estimate',
-            haveSub: true,
-            subs: [
-                {name: '見積書一覧', url: '/list'},
-                {name: '見積書作成', url: '/add'},
-                {name: '承認待ち見積書', url: '/verify'}
-            ]
-        },
-        {
-            moduleName: '注文管理',
-            url: '/order',
-            haveSub: true,
-            subs: [
-                {name: '注文一覧', url: '/list'},
-                {name: '出庫待ち注文', url: '/verify'}
-            ]
-        },
-        {
-            moduleName: '顧客管理',
-            url: '/customer',
-            haveSub: true,
-            subs: [
-                {name: '顧客一覧', url: '/list'},
-                {name: '新規見込み顧客', url: '/add'}
-            ]
-        },
-        {
-            moduleName: 'データ分析',
-            url: '/analysis',
-            haveSub: false
-        },
-        {
-            moduleName: '個人設定',
-            url: '/settings',
-            haveSub: true,
-            subs: [
-                {name: '個人情報', url: '/profile'},
-                {name: 'パスワード変更', url: '/pwd'}
-            ]
-        })
 
     return items
 })

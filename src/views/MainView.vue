@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import {onBeforeMount, provide, reactive, ref} from 'vue'
-import {onBeforeRouteUpdate, RouterView} from 'vue-router'
+import {onBeforeRouteUpdate, RouterView, useRoute} from 'vue-router'
 import CommonHeader from '@/components/Common/CommonHeader.vue'
 import CommonNavVue from '@/components/Common/CommonNav.vue'
 import {Get} from "@/script/api";
-import { useRoute } from 'vue-router'
 import type {UserPermission} from "@/script/interface"
 import {DefaultUserPermission} from "@/script/interface"
 import router from "@/router";
+
 const route = useRoute()
 // 状态 key
 const key = ref(0)
@@ -86,6 +86,30 @@ onBeforeMount(async () => {
         if (data.mids.includes(9)) {
             Permission.ProductSeriesAdd = true
         }
+        //在庫閲覧
+        if (data.mids.includes(11)) {
+            Permission.StockView = true
+        }
+        //入出庫履歴
+        if (data.mids.includes(12)) {
+            Permission.StockRecord = true
+        }
+        //入出庫操作
+        if (data.mids.includes(13)) {
+            Permission.StockAction = true
+        }
+        //顧客閲覧
+        if (data.mids.includes(14)) {
+            Permission.CustomerView = true
+        }
+        //顧客編集
+        if (data.mids.includes(15)) {
+            Permission.CustomerEdit = true
+        }
+        //顧客新規
+        if (data.mids.includes(16)) {
+            Permission.CustomerAdd = true
+        }
         // システム設定
         if (data.mids.includes(10)) {
             Permission.SystemSettings = true
@@ -93,9 +117,9 @@ onBeforeMount(async () => {
         Object.assign(empDto, data.empDto)
     }).catch((error) => console.error(error))
     // 判断权限
-    if(route.meta.mid != 0 && !mids.includes(route.meta.mid)) {
+    if (route.meta.mid != 0 && !mids.includes(route.meta.mid)) {
         await router.push({name: 'NoPermission'})
-    // 判断是否为异步页面
+        // 判断是否为异步页面
     } else if (!route.meta.needLoading) {
         loading.value = false
     }

@@ -28,6 +28,8 @@ import UserEdit from '@/views/System/UserEdit.vue'
 // 顾客
 import CustomerList from '@/views/Customer/List.vue'
 import CustomerDetail from '@/views/Customer/Detail.vue'
+import CustomerEdit from '@/views/Customer/Edit.vue'
+import CustomerAdd from '@/views/Customer/Add.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -215,7 +217,7 @@ const router = createRouter({
                     meta: {
                         title: "顧客一覧",
                         needLoading: true,
-                        mid: 0
+                        mid: 14
                     }
                 },
                 {
@@ -225,27 +227,27 @@ const router = createRouter({
                     meta: {
                         title: "顧客詳細情報",
                         needLoading: true,
-                        mid: 0
+                        mid: 14
                     }
                 },
                 {
                     path: '/customer/edit/:id',
                     name: 'customer-edit',
-                    component: CustomerList,
+                    component: CustomerEdit,
                     meta: {
                         title: "顧客編集",
                         needLoading: true,
-                        mid: 0
+                        mid: 15
                     }
                 },
                 {
                     path: '/customer/add',
                     name: 'customer-add',
-                    component: CustomerList,
+                    component: CustomerAdd,
                     meta: {
                         title: "新規見込み顧客",
                         needLoading: false,
-                        mid: 0
+                        mid: 16
                     }
                 }
             ]

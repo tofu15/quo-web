@@ -1,4 +1,5 @@
 export type UserPermission = {
+    // 产品
     ProductView: boolean
     ProductEdit: boolean
     ProductDelete: boolean
@@ -8,6 +9,15 @@ export type UserPermission = {
     ProductSeriesEdit: boolean
     ProductSeriesDelete: boolean
     ProductSeriesAdd: boolean
+    // 库存
+    StockView: boolean
+    StockRecord: boolean
+    StockAction: boolean
+    // 顾客
+    CustomerView: boolean
+    CustomerEdit: boolean
+    CustomerAdd: boolean
+    // 系统设置
     SystemSettings: boolean
 }
 
@@ -21,6 +31,12 @@ export const DefaultUserPermission: UserPermission = {
     ProductSeriesEdit: false,
     ProductSeriesDelete: false,
     ProductSeriesAdd: false,
+    StockView: false,
+    StockRecord: false,
+    StockAction: false,
+    CustomerView: false,
+    CustomerEdit: false,
+    CustomerAdd: false,
     SystemSettings: false
 }
 

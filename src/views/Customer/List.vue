@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import {onBeforeMount, reactive} from 'vue'
+import {inject, onBeforeMount, reactive} from 'vue'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
 import {Get} from "@/script/api";
+import type {TableProps, UserPermission} from "@/script/interface"
+import {DefaultUserPermission} from "@/script/interface"
 
+const Permission = inject<UserPermission>('Permission', DefaultUserPermission)
 const emit = defineEmits(['reload', 'loaded'])
 // header 参数
 const headerProps = {
@@ -36,13 +39,6 @@ interface Cus {
     ename: string
     csource: string
     ftime: string
-}
-
-// 定义 table 参数接口
-interface TableProps {
-    data: Cus[]
-    headers: Object[]
-    action: object
 }
 
 // table 参数
@@ -78,10 +74,13 @@ const tableProps: TableProps = reactive({
             type: "date"
         }
     ],
-    action: {
-        view: "all",
-        edit: "all"
-    }
+    actions: [
+        {
+            name: 'view',
+            all: true,
+            ids: []
+        }
+    ]
 })
 
 // 调用后端接口 获取表格信息
@@ -97,6 +96,14 @@ onBeforeMount(async () => {
     }).then((data) => {
         tableProps.data.push(...data)
     }).catch((error) => console.log(error))
+
+    if (Permission.CustomerEdit) {
+        tableProps.actions.push({
+            name: 'edit',
+            all: true,
+            ids: []
+        })
+    }
 
     emit('loaded')
 })

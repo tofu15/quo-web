@@ -104,6 +104,30 @@ const permissionList: permission[] = [
     {
         id: 10,
         name: 'システム設定'
+    },
+    {
+        id: 11,
+        name: '在庫閲覧'
+    },
+    {
+        id: 12,
+        name: '入出庫履歴'
+    },
+    {
+        id: 13,
+        name: '入出庫操作'
+    },
+    {
+        id: 14,
+        name: '顧客閲覧'
+    },
+    {
+        id: 15,
+        name: '顧客編集'
+    },
+    {
+        id: 16,
+        name: '顧客新規'
     }
 ]
 
@@ -133,7 +157,7 @@ const isEdited = computed<boolean>(() => {
 })
 
 // 加载页面前 1.获取部门和职位信息 2.初始化权限列表
-onBeforeMount( async () => {
+onBeforeMount(async () => {
     // 获取部门信息
     await Get('/api/dept').then((rsp) => {
         if (rsp instanceof Error) {
@@ -325,6 +349,28 @@ function save() {
                             <div class="inputCon">
                                 <q-checkbox dense class="checkbox" v-model="permissionOfRole[4]"
                                             :label="permissionList[4].name"/>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>在庫</th>
+                        <td>在庫管理</td>
+                        <td>
+                            <div class="inputCon">
+                                <q-checkbox dense v-model="permissionOfRole[10]" :label="permissionList[10].name"/>
+                                <q-checkbox dense v-model="permissionOfRole[11]" :label="permissionList[11].name"/>
+                                <q-checkbox dense v-model="permissionOfRole[12]" :label="permissionList[12].name"/>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>顧客</th>
+                        <td>顧客管理</td>
+                        <td>
+                            <div class="inputCon">
+                                <q-checkbox dense v-model="permissionOfRole[13]" :label="permissionList[13].name"/>
+                                <q-checkbox dense v-model="permissionOfRole[14]" :label="permissionList[14].name"/>
+                                <q-checkbox dense v-model="permissionOfRole[15]" :label="permissionList[15].name"/>
                             </div>
                         </td>
                     </tr>
