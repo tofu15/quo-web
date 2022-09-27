@@ -71,10 +71,10 @@ const items = computed<item[]>(() => {
         haveSub: true,
         subs: []
     }
-    if (Permission.StockView) {
+    if (Permission.CustomerView) {
         customer.subs?.push({name: '顧客一覧', url: '/list'})
     }
-    if (Permission.StockRecord) {
+    if (Permission.CustomerAdd) {
         customer.subs?.push({name: '新規見込み顧客', url: '/add'})
     }
     if (customer.subs?.length != 0) {
