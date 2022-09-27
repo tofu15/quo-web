@@ -88,7 +88,8 @@ function update() {
             throw new Error(rsp.message)
         } else {
             status.loading = false
-            emit('reload')
+            modalData.auth = true
+            router.push({name: 'customer-list'})
         }
     }).catch((error) => {
         status.loading = false
