@@ -1,10 +1,14 @@
-<script setup>
-import {onBeforeMount, reactive} from 'vue'
+<script setup lang="ts">
+import {inject, onBeforeMount, reactive} from 'vue'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
 import router from '../../router';
 import {useQuasar} from 'quasar'
+import type {TableProps, UserPermission} from "@/script/interface"
+import {DefaultUserPermission} from "@/script/interface"
+import {Get} from "@/script/api";
 
+const Permission = inject<UserPermission>('Permission', DefaultUserPermission)
 const $q = useQuasar()
 const emit = defineEmits(['reload', 'loaded'])
 // header 参数
@@ -30,22 +34,35 @@ const headerProps = {
 }
 // 调用后端接口 获取表格信息
 onBeforeMount(() => {
-    fetch('/api/product').then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status);
-        }
-        return response.json()
-    }).then((json) => {
-        if (json.success) {
-            tableProps.data.push(...json.data)
-            emit('loaded')
+    if (Permission.ProductEdit) {
+        tableProps.actions.push({
+            name: "edit",
+            all: true,
+            ids: []
+        })
+    }
+    if (Permission.ProductDelete) {
+        tableProps.actions.push({
+            name: "delete",
+            all: true,
+            ids: []
+        })
+    }
+    Get('/api/product').then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
         } else {
-            throw new Error(json.message);
+            return rsp.data as any
         }
+    }).then((data) => {
+        tableProps.data.push(...data)
+        emit('loaded')
     }).catch((error) => console.error(error))
 })
 // table 参数
-const tableProps = reactive({
+const tableProps: TableProps = reactive({
     data: [],
     headers: [
         {
@@ -74,15 +91,21 @@ const tableProps = reactive({
             type: "number"
         }
     ],
-    action: {
-        view: "all",
-        edit: "all",
-        delete: "all",
-        export: "all"
-    }
+    actions: [
+        {
+            name: "export",
+            all: true,
+            ids: []
+        },
+        {
+            name: "view",
+            all: true,
+            ids: []
+        }
+    ]
 })
 
-function deleteItem(id) {
+function deleteItem(id: number) {
     $q.dialog({
         title: '確認',
         message: '該当製品を削除します。よろしいですか？',
@@ -113,7 +136,7 @@ function deleteItem(id) {
     })
 }
 
-function deleteAll(ids) {
+function deleteAll(ids: number[]) {
     $q.dialog({
         title: '確認',
         message: ids.length + "件の製品を削除します。よろしいですか？",
@@ -148,11 +171,11 @@ function deleteAll(ids) {
     })
 }
 
-function view(id) {
+function view(id: number) {
     router.push({name: 'product-detail', params: {id: id}})
 }
 
-function exportExcel(ids) {
+function exportExcel(ids: number[]) {
     fetch('/api/product-export', {
         method: 'POST',
         headers: {

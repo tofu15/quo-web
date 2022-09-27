@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {computed, inject, onBeforeMount, reactive} from 'vue'
+import {inject, onBeforeMount, reactive} from 'vue'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
 import {useQuasar} from 'quasar'
-import type {TableAction, TablePropsWithoutAction, UserPermission} from "@/script/interface"
+import type {TableProps, UserPermission} from "@/script/interface"
 import {DefaultUserPermission} from "@/script/interface"
 import {Get} from "@/script/api";
 
@@ -33,31 +33,6 @@ const headerProps = {
     ]
 }
 
-const deleteEnableIds: number[] = []
-const actions = computed<TableAction[]>(() => {
-    let result: TableAction[] = []
-    result.push({
-        name: "export",
-        all: true,
-        ids: []
-    })
-    if (Permission.ProductEdit) {
-        result.push({
-            name: "edit",
-            all: true,
-            ids: []
-        })
-    }
-    if (Permission.ProductDelete) {
-        result.push({
-            name: "delete",
-            all: false,
-            ids: deleteEnableIds
-        })
-    }
-
-    return result
-})
 // 调用后端接口 获取表格信息
 onBeforeMount(async () => {
     // 系列列表
@@ -67,35 +42,48 @@ onBeforeMount(async () => {
         } else if (!rsp.success) {
             throw new Error(rsp.message)
         } else {
-            return rsp.data as (number | string)[][]
+            return rsp.data as any
         }
     }).then((data) => {
         tableProps.data.push(...data)
     }).catch((error) => console.error(error))
 
-    // 是否可删除信息
-    await Get('/api/product-series-del-enable').then((rsp) => {
-        if (rsp instanceof Error) {
-            throw rsp
-        } else if (!rsp.success) {
-            throw new Error(rsp.message)
-        } else {
-            return rsp.data as { delEnable: boolean, psid: number }[]
-        }
-    }).then((data) => {
-        data.forEach((element) => {
-            if (element.delEnable) {
-                deleteEnableIds.push(element.psid)
-            }
+    if (Permission.ProductSeriesEdit) {
+        tableProps.actions.push({
+            name: "edit",
+            all: true,
+            ids: []
         })
-    }).catch((error) => console.error(error))
-
+    }
+    if (Permission.ProductSeriesDelete) {
+        let ids: number[] = []
+        await Get('/api/product-series-del-enable').then((rsp) => {
+            if (rsp instanceof Error) {
+                throw rsp
+            } else if (!rsp.success) {
+                throw new Error(rsp.message)
+            } else {
+                return rsp.data as { delEnable: boolean, psid: number }[]
+            }
+        }).then((data) => {
+            data.forEach((element) => {
+                if (element.delEnable) {
+                    ids.push(element.psid)
+                }
+            })
+            tableProps.actions.push({
+                name: "delete",
+                all: false,
+                ids: ids
+            })
+        }).catch((error) => console.error(error))
+    }
 
     emit('loaded')
 })
 
 // table 参数
-const tableProps: TablePropsWithoutAction = reactive({
+const tableProps: TableProps = reactive({
     data: [],
     headers: [
         {
@@ -114,7 +102,12 @@ const tableProps: TablePropsWithoutAction = reactive({
             name: "備考",
             type: "string"
         }
-    ]
+    ],
+    actions: [{
+        name: "export",
+        all: true,
+        ids: []
+    }]
 })
 
 function deleteItem(id: number) {
@@ -219,7 +212,7 @@ function exportExcel(ids: number[]) {
         <CommonTable @exportExcel="exportExcel"
                      @edit="(id) => $router.push({ name: 'product-editse', params: { id: id } })"
                      @deleteAll="deleteAll"
-                     @delete="deleteItem" v-bind="tableProps" :actions="actions"></CommonTable>
+                     @delete="deleteItem" v-bind="tableProps"></CommonTable>
     </div>
 </template>
 <style lang="sass" scoped>

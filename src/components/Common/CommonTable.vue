@@ -454,6 +454,11 @@ function filterTypes(t) {
 const hasCheckBox = computed(() => {
     return props.actions.some(action => action.name === 'delete' || action.name === 'export')
 })
+
+// 是否需要操作行
+const hasAction = computed(() => {
+    return props.actions.some(action => action.name === 'view' || action.name === 'edit' || action.name === 'delete' || action.name === 'reset')
+})
 </script>
 
 <template>
@@ -559,7 +564,8 @@ const hasCheckBox = computed(() => {
                     <th v-if="hasCheckBox">
                         <q-checkbox :model-value="table.isAllSelected" @click="allSelectClick" dense/>
                     </th>
-                    <th @click="sortClick(header.name)" v-for="header in props.headers">{{ header.name }}
+                    <th class="sortHeader" @click="sortClick(header.name)" v-for="header in props.headers">
+                        {{ header.name }}
                         <span v-if="sort.isSort === true && sort.header === header.name && sort.isAscending === true">
                                 <q-icon style="rotate: 180deg;" name="r_sort" size="20px"/>
                             </span>
@@ -571,7 +577,7 @@ const hasCheckBox = computed(() => {
                                 <q-icon name="r_swap_vert" size="20px"/>
                             </span>
                     </th>
-                    <th>操作</th>
+                    <th v-if="hasAction">操作</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -582,7 +588,7 @@ const hasCheckBox = computed(() => {
                     <td v-for="(value, key, index) in product">
                         {{ props.headers[index].decimal ? value.toFixed(2) : value }}
                     </td>
-                    <td>
+                    <td v-if="hasAction">
                         <q-btn v-if="props.actions.some(action => action.name === 'view')"
                                @click="$emit('view', product[Object.keys(product)[0]])" round color="primary"
                                icon="r_visibility" size="10px"/>
@@ -680,10 +686,10 @@ div.tableCon
                 border-width: 1px 0 1px 0
                 border-style: solid
                 border-color: rgb(228, 228, 228)
+                user-select: none
 
-                &:not(:first-child)
+                &.sortHeader
                     cursor: pointer
-                    user-select: none
 
                     &:hover
                         background: rgba(0, 0, 0, 0.04)

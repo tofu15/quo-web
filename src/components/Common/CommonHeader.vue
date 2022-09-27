@@ -2,7 +2,6 @@
 import {ref} from 'vue'
 import {RouterLink} from 'vue-router'
 import {Post} from "@/script/api";
-import router from "@/router";
 import {useQuasar} from "@modules/quasar";
 
 const $q = useQuasar()
@@ -28,7 +27,7 @@ function logout() {
         } else if (!rsp.success) {
             throw new Error(rsp.message)
         } else {
-            router.push({name: 'login'})
+            window.location.href = "/login"
         }
     }).catch((error) => {
         $q.dialog({

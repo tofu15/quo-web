@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import {onBeforeMount, reactive} from 'vue'
+import {inject, onBeforeMount, reactive} from 'vue'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
 import {Delete, Get, Post, Put} from "@/script/api";
 import {useQuasar} from 'quasar'
+import type {TableProps, UserPermission} from "@/script/interface"
+import {DefaultUserPermission} from "@/script/interface"
 
+const Permission = inject<UserPermission>('Permission', DefaultUserPermission)
 const $q = useQuasar()
 const emit = defineEmits(['reload', 'loaded'])
 // header 参数
@@ -39,13 +42,6 @@ interface User {
     email: string
 }
 
-// 定义 table 参数接口
-interface TableProps {
-    data: User[]
-    headers: Object[]
-    action: object
-}
-
 // table 参数
 const tableProps: TableProps = reactive({
     data: [],
@@ -75,11 +71,23 @@ const tableProps: TableProps = reactive({
             type: "string"
         }
     ],
-    action: {
-        edit: "all",
-        delete: "all",
-        reset: "all"
-    }
+    actions: [
+        {
+            name: "edit",
+            all: true,
+            ids: []
+        },
+        {
+            name: "delete",
+            all: true,
+            ids: []
+        },
+        {
+            name: "reset",
+            all: true,
+            ids: []
+        }
+    ]
 })
 
 // 调用后端接口 获取表格信息
