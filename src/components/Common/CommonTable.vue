@@ -1,51 +1,30 @@
-<script setup lang="ts">
-import type {Ref} from 'vue'
+<script setup>
 import {computed, reactive, ref, watch} from 'vue'
-
 // prop 定义
-interface TableProps {
-    data: any[]
+const props = defineProps({
+    data: {
+        type: Array
+    },
     headers: {
-        name: string
-        type: string
-        decimal?: boolean
-    }[]
+        type: Array
+    },
     actions: {
-        name: string
-        all: boolean
-        ids: number[]
-    }[]
-}
+        type: Array
+    }
+})
 
-const props = defineProps<TableProps>()
+const deleteAction = computed(() => {
+    const actions = props.actions.filter(action => action.name === 'delete')
+    return {
+        all: actions[0].all,
+        ids: actions[0].ids
+    }
+})
 // 声明触发的事件
 const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel', 'reset']);
 
-// 声明接口
-interface TableIn {
-    filterOpen: boolean
-    filters: Filter[]
-    everyPage: string
-    page: number
-    isAllSelected: boolean
-}
 
-interface Filter {
-    type: string
-    text: string
-    select: string | number | null
-    selects: (string | number)[]
-    num?: number | ""
-    from?: number | ""
-    to?: number | ""
-    date?: string | null
-    dateRange?: {
-        from: string | null
-        to: string | null
-    }
-}
-
-const table: TableIn = reactive({
+const table = reactive({
     filterOpen: false,
     filters: defaultFilters(),
     everyPage: "20",
@@ -60,7 +39,7 @@ const sort = reactive({
 })
 
 // 排序事件
-function sortClick(header: string) {
+function sortClick(header) {
     if (!sort.isSort || sort.header !== header) {
         sort.isSort = true
         sort.header = header
@@ -76,31 +55,35 @@ function sortClick(header: string) {
 
 
 // 选择 Map
-const selectMap: Map<number, Ref<boolean>> = reactive(new Map())
+const selectMap = reactive(new Map())
 // 设置选择 Map
 watch(props, () => {
     props.data.forEach((value) => {
         let id = value[Object.keys(value)[0]]
-        selectMap.set(id as number, ref(false))
+        selectMap.set(id, ref(false))
     })
 }, {immediate: true})
 
 // 全选按钮点击
 function allSelectClick() {
-    let to: boolean
-    to = !table.isAllSelected
-    tableData.value.forEach((item: any) => {
-        let id = item[Object.keys(item)[0]] as number
-        (selectMap.get(id) as Ref<boolean>).value = to
+    let to
+    if (table.isAllSelected === true) {
+        to = false
+    } else {
+        to = true
+    }
+    tableData.value.forEach((item) => {
+        let id = item[Object.keys(item)[0]]
+        selectMap.get(id).value = to
     })
 }
 
 // 判断是否全选
 watch(selectMap, (selectMap) => {
     let result = true
-    tableData.value.forEach((item: any) => {
+    tableData.value.forEach((item) => {
         let id = item[Object.keys(item)[0]]
-        if (!(selectMap.get(id) as Ref<boolean>).value) {
+        if (selectMap.get(id).value === false) {
             result = false
         }
     })
@@ -117,7 +100,7 @@ const everyPage = computed(() => {
 })
 
 const numOfPages = computed(() => {
-    let result: number
+    let result
     if (everyPage.value === 0 || filteredData.value.length === 0) {
         result = 1
     } else {
@@ -141,7 +124,7 @@ const sortedData = computed(() => {
             }
         })
         if (type === 'number') {
-            result.sort((a: any, b: any) => {
+            result.sort((a, b) => {
                 const key = Object.keys(a)[index]
                 const aNum = a[key]
                 const bNum = b[key]
@@ -154,7 +137,7 @@ const sortedData = computed(() => {
                 }
             })
         } else {
-            result.sort((a: any, b: any) => {
+            result.sort((a, b) => {
                 const key = Object.keys(a)[index]
                 const aStr = a[key]
                 const bStr = b[key]
@@ -179,39 +162,43 @@ const filteredData = computed(() => {
     table.filters.forEach((filter, index) => {
         // 文本过滤
         if (filter.type === "string" && filter.text.length !== 0) {
-            result = result.filter((item: any) => {
+            result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let str = String(item[key]).toLowerCase()
                 return str.includes(filter.text.toLowerCase());
             })
             // 数字过滤
         } else if (filter.type === "number" && filter.num !== "") {
-            result = result.filter((item: any) => {
+            result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let num = item[key]
                 return num === filter.num;
             })
             // 数字范围过滤
         } else if (filter.type === "numberRange" && (filter.from !== "" || filter.to !== "")) {
-            result = result.filter((item: any) => {
+            result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let num = item[key]
-                if (filter.from !== "" && filter.to !== "" && num >= (filter.from as number) && num <= (filter.to as number)) {
+                if (filter.from !== "" && filter.to !== "" && num >= filter.from && num <= filter.to) {
                     return true
-                } else if (filter.from === "" && num <= (filter.to as number)) {
+                } else if (filter.from === "" && num <= filter.to) {
                     return true
-                } else return filter.to === "" && num >= (filter.from as number);
+                } else if (filter.to === "" && num >= filter.from) {
+                    return true
+                } else {
+                    return false
+                }
             })
             // 单选过滤
         } else if (filter.type === "select" && filter.select != null) {
-            result = result.filter((item: any) => {
+            result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let str = item[key]
                 return str === filter.select;
             })
             // 多选过滤
-        } else if (filter.type === "multiSelect" && filter.selects.length !== 0) {
-            result = result.filter((item: any) => {
+        } else if (filter.type === "multiSelect" && filter.selects != null && filter.selects.length !== 0) {
+            result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let str = item[key]
                 for (const select of filter.selects) {
@@ -223,17 +210,17 @@ const filteredData = computed(() => {
             })
             // 日期过滤
         } else if (filter.type === "date" && filter.date != null && filter.date.length !== 0) {
-            result = result.filter((item: any) => {
+            result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let str = item[key]
                 return str === filter.date;
             })
             // 日期范围过滤
-        } else if (filter.type === "dateRange" && (filter.dateRange as { from: string, to: string }).from != null && (filter.dateRange as { from: string, to: string }).to != null) {
-            result = result.filter((item: any) => {
+        } else if (filter.type === "dateRange" && filter.dateRange.from != null && filter.dateRange.to != null) {
+            result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let str = item[key]
-                return (str >= (filter.dateRange as { from: string, to: string }).from && str <= (filter.dateRange as { from: string, to: string }).to)
+                return (str >= filter.dateRange.from && str <= filter.dateRange.to);
             })
         }
     })
@@ -260,14 +247,10 @@ watch(tableData, () => {
         selectMap.set(key, ref(false))
     })
 })
-// 判断是否有操作行
-const hasAction = computed<boolean>(() => {
-    return props.actions.some(action => action.name === 'view' || action.name === 'edit' || action.name === 'delete' || action.name === 'reset')
-})
 // 判断是否有选中
 const iSAnySelected = computed(() => {
     let result = false;
-    selectMap.forEach((value) => {
+    selectMap.forEach((value, key) => {
         if (value.value) {
             result = true
         }
@@ -277,16 +260,16 @@ const iSAnySelected = computed(() => {
 // 判断是否可选择删除
 const isDeleteAble = computed(() => {
     let result = true
-    if (!props.actions.some(action => action.name == "delete")) {
+    if (!props.actions.some(action => action.name === "delete")) {
         return false
-    } else if (props.actions.some(action => action.name == "delete" && action.all)) {
+    } else if (props.actions.some(action => action.name === "delete" && action.all)) {
         return iSAnySelected.value
     } else {
         if (!iSAnySelected.value) {
             return false
         } else {
             selectMap.forEach((value, key) => {
-                if (value.value && !props.actions.some(action => action.name == "delete" && action.ids.includes(key))) {
+                if (value.value && !props.actions.some(action => action.name === "delete" && action.ids.includes(key))) {
                     result = false
                 }
             })
@@ -296,13 +279,13 @@ const isDeleteAble = computed(() => {
 })
 // 选择器数据
 const tableSelectData = computed(() => {
-    let resultSet: Set<any>[] = []
-    let result: any[] = []
+    let resultSet = []
+    let result = []
     props.headers.forEach((value, index) => {
         resultSet[index] = new Set()
-        result[index] = []
+        result[index] = new Array()
     })
-    props.data.forEach((item: any) => {
+    props.data.forEach((item, index) => {
         Object.entries(item).forEach(([key, value], i) => {
             resultSet[i].add(value)
         })
@@ -320,8 +303,8 @@ const tableSelectData = computed(() => {
 })
 
 // 默认筛选器
-function defaultFilters(): Filter[] {
-    let result: Filter[] = []
+function defaultFilters() {
+    let result = []
     props.headers.forEach((e, index) => {
         if (e.type === "string") {
             result[index] = {
@@ -366,7 +349,7 @@ function defaultFilters(): Filter[] {
 
 // 删除多个
 function deleteAll() {
-    let result: number[] = []
+    let result = new Array()
     selectMap.forEach((value, key) => {
         if (value.value) {
             result.push(key)
@@ -377,7 +360,7 @@ function deleteAll() {
 
 // 导出 excel
 function exportExcel() {
-    let result: number[] = []
+    let result = new Array()
     selectMap.forEach((value, key) => {
         if (value.value) {
             result.push(key)
@@ -387,7 +370,7 @@ function exportExcel() {
 }
 
 // 各个类型的筛选模式
-function filterTypes(t: string) {
+function filterTypes(t) {
     if (t === 'string') {
         return [
             {
@@ -466,6 +449,11 @@ function filterTypes(t: string) {
         ]
     }
 }
+
+// 是否需要多选
+const hasCheckBox = computed(() => {
+    return props.actions.some(action => action.name === 'delete' || action.name === 'export')
+})
 </script>
 
 <template>
@@ -493,7 +481,7 @@ function filterTypes(t: string) {
             <table>
                 <thead>
                 <tr v-if="table.filterOpen" class="filterCon">
-                    <td v-if="props.actions.some(action => action.name === 'delete' || action.name === 'export')"></td>
+                    <td v-if="hasCheckBox"></td>
                     <td v-for="(header, index) in props.headers">
                         <q-select outlined v-model="table.filters[index].type" :options="filterTypes(header.type)"
                                   dense map-options emit-value options-dense/>
@@ -501,7 +489,7 @@ function filterTypes(t: string) {
                     <td></td>
                 </tr>
                 <tr class="filterInput">
-                    <td v-if="props.actions.some(action => action.name === 'delete' || action.name === 'export')"></td>
+                    <td v-if="hasCheckBox"></td>
                     <td v-for="(header, index) in props.headers">
                         <q-input type="text" outlined v-model="table.filters[index].text" placeholder="テキスト"
                                  v-if="table.filters[index].type === 'string'" dense/>
@@ -568,11 +556,10 @@ function filterTypes(t: string) {
                     </td>
                 </tr>
                 <tr class="tableHeader">
-                    <th v-if="props.actions.some(action => action.name === 'delete' || action.name === 'export')">
+                    <th v-if="hasCheckBox">
                         <q-checkbox :model-value="table.isAllSelected" @click="allSelectClick" dense/>
                     </th>
-                    <th class="sortHeader" @click="sortClick(header.name)" v-for="header in props.headers">
-                        {{ header.name }}
+                    <th @click="sortClick(header.name)" v-for="header in props.headers">{{ header.name }}
                         <span v-if="sort.isSort === true && sort.header === header.name && sort.isAscending === true">
                                 <q-icon style="rotate: 180deg;" name="r_sort" size="20px"/>
                             </span>
@@ -584,32 +571,29 @@ function filterTypes(t: string) {
                                 <q-icon name="r_swap_vert" size="20px"/>
                             </span>
                     </th>
-                    <th v-if="hasAction">操作</th>
+                    <th>操作</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="product in tableData" :key="product[Object.keys(product)[0]]">
-                    <td v-if="props.actions.some(action => action.name === 'delete' || action.name === 'export')">
+                    <td v-if="hasCheckBox">
                         <q-checkbox v-model="selectMap.get(product[Object.keys(product)[0]]).value" dense/>
                     </td>
                     <td v-for="(value, key, index) in product">
                         {{ props.headers[index].decimal ? value.toFixed(2) : value }}
                     </td>
-                    <td v-if="hasAction">
+                    <td>
                         <q-btn v-if="props.actions.some(action => action.name === 'view')"
-                               :disable="props.actions.some(action => action.name === 'view' && action.all === false && !action.ids.includes(product[Object.keys(product)[0]]))"
                                @click="$emit('view', product[Object.keys(product)[0]])" round color="primary"
                                icon="r_visibility" size="10px"/>
                         <q-btn v-if="props.actions.some(action => action.name === 'edit')"
-                               :disable="props.actions.some(action => action.name === 'edit' && action.all === false && !action.ids.includes(product[Object.keys(product)[0]]))"
                                @click="$emit('edit', product[Object.keys(product)[0]])" round color="secondary"
                                icon="r_edit" size="10px"/>
                         <q-btn v-if="props.actions.some(action => action.name === 'delete')"
-                               :disable="props.actions.some(action => action.name === 'delete' && action.all === false && !action.ids.includes(product[Object.keys(product)[0]]))"
+                               :disable="deleteAction.all === false && !deleteAction.ids.includes(product[Object.keys(product)[0]])"
                                @click="$emit('delete', product[Object.keys(product)[0]])" round color="red"
                                icon="r_delete" size="10px"/>
                         <q-btn v-if="props.actions.some(action => action.name === 'reset')"
-                               :disable="props.actions.some(action => action.name === 'reset' && action.all === false && !action.ids.includes(product[Object.keys(product)[0]]))"
                                @click="$emit('reset', product[Object.keys(product)[0]])" round color="warning"
                                icon="r_replay" size="10px"/>
                     </td>
@@ -639,6 +623,10 @@ div.tableCon
     border-radius: 15px
     background-color: #ffffff
     padding: 28px
+    // button, select, label
+        // line-height: 1
+        // width: auto
+        // display: inline-block
 
     > div.operationCon
         margin-bottom: 16px
@@ -692,10 +680,10 @@ div.tableCon
                 border-width: 1px 0 1px 0
                 border-style: solid
                 border-color: rgb(228, 228, 228)
-                user-select: none
 
-                &.sortHeader
+                &:not(:first-child)
                     cursor: pointer
+                    user-select: none
 
                     &:hover
                         background: rgba(0, 0, 0, 0.04)
