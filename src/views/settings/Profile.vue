@@ -145,6 +145,17 @@ function postData() {
     })
 }
 
+function postCheck() {
+    $q.dialog({
+        title: '確認',
+        message: '個人情報を更新します。よろしいですか？',
+        cancel: true,
+        persistent: false
+    }).onOk(() => {
+        postData()
+    })
+}
+
 </script>
 
 <template>
@@ -153,7 +164,7 @@ function postData() {
 
         <div class="formCon">
             <q-form greedy @reset="tableRaw.email = initialTableData.email;tableRaw.tel = initialTableData.tel"
-                    @submit="postData">
+                    @submit="postCheck">
                 <div class="inputCon">
                     <q-input class="input input1" readonly v-model="tableRaw.eno" label="社員番号"
                              outlined/>

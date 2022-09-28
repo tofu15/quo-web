@@ -21,6 +21,7 @@ import ProductEditseView from '@/views/Product/EditseView.vue'
 import ProductAddseView from '@/views/Product/AddseView.vue'
 // 个人设置
 import SettingsProfile from '@/views/settings/Profile.vue'
+import SettingsPasswd from '@/views/settings/Passwd.vue'
 // 系统设置
 import Work from '@/views/System/Work.vue'
 import NewUser from '@/views/System/NewUser.vue'
@@ -98,7 +99,7 @@ const router = createRouter({
                 {
                     path: '/settings/passwd',
                     name: 'settings-passwd',
-                    component: SettingsProfile,
+                    component: SettingsPasswd,
                     meta: {
                         title: "パスワード変更",
                         needLoading: false,
