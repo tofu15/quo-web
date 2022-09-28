@@ -213,14 +213,15 @@ const filteredData = computed(() => {
             result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let str = item[key]
-                return str === filter.date;
+                // return str.includes(filter.date)
+                return str.substring(0, 10) === filter.date
             })
             // 日期范围过滤
         } else if (filter.type === "dateRange" && filter.dateRange.from != null && filter.dateRange.to != null) {
             result = result.filter(item => {
                 let key = Object.keys(item)[index]
                 let str = item[key]
-                return (str >= filter.dateRange.from && str <= filter.dateRange.to);
+                return (str >= filter.dateRange.from && str.substring(0, 10) <= filter.dateRange.to);
             })
         }
     })

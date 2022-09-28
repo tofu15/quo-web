@@ -32,7 +32,7 @@ import CustomerEdit from '@/views/Customer/Edit.vue'
 import CustomerAdd from '@/views/Customer/Add.vue'
 // 库存
 import StockList from '@/views/Stock/List.vue'
-import StockRecord from '@/views/Stock/List.vue'
+import StockRecord from '@/views/Stock/Record.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),

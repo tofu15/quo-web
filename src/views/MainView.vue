@@ -141,7 +141,7 @@ onBeforeRouteUpdate((to) => {
     <CommonHeader v-bind="empDto"></CommonHeader>
     <CommonNavVue></CommonNavVue>
     <div v-show="!loading" class="mainCon">
-        <router-view class="main" :key="key" @reload="key+=1" @loaded="loading = false">
+        <router-view class="main" :key="key" @reload="loading = true;key+=1" @loaded="loading = false">
         </router-view>
     </div>
     <div v-show="loading" class="loadingCon q-pa-md flex flex-center">
