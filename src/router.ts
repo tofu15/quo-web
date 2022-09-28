@@ -30,6 +30,9 @@ import CustomerList from '@/views/Customer/List.vue'
 import CustomerDetail from '@/views/Customer/Detail.vue'
 import CustomerEdit from '@/views/Customer/Edit.vue'
 import CustomerAdd from '@/views/Customer/Add.vue'
+// 库存
+import StockList from '@/views/Stock/List.vue'
+import StockRecord from '@/views/Stock/List.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -208,6 +211,26 @@ const router = createRouter({
                         title: "業務設定",
                         needLoading: true,
                         mid: 10
+                    }
+                },
+                {
+                    path: '/stock/list',
+                    name: 'stock-list',
+                    component: StockList,
+                    meta: {
+                        title: "在庫一覧",
+                        needLoading: true,
+                        mid: 11
+                    }
+                },
+                {
+                    path: '/stock/record',
+                    name: 'stock-record',
+                    component: StockRecord,
+                    meta: {
+                        title: "入出庫履歴",
+                        needLoading: true,
+                        mid: 12
                     }
                 },
                 {

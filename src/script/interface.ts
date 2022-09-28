@@ -46,11 +46,6 @@ export type TableProps = {
     actions: TableAction[]
 }
 
-export type TablePropsWithoutAction = {
-    data: any[]
-    headers: TableHeader[]
-}
-
 export type TableHeader = {
     name: string
     type: string
@@ -58,7 +53,7 @@ export type TableHeader = {
 }
 
 export type TableAction = {
-    name: string
+    name: 'delete' | 'export' | 'view' | 'edit' | 'reset' | 'stock'
     all: boolean
     ids: number[]
 }

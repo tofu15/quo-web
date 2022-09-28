@@ -21,7 +21,7 @@ const deleteAction = computed(() => {
     }
 })
 // 声明触发的事件
-const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel', 'reset']);
+const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel', 'reset', 'stockIn', 'stockOut'])
 
 
 const table = reactive({
@@ -457,7 +457,7 @@ const hasCheckBox = computed(() => {
 
 // 是否需要操作行
 const hasAction = computed(() => {
-    return props.actions.some(action => action.name === 'view' || action.name === 'edit' || action.name === 'delete' || action.name === 'reset')
+    return props.actions.some(action => action.name === 'view' || action.name === 'edit' || action.name === 'delete' || action.name === 'reset' || action.name === 'stock')
 })
 </script>
 
@@ -602,6 +602,11 @@ const hasAction = computed(() => {
                         <q-btn v-if="props.actions.some(action => action.name === 'reset')"
                                @click="$emit('reset', product[Object.keys(product)[0]])" round color="warning"
                                icon="r_replay" size="10px"/>
+                        <q-btn v-if="props.actions.some(action => action.name === 'stock')" color="primary"
+                               @click="$emit('stockIn', product)" label="入庫" size="13px"
+                               style="margin-right: 5px;"/>
+                        <q-btn v-if="props.actions.some(action => action.name === 'stock')" color="secondary"
+                               @click="$emit('stockOut', product)" label="出庫" size="13px"/>
                     </td>
                 </tr>
                 </tbody>
