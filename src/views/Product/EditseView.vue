@@ -186,7 +186,7 @@ function postData() {
                               label="タイプ" class="col-sm-12 col-md-6" outlined emit-value map-options/>
                     <q-input
                         :rules="[val => !!val || '入力必須です。', val => val.length <=10 || '10文字まで。']"
-                        label="付属"
+                        label="備考"
                         class="col-sm-12 col-md-6"
                         v-model="se.notes"
                         no-error-icon

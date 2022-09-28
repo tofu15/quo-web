@@ -117,7 +117,7 @@ const items = computed<item[]>(() => {
             haveSub: true,
             subs: [
                 {name: '個人情報', url: '/profile'},
-                {name: 'パスワード変更', url: '/pwd'}
+                {name: 'パスワード変更', url: '/passwd'}
             ]
         }
     )

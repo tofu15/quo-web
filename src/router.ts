@@ -19,6 +19,8 @@ import ProductAddAllView from '@/views/Product/AddAllView.vue'
 import ProductListseView from '@/views/Product/ListseView.vue'
 import ProductEditseView from '@/views/Product/EditseView.vue'
 import ProductAddseView from '@/views/Product/AddseView.vue'
+// 个人设置
+import SettingsProfile from '@/views/settings/Profile.vue'
 // 系统设置
 import Work from '@/views/System/Work.vue'
 import NewUser from '@/views/System/NewUser.vue'
@@ -79,6 +81,26 @@ const router = createRouter({
                     component: NoPermission,
                     meta: {
                         title: "権限がありません",
+                        needLoading: false,
+                        mid: 0
+                    }
+                },
+                {
+                    path: '/settings/profile',
+                    name: 'settings-profile',
+                    component: SettingsProfile,
+                    meta: {
+                        title: "個人情報",
+                        needLoading: true,
+                        mid: 0
+                    }
+                },
+                {
+                    path: '/settings/passwd',
+                    name: 'settings-passwd',
+                    component: SettingsProfile,
+                    meta: {
+                        title: "パスワード変更",
                         needLoading: false,
                         mid: 0
                     }

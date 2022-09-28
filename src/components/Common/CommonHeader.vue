@@ -63,7 +63,7 @@ function logout() {
                 </div>
             </div>
             <div class="popup">
-                <a href="/">個人設定</a>
+                <a @click.prevent="$router.push({name: 'settings-profile'})">個人設定</a>
                 <a @click.prevent="logout">ログアウト</a>
             </div>
         </div>

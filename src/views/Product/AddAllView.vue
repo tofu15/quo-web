@@ -95,7 +95,7 @@ function confirm() {
             if (json.success) {
                 file.isLoading = false
                 modalData.auth = true
-                router.push('/system/user')
+                router.push('/product/list')
             } else {
                 throw new Error(json.message);
             }
