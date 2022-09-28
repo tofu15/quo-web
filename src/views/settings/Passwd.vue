@@ -84,7 +84,8 @@ function postData() {
         <div class="formCon">
             <q-form greedy @submit="postData">
                 <div class="inputCon">
-                    <q-input outlined :type="table.isPwd ? 'password' : 'text'" v-model.trim="table.pwd" label="旧パスワード"
+                    <q-input no-error-icon outlined :type="table.isPwd ? 'password' : 'text'" v-model.trim="table.pwd"
+                             label="旧パスワード"
                              lazy-rules :rules="[val => val && val.length > 0 || '旧パスワードを入力してください。']">
                         <template v-slot:append>
                             <q-icon :name="table.isPwd ? 'r_visibility_off' : 'r_visibility'" class="cursor-pointer"
@@ -92,7 +93,8 @@ function postData() {
                         </template>
                     </q-input>
 
-                    <q-input outlined :type="table.isPwd ? 'password' : 'text'" v-model.trim="table.newpwd1"
+                    <q-input no-error-icon outlined :type="table.isPwd ? 'password' : 'text'"
+                             v-model.trim="table.newpwd1"
                              label="新パスワード" lazy-rules :rules="[
                         val => val && val.length > 0 || '新パスワードを入力してください。',
                         val => /^\w{8,16}$/.test(val) || '8〜16文字の半角英数字を入力してください。']">
@@ -102,7 +104,8 @@ function postData() {
                         </template>
                     </q-input>
 
-                    <q-input outlined :type="table.isPwd ? 'password' : 'text'" v-model.trim="table.newpwd2"
+                    <q-input no-error-icon outlined :type="table.isPwd ? 'password' : 'text'"
+                             v-model.trim="table.newpwd2"
                              label="新パスワード（確認入力）" lazy-rules :rules="[
                           val => val && val.length > 0 || '新パスワード（確認）を入力してください。',
                           val => /^\w{8,16}$/.test(val) || '8〜16文字の半角英数字を入力してください。',
