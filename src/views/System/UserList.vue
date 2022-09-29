@@ -111,7 +111,7 @@ onBeforeMount(async () => {
 function deleteItem(id: number) {
     $q.dialog({
         title: '確認',
-        message: '該当ユーザーを削除します。よろしいですか？',
+        message: '当該ユーザーを削除します。よろしいですか？',
         cancel: true,
         persistent: false
     }).onOk(() => {
@@ -165,7 +165,7 @@ function deleteAll(ids: number[]) {
 function reset(id: number) {
     $q.dialog({
         title: '確認',
-        message: '該当ユーザーをリセットします。よろしいですか？',
+        message: '当該ユーザーをリセットします。よろしいですか？',
         cancel: true,
         persistent: false
     }).onOk(() => {

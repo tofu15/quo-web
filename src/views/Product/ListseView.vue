@@ -113,7 +113,7 @@ const tableProps: TableProps = reactive({
 function deleteItem(id: number) {
     $q.dialog({
         title: '確認',
-        message: '該当シリーズを削除します。よろしいですか？',
+        message: '当該シリーズを削除します。よろしいですか？',
         cancel: true,
         persistent: false
     }).onOk(() => {
