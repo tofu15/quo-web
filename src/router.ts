@@ -47,7 +47,7 @@ const router = createRouter({
             meta: {
                 title: "ログイン",
                 needLoading: false,
-                mid: 0
+                mids: null
             }
         },
         {
@@ -57,7 +57,7 @@ const router = createRouter({
             meta: {
                 title: "初期パスワード変更",
                 needLoading: false,
-                mid: 0
+                mids: null
             }
         },
         {
@@ -73,7 +73,7 @@ const router = createRouter({
                     meta: {
                         title: "ホームページ",
                         needLoading: false,
-                        mid: 0
+                        mids: null
                     }
                 },
                 {
@@ -83,7 +83,7 @@ const router = createRouter({
                     meta: {
                         title: "権限がありません",
                         needLoading: false,
-                        mid: 0
+                        mids: null
                     }
                 },
                 {
@@ -93,7 +93,7 @@ const router = createRouter({
                     meta: {
                         title: "個人情報",
                         needLoading: true,
-                        mid: 0
+                        mids: null
                     }
                 },
                 {
@@ -103,7 +103,7 @@ const router = createRouter({
                     meta: {
                         title: "パスワード変更",
                         needLoading: false,
-                        mid: 0
+                        mids: null
                     }
                 },
                 {
@@ -113,7 +113,7 @@ const router = createRouter({
                     meta: {
                         title: "製品一覧",
                         needLoading: true,
-                        mid: 1
+                        mids: [1]
                     }
                 },
                 {
@@ -123,7 +123,7 @@ const router = createRouter({
                     meta: {
                         title: "製品詳細情報",
                         needLoading: true,
-                        mid: 1
+                        mids: [1]
                     }
                 },
                 {
@@ -133,7 +133,7 @@ const router = createRouter({
                     meta: {
                         title: "製品情報編集",
                         needLoading: true,
-                        mid: 2
+                        mids: [2]
                     }
                 },
                 {
@@ -143,7 +143,7 @@ const router = createRouter({
                     meta: {
                         title: "新規製品",
                         needLoading: true,
-                        mid: 4
+                        mids: [4]
                     }
                 },
                 {
@@ -153,7 +153,7 @@ const router = createRouter({
                     meta: {
                         title: "新規製品一括インポート",
                         needLoading: false,
-                        mid: 4
+                        mids: [4]
                     }
                 },
                 {
@@ -163,7 +163,7 @@ const router = createRouter({
                     meta: {
                         title: "シリーズ一覧",
                         needLoading: true,
-                        mid: 6
+                        mids: [6]
                     }
                 },
                 {
@@ -173,7 +173,7 @@ const router = createRouter({
                     meta: {
                         title: "シリーズ編集",
                         needLoading: true,
-                        mid: 7
+                        mids: [7]
                     }
                 },
                 {
@@ -183,7 +183,7 @@ const router = createRouter({
                     meta: {
                         title: "新規シリーズ",
                         needLoading: true,
-                        mid: 9
+                        mids: [9]
                     }
                 },
                 {
@@ -193,7 +193,7 @@ const router = createRouter({
                     meta: {
                         title: "権限設定",
                         needLoading: true,
-                        mid: 10
+                        mids: [10]
                     }
                 },
                 {
@@ -203,7 +203,7 @@ const router = createRouter({
                     meta: {
                         title: "新規ユーザー",
                         needLoading: true,
-                        mid: 10
+                        mids: [10]
                     }
                 },
                 {
@@ -213,7 +213,7 @@ const router = createRouter({
                     meta: {
                         title: "ユーザー管理",
                         needLoading: true,
-                        mid: 10
+                        mids: [10]
                     }
                 },
                 {
@@ -223,7 +223,7 @@ const router = createRouter({
                     meta: {
                         title: "ユーザー編集",
                         needLoading: true,
-                        mid: 10
+                        mids: [10]
                     }
                 },
                 {
@@ -233,7 +233,7 @@ const router = createRouter({
                     meta: {
                         title: "業務設定",
                         needLoading: true,
-                        mid: 10
+                        mids: [10]
                     }
                 },
                 {
@@ -243,7 +243,7 @@ const router = createRouter({
                     meta: {
                         title: "在庫一覧",
                         needLoading: true,
-                        mid: 11
+                        mids: [11]
                     }
                 },
                 {
@@ -253,7 +253,7 @@ const router = createRouter({
                     meta: {
                         title: "入出庫履歴",
                         needLoading: true,
-                        mid: 12
+                        mids: [12]
                     }
                 },
                 {
@@ -263,7 +263,7 @@ const router = createRouter({
                     meta: {
                         title: "顧客一覧",
                         needLoading: true,
-                        mid: 14
+                        mids: [14]
                     }
                 },
                 {
@@ -273,7 +273,7 @@ const router = createRouter({
                     meta: {
                         title: "顧客詳細情報",
                         needLoading: true,
-                        mid: 14
+                        mids: [14]
                     }
                 },
                 {
@@ -283,7 +283,7 @@ const router = createRouter({
                     meta: {
                         title: "顧客編集",
                         needLoading: true,
-                        mid: 15
+                        mids: [15]
                     }
                 },
                 {
@@ -293,7 +293,7 @@ const router = createRouter({
                     meta: {
                         title: "新規見込み顧客",
                         needLoading: false,
-                        mid: 16
+                        mids: [16]
                     }
                 }
             ]
@@ -338,7 +338,7 @@ declare module 'vue-router' {
         // 每个路由都必须声明
         title: string
         needLoading: boolean
-        mid: number
+        mids: number[] | null
     }
 }
 

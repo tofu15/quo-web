@@ -62,74 +62,47 @@ interface formIn {
 interface permission {
     id: number
     name: string
+    status: boolean
 }
 
-const permissionList: permission[] = [
-    {
-        id: 1,
-        name: '製品閲覧'
-    },
-    {
-        id: 2,
-        name: '製品編集'
-    },
-    {
-        id: 3,
-        name: '製品削除'
-    },
-    {
-        id: 4,
-        name: '新規製品'
-    },
-    {
-        id: 5,
-        name: '生産計画'
-    },
-    {
-        id: 6,
-        name: 'シリーズ一覧'
-    },
-    {
-        id: 7,
-        name: 'シリーズ編集'
-    },
-    {
-        id: 8,
-        name: 'シリーズ削除'
-    },
-    {
-        id: 9,
-        name: '新規シリーズ'
-    },
-    {
-        id: 10,
-        name: 'システム設定'
-    },
-    {
-        id: 11,
-        name: '在庫閲覧'
-    },
-    {
-        id: 12,
-        name: '入出庫履歴'
-    },
-    {
-        id: 13,
-        name: '入出庫操作'
-    },
-    {
-        id: 14,
-        name: '顧客閲覧'
-    },
-    {
-        id: 15,
-        name: '顧客編集'
-    },
-    {
-        id: 16,
-        name: '顧客新規'
-    }
+const inPermissionRec: boolean[] = reactive(new Array(24))
+const permissionRec: boolean[] = reactive(new Array(24))
+const permissionText: string[] = [
+    '製品閲覧',
+    '製品編集',
+    '製品削除',
+    '新規製品',
+    '生産計画',
+    'シリーズ一覧',
+    'シリーズ編集',
+    'シリーズ削除',
+    '新規シリーズ',
+    'システム設定',
+    '在庫閲覧',
+    '入出庫履歴',
+    '入出庫操作',
+    '顧客閲覧（全部）',
+    '顧客閲覧（个人）',
+    '顧客編集（全部）',
+    '顧客編集（个人）',
+    '新規顧客',
+    '出庫権限',
+    '一次承認',
+    '二次承認',
+    '見積書閲覧(全部)',
+    '注文閲覧（全部）',
+    '見積書作成及び修正'
 ]
+
+const midsData = computed<number[]>(() => {
+    return permissionRec.map((b, index) => {
+        return {
+            id: index + 1,
+            b: b
+        }
+    }).filter(value => value.b).map(value => value.id)
+})
+
 
 // 定义响应式变量
 const depts: Dept[] = reactive([])
@@ -137,8 +110,6 @@ const roles: Role[] = reactive([])
 const rolesOfDept = computed(() => {
     return roles.filter(role => role.dno === form.dno)
 })
-const permissionOfRole: Array<boolean> = reactive([])
-const inPermissionOfRole: Array<boolean> = reactive([])
 const form: formIn = reactive({
     dno: null,
     rid: null,
@@ -148,11 +119,7 @@ const form: formIn = reactive({
 
 //是否做了任何修改
 const isEdited = computed<boolean>(() => {
-    for (const [i, b] of permissionOfRole.entries()) {
-        if (inPermissionOfRole[i] !== b) {
-            return true
-        }
-    }
+    // todo
     return false
 })
 
@@ -194,11 +161,6 @@ onBeforeMount(async () => {
         })
     }).catch((error) => console.log(error))
 
-    // 初始化权限列表
-    permissionList.forEach(() => {
-        permissionOfRole.push(false)
-        inPermissionOfRole.push(false)
-    })
     emit('loaded')
 })
 
@@ -220,8 +182,8 @@ watch(
             return
         }
         // 设置正在加载状态 重置当前权限列表
-        permissionOfRole.fill(false)
-        inPermissionOfRole.fill(false)
+        inPermissionRec.fill(false)
+        permissionRec.fill(false)
         form.isGeting = true
         // 请求数据
         let result: boolean = await Get('/api/authority/' + rid).then((rsp) => {
@@ -233,10 +195,10 @@ watch(
                 return rsp.data as number[]
             }
         }).then((data) => {
-            for (const n of data) {
-                permissionOfRole[n - 1] = true
-                inPermissionOfRole[n - 1] = true
-            }
+            data.forEach(mid => {
+                inPermissionRec[mid - 1] = true
+                permissionRec[mid - 1] = true
+            })
             return true
         }).catch((error) => {
             form.isLoading = false
@@ -260,21 +222,14 @@ watch(
 
 // 重置数据
 function reset() {
-    inPermissionOfRole.forEach((value, index) => {
-        permissionOfRole[index] = value
-    })
+    permissionRec.splice(0, permissionRec.length)
+    permissionRec.push(...inPermissionRec)
 }
 
 // 保存数据
 function save() {
-    const data: Array<number> = []
-    permissionOfRole.forEach((value, index) => {
-        if (value) {
-            data.push(index + 1)
-        }
-    })
     form.isLoading = true
-    Put('/api/authority/' + form.rid, data).then((rsp) => {
+    Put('/api/authority/' + form.rid, midsData.value).then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -317,14 +272,18 @@ function save() {
                         <td>製品管理</td>
                         <td>
                             <div class="inputCon">
-                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[0]"
-                                            :label="permissionList[0].name"/>
-                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[1]"
-                                            :label="permissionList[1].name"/>
-                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[2]"
-                                            :label="permissionList[2].name"/>
-                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[3]"
-                                            :label="permissionList[3].name"/>
+                                <q-checkbox dense class="checkbox"
+                                            v-model="permissionRec[0]"
+                                            :label="permissionText[0]"/>
+                                <q-checkbox dense class="checkbox"
+                                            v-model="permissionRec[1]"
+                                            :label="permissionText[1]"/>
+                                <q-checkbox dense class="checkbox"
+                                            v-model="permissionRec[2]"
+                                            :label="permissionText[2]"/>
+                                <q-checkbox dense class="checkbox"
+                                            v-model="permissionRec[3]"
+                                            :label="permissionText[3]"/>
                             </div>
                         </td>
                     </tr>
@@ -332,14 +291,14 @@ function save() {
                         <td>シリーズ管理</td>
                         <td>
                             <div class="inputCon">
-                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[5]"
-                                            :label="permissionList[5].name"/>
-                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[6]"
-                                            :label="permissionList[6].name"/>
-                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[7]"
-                                            :label="permissionList[7].name"/>
-                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[8]"
-                                            :label="permissionList[8].name"/>
+                                <q-checkbox dense class="checkbox" v-model="permissionRec[5]"
+                                            :label="permissionText[5]"/>
+                                <q-checkbox dense class="checkbox" v-model="permissionRec[6]"
+                                            :label="permissionText[6]"/>
+                                <q-checkbox dense class="checkbox" v-model="permissionRec[7]"
+                                            :label="permissionText[7]"/>
+                                <q-checkbox dense class="checkbox" v-model="permissionRec[8]"
+                                            :label="permissionText[8]"/>
                             </div>
                         </td>
                     </tr>
@@ -347,8 +306,8 @@ function save() {
                         <td>生産計画</td>
                         <td>
                             <div class="inputCon">
-                                <q-checkbox dense class="checkbox" v-model="permissionOfRole[4]"
-                                            :label="permissionList[4].name"/>
+                                <q-checkbox dense class="checkbox" v-model="permissionRec[4]"
+                                            :label="permissionText[4]"/>
                             </div>
                         </td>
                     </tr>
@@ -357,20 +316,36 @@ function save() {
                         <td>在庫管理</td>
                         <td>
                             <div class="inputCon">
-                                <q-checkbox dense v-model="permissionOfRole[10]" :label="permissionList[10].name"/>
-                                <q-checkbox dense v-model="permissionOfRole[11]" :label="permissionList[11].name"/>
-                                <q-checkbox dense v-model="permissionOfRole[12]" :label="permissionList[12].name"/>
+                                <q-checkbox dense v-model="permissionRec[10]" :label="permissionText[10]"/>
+                                <q-checkbox dense v-model="permissionRec[11]" :label="permissionText[11]"/>
+                                <q-checkbox dense v-model="permissionRec[12]" :label="permissionText[12]"/>
                             </div>
                         </td>
                     </tr>
                     <tr>
-                        <th>顧客</th>
-                        <td>顧客管理</td>
+                        <th rowspan="3">顧客</th>
+                        <td>顧客閲覧</td>
                         <td>
                             <div class="inputCon">
-                                <q-checkbox dense v-model="permissionOfRole[13]" :label="permissionList[13].name"/>
-                                <q-checkbox dense v-model="permissionOfRole[14]" :label="permissionList[14].name"/>
-                                <q-checkbox dense v-model="permissionOfRole[15]" :label="permissionList[15].name"/>
+                                <q-checkbox dense v-model="permissionRec[13]" :label="permissionText[13]"/>
+                                <q-checkbox dense v-model="permissionRec[14]" :label="permissionText[14]"/>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>顧客編集</td>
+                        <td>
+                            <div class="inputCon">
+                                <q-checkbox dense v-model="permissionRec[15]" :label="permissionText[15]"/>
+                                <q-checkbox dense v-model="permissionRec[16]" :label="permissionText[16]"/>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>新規顧客</td>
+                        <td>
+                            <div class="inputCon">
+                                <q-checkbox dense v-model="permissionRec[17]" :label="permissionText[17]"/>
                             </div>
                         </td>
                     </tr>
@@ -378,13 +353,13 @@ function save() {
                         <th>システム</th>
                         <td>システム設定</td>
                         <td>
-                            <q-checkbox dense v-model="permissionOfRole[9]" :label="permissionList[9].name"/>
+                            <q-checkbox dense v-model="permissionRec[9]" :label="permissionText[9]"/>
                         </td>
                     </tr>
                 </table>
                 <div class="con">
                     <q-btn class="item" @click="reset" label="リセット" color="secondary"/>
-                    <q-btn class="item" @click="save" :loading="form.isLoading" :disable="!isEdited"
+                    <q-btn class="item" @click="save" :loading="form.isLoading"
                            label="保存" color="primary"/>
                 </div>
             </div>

@@ -41,9 +41,9 @@ interface ProductIn {
 }
 
 // 页面加载前获取信息
-onBeforeMount( async () => {
+onBeforeMount(async () => {
     // 获取类型信息
-    await Get('/api/product-type-list-add').then((rsp) => {
+    await Get('/api/product-type-list-edit').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -61,7 +61,7 @@ onBeforeMount( async () => {
     }).catch((error) => console.error(error))
 
     // 获取系列信息
-    await Get('/api/product-series-list-add').then((rsp) => {
+    await Get('/api/product-series-list-edit').then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {

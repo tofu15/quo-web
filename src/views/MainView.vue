@@ -117,18 +117,21 @@ onBeforeMount(async () => {
         Object.assign(empDto, data.empDto)
     }).catch((error) => console.error(error))
     // 判断权限
-    if (route.meta.mid != 0 && !mids.includes(route.meta.mid)) {
+    if (route.meta.mids !== null && !route.meta.mids.some(mid => mids.includes(mid))) {
         await router.push({name: 'NoPermission'})
         // 判断是否为异步页面
     } else if (!route.meta.needLoading) {
+        key.value += 1
         loading.value = false
+    } else {
+        key.value += 1
     }
 })
 // 路由更新前
 onBeforeRouteUpdate((to) => {
     loading.value = true
     // 判断权限
-    if (to.meta.mid != 0 && !mids.includes(to.meta.mid)) {
+    if (to.meta.mids !== null && !to.meta.mids.some(mid => mids.includes(mid))) {
         router.push({name: 'NoPermission'})
         // 判断是否为异步页面
     } else if (!to.meta.needLoading) {
