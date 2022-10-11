@@ -20,6 +20,14 @@ const deleteAction = computed(() => {
         ids: actions[0].ids
     }
 })
+
+const editAction = computed(() => {
+    const actions = props.actions.filter(action => action.name === 'edit')
+    return {
+        all: actions[0].all,
+        ids: actions[0].ids
+    }
+})
 // 声明触发的事件
 const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel', 'reset', 'stockIn', 'stockOut'])
 
@@ -594,6 +602,7 @@ const hasAction = computed(() => {
                                @click="$emit('view', product[Object.keys(product)[0]])" round color="primary"
                                icon="r_visibility" size="10px"/>
                         <q-btn v-if="props.actions.some(action => action.name === 'edit')"
+                               :disabled="editAction.all === false && !editAction.ids.includes(product[Object.keys(product)[0]])"
                                @click="$emit('edit', product[Object.keys(product)[0]])" round color="secondary"
                                icon="r_edit" size="10px"/>
                         <q-btn v-if="props.actions.some(action => action.name === 'delete')"

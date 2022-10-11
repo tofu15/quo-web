@@ -85,24 +85,62 @@ const tableProps: TableProps = reactive({
 
 // 调用后端接口 获取表格信息
 onBeforeMount(async () => {
-    await Get('/api/customer').then((rsp) => {
-        if (rsp instanceof Error) {
-            throw rsp
-        } else if (!rsp.success) {
-            throw new Error(rsp.message)
-        } else {
-            return rsp.data as Cus[]
-        }
-    }).then((data) => {
-        tableProps.data.push(...data)
-    }).catch((error) => console.log(error))
+    if (Permission.CustomerViewAll) {
+        await Get('/api/customer-all').then((rsp) => {
+            if (rsp instanceof Error) {
+                throw rsp
+            } else if (!rsp.success) {
+                throw new Error(rsp.message)
+            } else {
+                return rsp.data as Cus[]
+            }
+        }).then((data) => {
+            tableProps.data.push(...data)
+        }).catch((error) => console.log(error))
 
-    if (Permission.CustomerEdit) {
-        tableProps.actions.push({
-            name: 'edit',
-            all: true,
-            ids: []
-        })
+        if (Permission.CustomerEditAll) {
+            tableProps.actions.push({
+                name: 'edit',
+                all: true,
+                ids: []
+            })
+        } else if (Permission.CustomerEditSelf) {
+            await Get('/api/customer-able').then((rsp) => {
+                if (rsp instanceof Error) {
+                    throw rsp
+                } else if (!rsp.success) {
+                    throw new Error(rsp.message)
+                } else {
+                    return rsp.data as number[]
+                }
+            }).then((data) => {
+                tableProps.actions.push({
+                    name: 'edit',
+                    all: false,
+                    ids: data
+                })
+            }).catch((error) => console.log(error))
+        }
+    } else if (Permission.CustomerViewSelf) {
+        await Get('/api/customer-personal').then((rsp) => {
+            if (rsp instanceof Error) {
+                throw rsp
+            } else if (!rsp.success) {
+                throw new Error(rsp.message)
+            } else {
+                return rsp.data as Cus[]
+            }
+        }).then((data) => {
+            tableProps.data.push(...data)
+        }).catch((error) => console.log(error))
+
+        if (Permission.CustomerEditSelf || Permission.CustomerEditAll) {
+            tableProps.actions.push({
+                name: 'edit',
+                all: true,
+                ids: []
+            })
+        }
     }
 
     emit('loaded')

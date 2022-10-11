@@ -263,7 +263,7 @@ const router = createRouter({
                     meta: {
                         title: "顧客一覧",
                         needLoading: true,
-                        mids: [14]
+                        mids: [14, 15]
                     }
                 },
                 {
@@ -273,7 +273,7 @@ const router = createRouter({
                     meta: {
                         title: "顧客詳細情報",
                         needLoading: true,
-                        mids: [14]
+                        mids: [14, 15]
                     }
                 },
                 {
@@ -283,7 +283,7 @@ const router = createRouter({
                     meta: {
                         title: "顧客編集",
                         needLoading: true,
-                        mids: [15]
+                        mids: [16, 17]
                     }
                 },
                 {
@@ -293,7 +293,7 @@ const router = createRouter({
                     meta: {
                         title: "新規見込み顧客",
                         needLoading: false,
-                        mids: [16]
+                        mids: [18]
                     }
                 }
             ]

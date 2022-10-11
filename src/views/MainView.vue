@@ -98,16 +98,24 @@ onBeforeMount(async () => {
         if (data.mids.includes(13)) {
             Permission.StockAction = true
         }
-        //顧客閲覧
+        //顧客閲覧（全部）
         if (data.mids.includes(14)) {
-            Permission.CustomerView = true
+            Permission.CustomerViewAll = true
         }
-        //顧客編集
+        //顧客閲覧（个人）
         if (data.mids.includes(15)) {
-            Permission.CustomerEdit = true
+            Permission.CustomerViewSelf = true
+        }
+        //顧客編集（全部）
+        if (data.mids.includes(16)) {
+            Permission.CustomerEditAll = true
+        }
+        //顧客編集（个人）
+        if (data.mids.includes(17)) {
+            Permission.CustomerEditSelf = true
         }
         //顧客新規
-        if (data.mids.includes(16)) {
+        if (data.mids.includes(18)) {
             Permission.CustomerAdd = true
         }
         // システム設定

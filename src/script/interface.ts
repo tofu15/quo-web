@@ -14,8 +14,10 @@ export type UserPermission = {
     StockRecord: boolean
     StockAction: boolean
     // 顾客
-    CustomerView: boolean
-    CustomerEdit: boolean
+    CustomerViewAll: boolean
+    CustomerViewSelf: boolean
+    CustomerEditAll: boolean
+    CustomerEditSelf: boolean
     CustomerAdd: boolean
     // 系统设置
     SystemSettings: boolean
@@ -34,8 +36,10 @@ export const DefaultUserPermission: UserPermission = {
     StockView: false,
     StockRecord: false,
     StockAction: false,
-    CustomerView: false,
-    CustomerEdit: false,
+    CustomerViewAll: false,
+    CustomerViewSelf: false,
+    CustomerEditAll: false,
+    CustomerEditSelf: false,
     CustomerAdd: false,
     SystemSettings: false
 }

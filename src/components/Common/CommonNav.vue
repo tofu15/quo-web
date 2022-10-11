@@ -71,7 +71,7 @@ const items = computed<item[]>(() => {
         haveSub: true,
         subs: []
     }
-    if (Permission.CustomerView) {
+    if (Permission.CustomerViewAll || Permission.CustomerViewSelf) {
         customer.subs?.push({name: '顧客一覧', url: '/list'})
     }
     if (Permission.CustomerAdd) {

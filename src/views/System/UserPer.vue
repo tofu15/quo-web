@@ -119,8 +119,9 @@ const form: formIn = reactive({
 
 //是否做了任何修改
 const isEdited = computed<boolean>(() => {
-    // todo
-    return false
+    return permissionRec.some((value, index) => {
+        return value != inPermissionRec[index]
+    })
 })
 
 // 加载页面前 1.获取部门和职位信息 2.初始化权限列表
@@ -247,6 +248,17 @@ function save() {
         })
     })
 }
+
+const quoteSelfHandle = (v: boolean) => {
+    if (!v) {
+        return
+    }
+    permissionRec[0] = true
+    if (!permissionRec[13]) {
+        permissionRec[14] = true
+    }
+}
+
 </script>
 
 <template>
@@ -272,7 +284,7 @@ function save() {
                         <td>製品管理</td>
                         <td>
                             <div class="inputCon">
-                                <q-checkbox dense class="checkbox"
+                                <q-checkbox @update:model-value="v => {if (!v) permissionRec[23] = false}" dense class="checkbox"
                                             v-model="permissionRec[0]"
                                             :label="permissionText[0]"/>
                                 <q-checkbox dense class="checkbox"
@@ -327,8 +339,8 @@ function save() {
                         <td>顧客閲覧</td>
                         <td>
                             <div class="inputCon">
-                                <q-checkbox dense v-model="permissionRec[13]" :label="permissionText[13]"/>
-                                <q-checkbox dense v-model="permissionRec[14]" :label="permissionText[14]"/>
+                                <q-checkbox @update:model-value="(v) => {if (v) permissionRec[14] = false; else if (!permissionRec[14]) permissionRec[23] = false}" dense v-model="permissionRec[13]" :label="permissionText[13]"/>
+                                <q-checkbox @update:model-value="(v) => {if (v) permissionRec[13] = false; else if (!permissionRec[13]) permissionRec[23] = false}" dense v-model="permissionRec[14]" :label="permissionText[14]"/>
                             </div>
                         </td>
                     </tr>
@@ -336,8 +348,8 @@ function save() {
                         <td>顧客編集</td>
                         <td>
                             <div class="inputCon">
-                                <q-checkbox dense v-model="permissionRec[15]" :label="permissionText[15]"/>
-                                <q-checkbox dense v-model="permissionRec[16]" :label="permissionText[16]"/>
+                                <q-checkbox @update:model-value="v => {if (v) permissionRec[16] = false}" dense v-model="permissionRec[15]" :label="permissionText[15]"/>
+                                <q-checkbox @update:model-value="v => {if (v) permissionRec[15] = false}" dense v-model="permissionRec[16]" :label="permissionText[16]"/>
                             </div>
                         </td>
                     </tr>
@@ -346,6 +358,27 @@ function save() {
                         <td>
                             <div class="inputCon">
                                 <q-checkbox dense v-model="permissionRec[17]" :label="permissionText[17]"/>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th rowspan="2">見積と注文</th>
+                        <td>見積管理</td>
+                        <td>
+                            <div class="inputCon">
+                                <q-checkbox @update:model-value="quoteSelfHandle" dense v-model="permissionRec[23]" :label="permissionText[23]"/>
+                                <q-checkbox dense v-model="permissionRec[19]" :label="permissionText[19]"/>
+                                <q-checkbox dense v-model="permissionRec[20]" :label="permissionText[20]"/>
+                                <q-checkbox dense v-model="permissionRec[21]" :label="permissionText[21]"/>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>注文管理</td>
+                        <td>
+                            <div class="inputCon">
+                                <q-checkbox dense v-model="permissionRec[18]" :label="permissionText[18]"/>
+                                <q-checkbox dense v-model="permissionRec[22]" :label="permissionText[22]"/>
                             </div>
                         </td>
                     </tr>
@@ -359,7 +392,7 @@ function save() {
                 </table>
                 <div class="con">
                     <q-btn class="item" @click="reset" label="リセット" color="secondary"/>
-                    <q-btn class="item" @click="save" :loading="form.isLoading"
+                    <q-btn :disable="!isEdited" class="item" @click="save" :loading="form.isLoading"
                            label="保存" color="primary"/>
                 </div>
             </div>
