@@ -150,7 +150,7 @@ function postData() {
     // height: 80px
     // padding: 30px
     flex: 0 1 50%
-// width: 400px
+
 .input1
     padding-bottom: 20px
 
