@@ -84,7 +84,8 @@ function postData() {
         <div class="formCon">
             <q-form greedy @submit="postData">
                 <div class="inputCon">
-                    <q-input no-error-icon outlined :type="table.isPwd ? 'password' : 'text'" v-model.trim="table.pwd"
+                    <q-input class="input" no-error-icon outlined :type="table.isPwd ? 'password' : 'text'"
+                             v-model.trim="table.pwd"
                              label="旧パスワード"
                              lazy-rules :rules="[val => val && val.length > 0 || '旧パスワードを入力してください。']">
                         <template v-slot:append>
@@ -93,7 +94,7 @@ function postData() {
                         </template>
                     </q-input>
 
-                    <q-input no-error-icon outlined :type="table.isPwd ? 'password' : 'text'"
+                    <q-input class="input" no-error-icon outlined :type="table.isPwd ? 'password' : 'text'"
                              v-model.trim="table.newpwd1"
                              label="新パスワード" lazy-rules :rules="[
                         val => val && val.length > 0 || '新パスワードを入力してください。',
@@ -104,7 +105,7 @@ function postData() {
                         </template>
                     </q-input>
 
-                    <q-input no-error-icon outlined :type="table.isPwd ? 'password' : 'text'"
+                    <q-input class="input" no-error-icon outlined :type="table.isPwd ? 'password' : 'text'"
                              v-model.trim="table.newpwd2"
                              label="新パスワード（確認入力）" lazy-rules :rules="[
                           val => val && val.length > 0 || '新パスワード（確認）を入力してください。',
@@ -141,14 +142,14 @@ function postData() {
     flex-direction: row
     flex-wrap: wrap
     justify-content: start
-    gap: 20px 80px
+    gap: 20px 10%
     padding: 20px 0
 
 .input
-    max-width: 400px
+    //max-width: 400px
     // height: 80px
     // padding: 30px
-    flex: 0 1 400px
+    flex: 0 1 50%
 // width: 400px
 .input1
     padding-bottom: 20px
