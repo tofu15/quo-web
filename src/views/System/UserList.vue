@@ -165,7 +165,7 @@ function deleteAll(ids: number[]) {
 function reset(id: number) {
     $q.dialog({
         title: '確認',
-        message: '当該ユーザーをリセットします。よろしいですか？',
+        message: '当該ユーザーのパスワードをリセットします。よろしいですか？',
         cancel: true,
         persistent: false
     }).onOk(() => {
