@@ -21,6 +21,20 @@ const deleteAction = computed(() => {
     }
 })
 
+const printAction = computed(() => {
+    const actions = props.actions.filter(action => action.name === 'print')
+    if (actions.length === 0) {
+        return {
+            all: false,
+            ids: []
+        }
+    }
+    return {
+        all: actions[0].all,
+        ids: actions[0].ids
+    }
+})
+
 const editAction = computed(() => {
     const actions = props.actions.filter(action => action.name === 'edit')
     return {
@@ -29,7 +43,7 @@ const editAction = computed(() => {
     }
 })
 // 声明触发的事件
-const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel', 'reset', 'stockIn', 'stockOut'])
+const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel', 'reset', 'stockIn', 'stockOut', 'print', 'printAll'])
 
 
 const table = reactive({
@@ -286,6 +300,26 @@ const isDeleteAble = computed(() => {
         }
     }
 })
+// 判断是否可打印
+const isPrintAble = computed(() => {
+    let result = true
+    if (!props.actions.some(action => action.name === "print")) {
+        return false
+    } else if (props.actions.some(action => action.name === "print" && action.all)) {
+        return iSAnySelected.value
+    } else {
+        if (!iSAnySelected.value) {
+            return false
+        } else {
+            selectMap.forEach((value, key) => {
+                if (value.value && !props.actions.some(action => action.name === "print" && action.ids.includes(key))) {
+                    result = false
+                }
+            })
+            return result
+        }
+    }
+})
 // 选择器数据
 const tableSelectData = computed(() => {
     let resultSet = []
@@ -365,6 +399,17 @@ function deleteAll() {
         }
     })
     emit("deleteAll", result)
+}
+
+// 打印多个
+function printAll() {
+    let result = new Array()
+    selectMap.forEach((value, key) => {
+        if (value.value) {
+            result.push(key)
+        }
+    })
+    emit("printAll", result)
 }
 
 // 导出 excel
@@ -461,12 +506,12 @@ function filterTypes(t) {
 
 // 是否需要多选
 const hasCheckBox = computed(() => {
-    return props.actions.some(action => action.name === 'delete' || action.name === 'export')
+    return props.actions.some(action => action.name === 'delete' || action.name === 'export' || action.name === 'print')
 })
 
 // 是否需要操作行
 const hasAction = computed(() => {
-    return props.actions.some(action => action.name === 'view' || action.name === 'edit' || action.name === 'delete' || action.name === 'reset' || action.name === 'stock')
+    return props.actions.some(action => action.name === 'view' || action.name === 'edit' || action.name === 'delete' || action.name === 'reset' || action.name === 'stock' || action.name === 'print')
 })
 </script>
 
@@ -476,6 +521,9 @@ const hasAction = computed(() => {
             <q-btn color="red" label="削除" v-if="props.actions.some(action => action.name === 'delete')"
                    :disabled="!isDeleteAble"
                    class="del" @click="deleteAll"/>
+            <q-btn color="red" label="プリント" v-if="props.actions.some(action => action.name === 'print')"
+                   :disabled="!isPrintAble"
+                   class="del" @click="printAll"/>
             <q-btn color="primary" v-if="props.actions.some(action => action.name === 'export')" label="エクスポート"
                    :disabled="!iSAnySelected" @click="exportExcel"/>
         </div>
@@ -609,6 +657,10 @@ const hasAction = computed(() => {
                                :disable="deleteAction.all === false && !deleteAction.ids.includes(product[Object.keys(product)[0]])"
                                @click="$emit('delete', product[Object.keys(product)[0]])" round color="red"
                                icon="r_delete" size="10px"/>
+                        <q-btn
+                            v-if="printAction.all === true || printAction.ids.includes(product[Object.keys(product)[0]])"
+                            @click="$emit('print', product[Object.keys(product)[0]])" round color="grey"
+                            icon="r_print" size="10px"/>
                         <q-btn v-if="props.actions.some(action => action.name === 'reset')"
                                @click="$emit('reset', product[Object.keys(product)[0]])" round color="warning"
                                icon="r_replay" size="10px"/>

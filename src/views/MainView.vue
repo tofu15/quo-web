@@ -118,6 +118,30 @@ onBeforeMount(async () => {
         if (data.mids.includes(18)) {
             Permission.CustomerAdd = true
         }
+        // 出庫権限
+        if (data.mids.includes(19)) {
+            Permission.OrderOut = true
+        }
+        // 課長審査
+        if (data.mids.includes(20)) {
+            Permission.QuoteAuditFirst = true
+        }
+        // 部長審査
+        if (data.mids.includes(21)) {
+            Permission.QuoteAuditSecond = true
+        }
+        // 見積書閲覧(全部)
+        if (data.mids.includes(22)) {
+            Permission.QuoteView = true
+        }
+        // 注文閲覧（全部）
+        if (data.mids.includes(23)) {
+            Permission.OrderView = true
+        }
+        // 見積書（个人）
+        if (data.mids.includes(24)) {
+            Permission.QuoteSelf = true
+        }
         // システム設定
         if (data.mids.includes(10)) {
             Permission.SystemSettings = true

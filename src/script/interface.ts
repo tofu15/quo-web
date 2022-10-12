@@ -23,7 +23,10 @@ export type UserPermission = {
     QuoteSelf: boolean
     QuoteView: boolean
     QuoteAuditFirst: boolean
-    quoteAuditSecond: boolean
+    QuoteAuditSecond: boolean
+    // 订单
+    OrderView: boolean
+    OrderOut: boolean
     // 系统设置
     SystemSettings: boolean
 }
@@ -49,7 +52,9 @@ export const DefaultUserPermission: UserPermission = {
     QuoteSelf: false,
     QuoteView: false,
     QuoteAuditFirst: false,
-    quoteAuditSecond: false,
+    QuoteAuditSecond: false,
+    OrderView: false,
+    OrderOut: false,
     SystemSettings: false
 }
 
@@ -66,7 +71,7 @@ export type TableHeader = {
 }
 
 export type TableAction = {
-    name: 'delete' | 'export' | 'view' | 'edit' | 'reset' | 'stock'
+    name: 'delete' | 'export' | 'view' | 'edit' | 'reset' | 'stock' | 'print'
     all: boolean
     ids: number[]
 }
