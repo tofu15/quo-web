@@ -43,7 +43,7 @@ const editAction = computed(() => {
     }
 })
 // 声明触发的事件
-const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel', 'reset', 'stockIn', 'stockOut', 'print', 'printAll'])
+const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel', 'reset', 'stockIn', 'stockOut', 'print', 'printAll', 'orderOut', 'orderOutAll', 'pass', 'passAll', 'deny', 'denyAll'])
 
 
 const table = reactive({
@@ -423,6 +423,39 @@ function exportExcel() {
     emit("exportExcel", result)
 }
 
+// 批量出库
+function orderOut() {
+    let result = new Array()
+    selectMap.forEach((value, key) => {
+        if (value.value) {
+            result.push(key)
+        }
+    })
+    emit("orderOutAll", result)
+}
+
+// 批量通过
+function passAll() {
+    let result = new Array()
+    selectMap.forEach((value, key) => {
+        if (value.value) {
+            result.push(key)
+        }
+    })
+    emit("passAll", result)
+}
+
+// 批量拒绝
+function denyAll() {
+    let result = new Array()
+    selectMap.forEach((value, key) => {
+        if (value.value) {
+            result.push(key)
+        }
+    })
+    emit("denyAll", result)
+}
+
 // 各个类型的筛选模式
 function filterTypes(t) {
     if (t === 'string') {
@@ -506,12 +539,12 @@ function filterTypes(t) {
 
 // 是否需要多选
 const hasCheckBox = computed(() => {
-    return props.actions.some(action => action.name === 'delete' || action.name === 'export' || action.name === 'print')
+    return props.actions.some(action => action.name === 'delete' || action.name === 'export' || action.name === 'print' || action.name === 'orderOut' || action.name === 'quoteAudit')
 })
 
 // 是否需要操作行
 const hasAction = computed(() => {
-    return props.actions.some(action => action.name === 'view' || action.name === 'edit' || action.name === 'delete' || action.name === 'reset' || action.name === 'stock' || action.name === 'print')
+    return props.actions.some(action => action.name === 'view' || action.name === 'edit' || action.name === 'delete' || action.name === 'reset' || action.name === 'stock' || action.name === 'print' || action.name === 'orderOut' || action.name === 'quoteAudit')
 })
 </script>
 
@@ -526,6 +559,12 @@ const hasAction = computed(() => {
                    class="del" @click="printAll"/>
             <q-btn color="primary" v-if="props.actions.some(action => action.name === 'export')" label="エクスポート"
                    :disabled="!iSAnySelected" @click="exportExcel"/>
+            <q-btn color="amber" v-if="props.actions.some(action => action.name === 'orderOut')" label="出庫"
+                   :disabled="!iSAnySelected" @click="orderOut"/>
+            <q-btn color="secondary" v-if="props.actions.some(action => action.name === 'quoteAudit')" label="承認"
+                   :disabled="!iSAnySelected" @click="passAll"/>
+            <q-btn color="deep-orange" v-if="props.actions.some(action => action.name === 'quoteAudit')" label="却下"
+                   :disabled="!iSAnySelected" @click="denyAll"/>
         </div>
         <div class="countCon">
             <p>表示件数</p>
@@ -669,6 +708,15 @@ const hasAction = computed(() => {
                                style="margin-right: 5px;"/>
                         <q-btn v-if="props.actions.some(action => action.name === 'stock')" color="secondary"
                                @click="$emit('stockOut', product)" label="出庫" size="13px"/>
+                        <q-btn v-if="props.actions.some(action => action.name === 'orderOut')" color="amber"
+                               @click="$emit('orderOut', product[Object.keys(product)[0]])" label="出庫" size="13px"
+                               style="margin-left: 5px;"/>
+                        <q-btn v-if="props.actions.some(action => action.name === 'quoteAudit')" color="secondary"
+                               @click="$emit('pass', product)" label="承認" size="13px"
+                               style="margin-left: 5px;"/>
+                        <q-btn v-if="props.actions.some(action => action.name === 'quoteAudit')" color="deep-orange"
+                               @click="$emit('deny', product)" label="却下" size="13px"
+                               style="margin-left: 5px;"/>
                     </td>
                 </tr>
                 </tbody>

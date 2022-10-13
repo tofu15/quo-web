@@ -38,8 +38,10 @@ import StockList from '@/views/Stock/List.vue'
 import StockRecord from '@/views/Stock/Record.vue'
 // 报价单
 import QuoteList from '@/views/Quote/List.vue'
+import QuoteAuditList from '@/views/Quote/AuditList.vue'
 // 订单
 import OrderList from '@/views/Order/List.vue'
+import OrderOutList from '@/views/Order/OutList.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -323,7 +325,7 @@ const router = createRouter({
                 {
                     path: '/quote/audit',
                     name: 'quote-audit',
-                    component: StockList,
+                    component: QuoteAuditList,
                     meta: {
                         title: "承認待ち見積書",
                         needLoading: true,
@@ -383,7 +385,7 @@ const router = createRouter({
                 {
                     path: '/order/out',
                     name: 'order-out',
-                    component: StockList,
+                    component: OrderOutList,
                     meta: {
                         title: "出庫待ち注文",
                         needLoading: true,

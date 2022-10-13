@@ -71,7 +71,7 @@ export type TableHeader = {
 }
 
 export type TableAction = {
-    name: 'delete' | 'export' | 'view' | 'edit' | 'reset' | 'stock' | 'print'
+    name: 'delete' | 'export' | 'view' | 'edit' | 'reset' | 'stock' | 'print' | 'orderOut' | 'quoteAudit'
     all: boolean
     ids: number[]
 }

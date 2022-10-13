@@ -109,7 +109,7 @@ function view(id: number) {
 }
 
 function exportExcel(ids: number[]) {
-    fetch('/api/quote-all-export', {
+    fetch(Permission.QuoteView ? "/api/quote-all-export" : "/api/quote-personal-export", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -137,11 +137,69 @@ function exportExcel(ids: number[]) {
         })
     })
 }
+
+function print(id: number) {
+    fetch(Permission.QuoteView ? "/api/quote-all-print/" + id : "/api/quote-personal-print/" + id, {
+        method: 'GET'
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status)
+        }
+        return response.blob()
+    }).then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const fileLink = document.createElement('a');
+        fileLink.href = url;
+        fileLink.download = `見積書${id}.pdf`
+        document.body.appendChild(fileLink)
+        fileLink.click()
+        fileLink.remove()
+    }).catch((error) => {
+        $q.dialog({
+            title: 'エラー',
+            message: error.toString(),
+            cancel: false,
+            persistent: false
+        })
+    })
+}
+
+function printAll(ids: number[]) {
+    fetch(Permission.QuoteView ? "/api/quote-all-print" : "/api/quote-personal-print", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ids)
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status)
+        }
+        return response.blob()
+    }).then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const fileLink = document.createElement('a');
+        fileLink.href = url;
+        fileLink.download = '見積書プリント.pdf'
+        document.body.appendChild(fileLink)
+        fileLink.click()
+        fileLink.remove()
+    }).catch((error) => {
+        $q.dialog({
+            title: 'エラー',
+            message: error.toString(),
+            cancel: false,
+            persistent: false
+        })
+    })
+}
+
 </script>
 <template>
     <div class="tableCon">
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <CommonTable @exportExcel="exportExcel" @view="view" v-bind="tableProps"></CommonTable>
+        <CommonTable @exportExcel="exportExcel" @view="view" @print="print" @printAll="printAll"
+                     v-bind="tableProps"></CommonTable>
     </div>
 </template>
 <style lang="sass" scoped>

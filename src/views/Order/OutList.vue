@@ -6,14 +6,14 @@ import router from '../../router';
 import {useQuasar} from 'quasar'
 import type {TableProps, UserPermission} from "@/script/interface"
 import {DefaultUserPermission} from "@/script/interface"
-import {Get} from "@/script/api";
+import {Get, Post} from "@/script/api";
 
 const Permission = inject<UserPermission>('Permission', DefaultUserPermission)
 const $q = useQuasar()
 const emit = defineEmits(['reload', 'loaded'])
 // header 参数
 const headerProps = {
-    title: '注文一覧',
+    title: '出庫待ち注文',
     urls: [
         {
             text: 'ホーム',
@@ -26,7 +26,7 @@ const headerProps = {
             url: ''
         },
         {
-            text: ' / 注文一覧',
+            text: ' / 出庫待ち注文',
             isUrl: false,
             url: ''
         }
@@ -34,7 +34,7 @@ const headerProps = {
 }
 // 调用后端接口 获取表格信息
 onBeforeMount(() => {
-    Get(Permission.OrderView ? "/api/order-all" : "/api/order-personal").then((rsp) => {
+    Get("/api/order-all").then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -93,7 +93,7 @@ const tableProps: TableProps = reactive({
             ids: []
         },
         {
-            name: "print",
+            name: "orderOut",
             all: true,
             ids: []
         }
@@ -101,11 +101,11 @@ const tableProps: TableProps = reactive({
 })
 
 function view(id: number) {
-    router.push({name: 'order-list-detail', params: {id: id}})
+    router.push({name: 'order-out-detail', params: {id: id}})
 }
 
 function exportExcel(ids: number[]) {
-    fetch(Permission.OrderView ? "/api/order-all-export" : "/api/order-personal-export", {
+    fetch("/api/quote-stock-export", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -134,66 +134,63 @@ function exportExcel(ids: number[]) {
     })
 }
 
-function print(id: number) {
-    fetch(Permission.OrderView ? "/api/order-all-print/" + id : "/api/order-personal-print/" + id, {
-        method: 'GET'
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status)
-        }
-        return response.blob()
-    }).then((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const fileLink = document.createElement('a');
-        fileLink.href = url;
-        fileLink.download = `注文書${id}.pdf`
-        document.body.appendChild(fileLink)
-        fileLink.click()
-        fileLink.remove()
-    }).catch((error) => {
-        $q.dialog({
-            title: 'エラー',
-            message: error.toString(),
-            cancel: false,
-            persistent: false
+function orderOut(id: number) {
+    $q.dialog({
+        title: '確認',
+        message: '当該注文の製品を出庫します。よろしいですか？',
+        cancel: true,
+        persistent: false
+    }).onOk(() => {
+        Post('/api/quote-stock-ex/' + id).then((rsp) => {
+            if (rsp instanceof Error) {
+                throw rsp
+            } else if (!rsp.success) {
+                throw new Error(rsp.message)
+            } else {
+                emit('reload')
+            }
+        }).catch((error) => {
+            $q.dialog({
+                title: 'エラー',
+                message: error.toString(),
+                cancel: false,
+                persistent: false
+            })
         })
     })
 }
 
-function printAll(ids: number[]) {
-    fetch(Permission.OrderView ? "/api/order-all-print" : "/api/order-personal-print", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(ids)
-    }).then((response) => {
-        if (!response.ok) {
-            throw new Error("HTTP status " + response.status)
-        }
-        return response.blob()
-    }).then((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const fileLink = document.createElement('a');
-        fileLink.href = url;
-        fileLink.download = '注文書プリント.pdf'
-        document.body.appendChild(fileLink)
-        fileLink.click()
-        fileLink.remove()
-    }).catch((error) => {
-        $q.dialog({
-            title: 'エラー',
-            message: error.toString(),
-            cancel: false,
-            persistent: false
+function orderOutAll(ids: number[]) {
+    $q.dialog({
+        title: '確認',
+        message: ids.length + '件の出庫を行います。よろしいですか？',
+        cancel: true,
+        persistent: false
+    }).onOk(() => {
+        Post('/api/quote-stock-ex', ids).then((rsp) => {
+            if (rsp instanceof Error) {
+                throw rsp
+            } else if (!rsp.success) {
+                throw new Error(rsp.message)
+            } else {
+                emit('reload')
+            }
+        }).catch((error) => {
+            $q.dialog({
+                title: 'エラー',
+                message: error.toString(),
+                cancel: false,
+                persistent: false
+            })
         })
     })
 }
+
 </script>
 <template>
     <div class="tableCon">
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <CommonTable @exportExcel="exportExcel" @view="view" @print="print" @printAll="printAll"
+        <CommonTable @exportExcel="exportExcel" @view="view" @orderOutAll="orderOutAll" @orderOut="orderOut"
                      v-bind="tableProps"></CommonTable>
     </div>
 </template>

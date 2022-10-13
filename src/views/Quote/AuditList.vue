@@ -1,0 +1,258 @@
+<script setup lang="ts">
+import {inject, onBeforeMount, reactive} from 'vue'
+import MainViewHeader from '@/components/Common/MainViewHeader.vue';
+import CommonTable from '@/components/Common/CommonTable.vue';
+import router from '../../router';
+import {useQuasar} from 'quasar'
+import type {TableProps, UserPermission} from "@/script/interface"
+import {DefaultUserPermission} from "@/script/interface"
+import {Get, Post} from "@/script/api";
+
+const Permission = inject<UserPermission>('Permission', DefaultUserPermission)
+const $q = useQuasar()
+const emit = defineEmits(['reload', 'loaded'])
+// header 参数
+const headerProps = {
+    title: '承認待ち見積書',
+    urls: [
+        {
+            text: 'ホーム',
+            isUrl: true,
+            url: '/'
+        },
+        {
+            text: ' / 見積管理',
+            isUrl: false,
+            url: ''
+        },
+        {
+            text: ' / 承認待ち見積書',
+            isUrl: false,
+            url: ''
+        }
+    ]
+}
+// 调用后端接口 获取表格信息
+onBeforeMount(() => {
+    // todo
+    Get("/api/quote-all").then((rsp) => {
+        if (rsp instanceof Error) {
+            throw rsp
+        } else if (!rsp.success) {
+            throw new Error(rsp.message)
+        } else {
+            return rsp.data as any[]
+        }
+    }).then((data) => {
+        tableProps.data.push(...data)
+        emit('loaded')
+    }).catch((error) => console.error(error))
+})
+// table 参数
+const tableProps: TableProps = reactive({
+    data: [],
+    headers: [
+        {
+            name: "ID",
+            type: "number"
+        },
+        {
+            name: "件名",
+            type: "string"
+        },
+        {
+            name: "作成日",
+            type: "date"
+        },
+        {
+            name: "合計金額（税込み）",
+            type: "number",
+            decimal: true
+        },
+        {
+            name: "顧客名称",
+            type: "string"
+        },
+        {
+            name: "状態",
+            type: "type"
+        },
+        {
+            name: "作成者",
+            type: "string"
+        }
+    ],
+    actions: [
+        {
+            name: "view",
+            all: true,
+            ids: []
+        },
+        {
+            name: "quoteAudit",
+            all: true,
+            ids: []
+        }
+    ]
+})
+
+function view(id: number) {
+    router.push({name: 'quote-audit-detail', params: {id: id}})
+}
+
+function pass(quo: any) {
+    let url: string
+    if (quo.qsname == '一次承認待ち') {
+        url = "/api/quote-pass/level-one/" + quo.qid
+    } else if (quo.qsname == '二次承認待ち') {
+        url = "/api/quote-pass/level-two/" + quo.qid
+    } else {
+        return
+    }
+
+    $q.dialog({
+        title: '確認',
+        message: '当該見積書を承認します。よろしいですか？',
+        cancel: true,
+        persistent: false
+    }).onOk(() => {
+        Post(url).then((rsp) => {
+            if (rsp instanceof Error) {
+                throw rsp
+            } else if (!rsp.success) {
+                throw new Error(rsp.message)
+            } else {
+                emit('reload')
+            }
+        }).catch((error) => {
+            $q.dialog({
+                title: 'エラー',
+                message: error.toString(),
+                cancel: false,
+                persistent: false
+            })
+        })
+    })
+}
+
+function deny(quo: any) {
+    let url: string
+    if (quo.qsname == '一次承認待ち') {
+        url = "/api/quote-deny/level-one/" + quo.qid
+    } else if (quo.qsname == '二次承認待ち') {
+        url = "/api/quote-deny/level-two/" + quo.qid
+    } else {
+        return
+    }
+
+    $q.dialog({
+        title: '確認',
+        message: '当該見積書を却下します。よろしいですか？',
+        cancel: true,
+        persistent: false
+    }).onOk(() => {
+        Post(url).then((rsp) => {
+            if (rsp instanceof Error) {
+                throw rsp
+            } else if (!rsp.success) {
+                throw new Error(rsp.message)
+            } else {
+                emit('reload')
+            }
+        }).catch((error) => {
+            $q.dialog({
+                title: 'エラー',
+                message: error.toString(),
+                cancel: false,
+                persistent: false
+            })
+        })
+    })
+}
+
+function passAll(ids: number[]) {
+    let url: string
+    if (Permission.QuoteAuditFirst && Permission.QuoteAuditSecond) {
+        url = '/api/quote-pass/level-super'
+    } else if (Permission.QuoteAuditFirst) {
+        url = '/api/quote-pass/level-one'
+    } else if (Permission.QuoteAuditSecond) {
+        url = '/api/quote-pass/level-two'
+    } else {
+        return
+    }
+
+    $q.dialog({
+        title: '確認',
+        message: ids.length + '件の見積書を承認します。よろしいですか？',
+        cancel: true,
+        persistent: false
+    }).onOk(() => {
+        Post(url, ids).then((rsp) => {
+            if (rsp instanceof Error) {
+                throw rsp
+            } else if (!rsp.success) {
+                throw new Error(rsp.message)
+            } else {
+                emit('reload')
+            }
+        }).catch((error) => {
+            $q.dialog({
+                title: 'エラー',
+                message: error.toString(),
+                cancel: false,
+                persistent: false
+            })
+        })
+    })
+}
+
+function denyAll(ids: number[]) {
+    let url: string
+    if (Permission.QuoteAuditFirst && Permission.QuoteAuditSecond) {
+        url = '/api/quote-deny/level-super'
+    } else if (Permission.QuoteAuditFirst) {
+        url = '/api/quote-deny/level-one'
+    } else if (Permission.QuoteAuditSecond) {
+        url = '/api/quote-deny/level-two'
+    } else {
+        return
+    }
+
+    $q.dialog({
+        title: '確認',
+        message: ids.length + '件の見積書を却下します。よろしいですか？',
+        cancel: true,
+        persistent: false
+    }).onOk(() => {
+        Post(url, ids).then((rsp) => {
+            if (rsp instanceof Error) {
+                throw rsp
+            } else if (!rsp.success) {
+                throw new Error(rsp.message)
+            } else {
+                emit('reload')
+            }
+        }).catch((error) => {
+            $q.dialog({
+                title: 'エラー',
+                message: error.toString(),
+                cancel: false,
+                persistent: false
+            })
+        })
+    })
+}
+
+</script>
+<template>
+    <div class="tableCon">
+        <MainViewHeader v-bind="headerProps"></MainViewHeader>
+        <CommonTable v-bind="tableProps" @view="view" @pass="pass" @deny="deny" @passAll="passAll"
+                     @denyAll="denyAll"></CommonTable>
+    </div>
+</template>
+<style lang="sass" scoped>
+div.tableCon
+    max-width: 1400px
+</style>
