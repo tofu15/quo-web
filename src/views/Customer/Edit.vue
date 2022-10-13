@@ -168,6 +168,8 @@ onBeforeMount(async () => {
     emit('loaded')
 })
 
+const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
 </script>
 
 <template>
@@ -191,19 +193,22 @@ onBeforeMount(async () => {
                              :rules="[val => !!val || '入力必須です。']"
                              v-model.trim="table.address" label="アドレス" outlined/>
                     <q-input class="input"
-                             :rules="[val => !!val || '入力必須です。']"
+                             :rules="[val => !!val || '入力必須です。',val => val.length === 8 || '有効な郵便番号ではありません。']"
+                             mask="###-####"
                              v-model.trim="table.zip" label="郵便番号" outlined/>
                     <q-input class="input"
-                             :rules="[val => !!val || '入力必須です。']"
+                             :rules="[val => !!val || '入力必須です。',val => val.length === 12 || '有効な電話番号ではありません。']"
+                             mask="###-###-####"
                              v-model.trim="table.tel" label="電話番号" outlined/>
                     <q-input class="input"
                              :rules="[val => !!val || '入力必須です。']"
                              v-model.trim="table.contact" label="担当者" outlined/>
                     <q-input class="input"
-                             :rules="[val => !!val || '入力必須です。']"
+                             :rules="[val => !!val || '入力必須です。', val => emailRegex.test(val) || '有効なメールアドレスではありません。']"
                              v-model.trim="table.email" label="メールアドレス" outlined/>
                     <q-input class="input"
-                             :rules="[val => !!val || '入力必須です。']"
+                             :rules="[val => !!val || '入力必須です。',val => val.length === 12 || '有効なファックス番号ではありません。']"
+                             mask="###-###-####"
                              v-model.trim="table.fax" label="ファックス" outlined/>
                     <q-input class="input"
                              :rules="[val => !!val || '入力必須です。']"
