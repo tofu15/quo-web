@@ -42,8 +42,36 @@ const editAction = computed(() => {
         ids: actions[0].ids
     }
 })
+
+const emailAction = computed(() => {
+    const actions = props.actions.filter(action => action.name === 'email')
+    if (actions.length === 0) {
+        return {
+            all: false,
+            ids: []
+        }
+    }
+    return {
+        all: actions[0].all,
+        ids: actions[0].ids
+    }
+})
+
+const changeStateAction = computed(() => {
+    const actions = props.actions.filter(action => action.name === 'changeState')
+    if (actions.length === 0) {
+        return {
+            all: false,
+            ids: []
+        }
+    }
+    return {
+        all: actions[0].all,
+        ids: actions[0].ids
+    }
+})
 // 声明触发的事件
-const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel', 'reset', 'stockIn', 'stockOut', 'print', 'printAll', 'orderOut', 'orderOutAll', 'pass', 'passAll', 'deny', 'denyAll'])
+const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel', 'reset', 'stockIn', 'stockOut', 'print', 'printAll', 'orderOut', 'orderOutAll', 'pass', 'passAll', 'deny', 'denyAll', 'changeState', 'email'])
 
 
 const table = reactive({
@@ -692,6 +720,10 @@ const hasAction = computed(() => {
                                :disabled="editAction.all === false && !editAction.ids.includes(product[Object.keys(product)[0]])"
                                @click="$emit('edit', product[Object.keys(product)[0]])" round color="secondary"
                                icon="r_edit" size="10px"/>
+                        <q-btn
+                            v-if="emailAction.all === true || emailAction.ids.includes(product[Object.keys(product)[0]])"
+                            @click="$emit('email', product[Object.keys(product)[0]])" round color="green"
+                            icon="r_email" size="10px"/>
                         <q-btn v-if="props.actions.some(action => action.name === 'delete')"
                                :disable="deleteAction.all === false && !deleteAction.ids.includes(product[Object.keys(product)[0]])"
                                @click="$emit('delete', product[Object.keys(product)[0]])" round color="red"
@@ -717,6 +749,11 @@ const hasAction = computed(() => {
                         <q-btn v-if="props.actions.some(action => action.name === 'quoteAudit')" color="deep-orange"
                                @click="$emit('deny', product)" label="却下" size="13px"
                                style="margin-left: 5px;"/>
+                        <q-btn
+                            v-if="changeStateAction.all === true || changeStateAction.ids.includes(product[Object.keys(product)[0]])"
+                            color="grey"
+                            @click="$emit('changeState', product)" label="状態変更" size="13px"
+                            style="margin-left: 5px;"/>
                     </td>
                 </tr>
                 </tbody>

@@ -42,7 +42,7 @@ onBeforeMount(() => {
         } else {
             return rsp.data as any[]
         }
-    }).then((data) => {
+    }).then(async (data) => {
         tableProps.data.push(...data)
         // 打印
         const printData = data.filter(value => value.qsname == '送信待ち' || value.qsname == '顧客確認待ち')
@@ -54,6 +54,26 @@ onBeforeMount(() => {
             })
         }
         emit('loaded')
+
+        // 如果没有 个人报价单权限 处理到此结束
+        if (!Permission.QuoteSelf) {
+            return
+        }
+        if (Permission.QuoteView) {
+            // 获取个人报价单的 id
+            await Get("/api/quote-personal").then((rsp) => {
+                if (rsp instanceof Error) {
+                    throw rsp
+                } else if (!rsp.success) {
+                    throw new Error(rsp.message)
+                } else {
+                    return rsp.data as any[]
+                }
+            }).then((data) => {
+                data.map(v => v[Object.keys(v)[0]]).forEach(id => quoteSelfIds.push(id))
+            })
+        }
+        // todo
     }).catch((error) => console.error(error))
 })
 // table 参数
@@ -103,6 +123,9 @@ const tableProps: TableProps = reactive({
         }
     ]
 })
+
+// 个人报价单 id 数组
+const quoteSelfIds: number[] = reactive([])
 
 function view(id: number) {
     router.push({name: 'quote-list-detail', params: {id: id}})
