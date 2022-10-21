@@ -221,9 +221,10 @@ function postData() {
                 <div class="row">
                     <q-input :rules="[val => !!val || '入力必須です。']" v-model.trim="product.pname" label="名称"
                              class="col-sm-12 col-md-6" outlined/>
-                    <q-input :rules="[val => !!val || '入力必須です。', val => val > 0 || '正しくありません。']"
-                             v-model.trim="product.price" label="単価（円）" class="col-sm-12 col-md-6" outlined
-                             type="number"/>
+                    <q-input
+                        :rules="[val => !!val || '入力必須です。', val => (Number.isInteger(Number(val)) && Number(val) >0) || '正しくありません。']"
+                        v-model.trim="product.price" label="単価（円）" class="col-sm-12 col-md-6" outlined
+                        type="number" step="any"/>
                     <q-select :rules="[val => !!val || '入力必須です。']" v-model="product.tid" :options="types"
                               label="タイプ" class="col-sm-12 col-md-6" outlined emit-value map-options/>
                     <q-select :rules="[val => !!val || '入力必須です。']" v-model="product.psid" :options="seriesOfType"
