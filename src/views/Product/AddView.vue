@@ -8,6 +8,7 @@ import {Get, Post} from "@/script/api";
 
 const $q = useQuasar()
 const emit = defineEmits(['loaded'])
+
 // 定义接口
 interface Type {
     label: string
@@ -227,11 +228,14 @@ function postData() {
                               label="タイプ" class="col-sm-12 col-md-6" outlined emit-value map-options/>
                     <q-select :rules="[val => !!val || '入力必須です。']" v-model="product.psid" :options="seriesOfType"
                               label="シリーズ" class="col-sm-12 col-md-6" outlined emit-value map-options/>
-                    <q-input :rules="[val => !!val || '入力必須です。']" v-model.trim="product.connection" label="接続性"
+                    <q-input :rules="[val => !!val || '入力必須です。', val => val.length <=10 || '10文字まで。']"
+                             v-model.trim="product.connection" label="接続性"
                              class="col-sm-12 col-md-6" outlined/>
-                    <q-input :rules="[val => !!val || '入力必須です。']" v-model.trim="product.pinterface" label="インターフェイス"
+                    <q-input :rules="[val => !!val || '入力必須です。', val => val.length <=20 || '20文字まで。']"
+                             v-model.trim="product.pinterface" label="インターフェイス"
                              class="col-sm-12 col-md-6" outlined/>
-                    <q-input :rules="[val => !!val || '入力必須です。']" v-model.trim="product.waterproof" label="防水"
+                    <q-input :rules="[val => !!val || '入力必須です。', val => val.length <=5 || '5文字まで。']"
+                             v-model.trim="product.waterproof" label="防水"
                              class="col-sm-12 col-md-6" outlined/>
                     <q-field class="col-sm-12 col-md-6" label="重低音" stack-label borderless
                              :rules="[() => !!product.bass || '入力必須です。']">
