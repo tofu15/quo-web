@@ -231,7 +231,7 @@ function postData() {
                     <q-input :rules="[val => !!val || '入力必須です。', val => val.length <=10 || '10文字まで。']"
                              v-model.trim="product.connection" label="接続性"
                              class="col-sm-12 col-md-6" outlined/>
-                    <q-input :rules="[val => !!val || '入力必須です。', val => val.length <=20 || '20文字まで。']"
+                    <q-input :rules="[val => !!val || '入力必須です。', val => val.length <=50 || '50文字まで。']"
                              v-model.trim="product.pinterface" label="インターフェイス"
                              class="col-sm-12 col-md-6" outlined/>
                     <q-input :rules="[val => !!val || '入力必須です。', val => val.length <=5 || '5文字まで。']"
