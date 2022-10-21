@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import MainViewHeader from '@/components/Common/MainViewHeader.vue'
 import type {Cus, CusPost} from "@/views/Customer/Interface";
-import {computed, reactive} from "vue";
+import {computed, inject, reactive} from "vue";
 import {onBeforeMount} from "@modules/vue";
 import {Get, Put} from "@/script/api";
 import {onBeforeRouteLeave, useRoute} from "@modules/vue-router";
 import router from "@/router";
 import {useQuasar} from "@modules/quasar";
+import type {UserPermission} from "@/script/interface"
+import {DefaultUserPermission} from "@/script/interface"
 
+const Permission = inject<UserPermission>('Permission', DefaultUserPermission)
 const route = useRoute()
 const $q = useQuasar()
 const emit = defineEmits(['loaded'])
@@ -108,7 +111,7 @@ const modalData = reactive({
 
 function update() {
     status.loading = true
-    Put('/api/customer/' + route.params.id, postData.value).then((rsp) => {
+    Put((Permission.CustomerEditAll ? '/api/customer-all/' : '/api/customer-personal/') + route.params.id, postData.value).then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -149,7 +152,7 @@ onBeforeRouteLeave((to) => {
 
 // 调用后端接口 获取信息 修改 table
 onBeforeMount(async () => {
-    await Get('/api/customer/' + route.params.id).then((rsp) => {
+    await Get((Permission.CustomerViewAll ? '/api/customer-all/' : '/api/customer-personal/') + route.params.id).then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -164,6 +167,8 @@ onBeforeMount(async () => {
 
     emit('loaded')
 })
+
+const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
 </script>
 
@@ -188,19 +193,22 @@ onBeforeMount(async () => {
                              :rules="[val => !!val || '入力必須です。']"
                              v-model.trim="table.address" label="アドレス" outlined/>
                     <q-input class="input"
-                             :rules="[val => !!val || '入力必須です。']"
+                             :rules="[val => !!val || '入力必須です。',val => val.length === 8 || '有効な郵便番号ではありません。']"
+                             mask="###-####"
                              v-model.trim="table.zip" label="郵便番号" outlined/>
                     <q-input class="input"
-                             :rules="[val => !!val || '入力必須です。']"
+                             :rules="[val => !!val || '入力必須です。',val => val.length === 12 || '有効な電話番号ではありません。']"
+                             mask="###-###-####"
                              v-model.trim="table.tel" label="電話番号" outlined/>
                     <q-input class="input"
                              :rules="[val => !!val || '入力必須です。']"
                              v-model.trim="table.contact" label="担当者" outlined/>
                     <q-input class="input"
-                             :rules="[val => !!val || '入力必須です。']"
+                             :rules="[val => !!val || '入力必須です。', val => emailRegex.test(val) || '有効なメールアドレスではありません。']"
                              v-model.trim="table.email" label="メールアドレス" outlined/>
                     <q-input class="input"
-                             :rules="[val => !!val || '入力必須です。']"
+                             :rules="[val => !!val || '入力必須です。',val => val.length === 12 || '有効なファックス番号ではありません。']"
+                             mask="###-###-####"
                              v-model.trim="table.fax" label="ファックス" outlined/>
                     <q-input class="input"
                              :rules="[val => !!val || '入力必須です。']"

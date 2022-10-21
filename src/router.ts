@@ -36,6 +36,12 @@ import CustomerAdd from '@/views/Customer/Add.vue'
 // 库存
 import StockList from '@/views/Stock/List.vue'
 import StockRecord from '@/views/Stock/Record.vue'
+// 报价单
+import QuoteList from '@/views/Quote/List.vue'
+import QuoteAuditList from '@/views/Quote/AuditList.vue'
+// 订单
+import OrderList from '@/views/Order/List.vue'
+import OrderOutList from '@/views/Order/OutList.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -263,7 +269,7 @@ const router = createRouter({
                     meta: {
                         title: "顧客一覧",
                         needLoading: true,
-                        mids: [14]
+                        mids: [14, 15]
                     }
                 },
                 {
@@ -273,7 +279,7 @@ const router = createRouter({
                     meta: {
                         title: "顧客詳細情報",
                         needLoading: true,
-                        mids: [14]
+                        mids: [14, 15]
                     }
                 },
                 {
@@ -283,7 +289,7 @@ const router = createRouter({
                     meta: {
                         title: "顧客編集",
                         needLoading: true,
-                        mids: [15]
+                        mids: [16, 17]
                     }
                 },
                 {
@@ -293,7 +299,107 @@ const router = createRouter({
                     meta: {
                         title: "新規見込み顧客",
                         needLoading: false,
-                        mids: [16]
+                        mids: [18]
+                    }
+                },
+                {
+                    path: '/quote/list',
+                    name: 'quote-list',
+                    component: QuoteList,
+                    meta: {
+                        title: "見積一覧",
+                        needLoading: true,
+                        mids: [22, 24]
+                    }
+                },
+                {
+                    path: '/quote/list/detail/:id',
+                    name: 'quote-list-detail',
+                    component: StockList,
+                    meta: {
+                        title: "見積詳細情報",
+                        needLoading: true,
+                        mids: [22, 24]
+                    }
+                },
+                {
+                    path: '/quote/audit',
+                    name: 'quote-audit',
+                    component: QuoteAuditList,
+                    meta: {
+                        title: "承認待ち見積書",
+                        needLoading: true,
+                        mids: [20, 21]
+                    }
+                },
+                {
+                    path: '/quote/audit/detail/:id',
+                    name: 'quote-audit-detail',
+                    component: StockList,
+                    meta: {
+                        title: "見積詳細情報",
+                        needLoading: true,
+                        mids: [20, 21]
+                    }
+                },
+                {
+                    path: '/quote/add',
+                    name: 'quote-add',
+                    component: HomeView,
+                    meta: {
+                        title: "見積作成",
+                        needLoading: false,
+                        mids: [24]
+                    }
+                },
+                {
+                    path: '/quote/edit/:id',
+                    name: 'quote-edit',
+                    component: StockList,
+                    meta: {
+                        title: "見積修正",
+                        needLoading: true,
+                        mids: [24]
+                    }
+                },
+                {
+                    path: '/order/list',
+                    name: 'order-list',
+                    component: OrderList,
+                    meta: {
+                        title: "注文一覧",
+                        needLoading: true,
+                        mids: [23, 24]
+                    }
+                },
+                {
+                    path: '/order/list/detail/:id',
+                    name: 'order-list-detail',
+                    component: StockList,
+                    meta: {
+                        title: "注文詳細情報",
+                        needLoading: true,
+                        mids: [23, 24]
+                    }
+                },
+                {
+                    path: '/order/out',
+                    name: 'order-out',
+                    component: OrderOutList,
+                    meta: {
+                        title: "出庫待ち注文",
+                        needLoading: true,
+                        mids: [19]
+                    }
+                },
+                {
+                    path: '/order/out/detail/:id',
+                    name: 'order-out-detail',
+                    component: StockList,
+                    meta: {
+                        title: "注文詳細情報",
+                        needLoading: true,
+                        mids: [19]
                     }
                 }
             ]

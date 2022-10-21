@@ -14,9 +14,19 @@ export type UserPermission = {
     StockRecord: boolean
     StockAction: boolean
     // 顾客
-    CustomerView: boolean
-    CustomerEdit: boolean
+    CustomerViewAll: boolean
+    CustomerViewSelf: boolean
+    CustomerEditAll: boolean
+    CustomerEditSelf: boolean
     CustomerAdd: boolean
+    // 报价单
+    QuoteSelf: boolean
+    QuoteView: boolean
+    QuoteAuditFirst: boolean
+    QuoteAuditSecond: boolean
+    // 订单
+    OrderView: boolean
+    OrderOut: boolean
     // 系统设置
     SystemSettings: boolean
 }
@@ -34,9 +44,17 @@ export const DefaultUserPermission: UserPermission = {
     StockView: false,
     StockRecord: false,
     StockAction: false,
-    CustomerView: false,
-    CustomerEdit: false,
+    CustomerViewAll: false,
+    CustomerViewSelf: false,
+    CustomerEditAll: false,
+    CustomerEditSelf: false,
     CustomerAdd: false,
+    QuoteSelf: false,
+    QuoteView: false,
+    QuoteAuditFirst: false,
+    QuoteAuditSecond: false,
+    OrderView: false,
+    OrderOut: false,
     SystemSettings: false
 }
 
@@ -53,7 +71,7 @@ export type TableHeader = {
 }
 
 export type TableAction = {
-    name: 'delete' | 'export' | 'view' | 'edit' | 'reset' | 'stock'
+    name: 'delete' | 'export' | 'view' | 'edit' | 'reset' | 'stock' | 'print' | 'orderOut' | 'quoteAudit' | 'changeState' | 'email'
     all: boolean
     ids: number[]
 }

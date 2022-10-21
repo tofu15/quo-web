@@ -2,17 +2,18 @@
 import {inject, onBeforeMount, reactive} from 'vue'
 import MainViewHeader from '@/components/Common/MainViewHeader.vue';
 import CommonTable from '@/components/Common/CommonTable.vue';
-import {Delete, Get, Post, Put} from "@/script/api";
+import router from '../../router';
 import {useQuasar} from 'quasar'
 import type {TableProps, UserPermission} from "@/script/interface"
 import {DefaultUserPermission} from "@/script/interface"
+import {Get, Post} from "@/script/api";
 
 const Permission = inject<UserPermission>('Permission', DefaultUserPermission)
 const $q = useQuasar()
 const emit = defineEmits(['reload', 'loaded'])
 // header 参数
 const headerProps = {
-    title: 'ユーザー管理',
+    title: '出庫待ち注文',
     urls: [
         {
             text: 'ホーム',
@@ -20,102 +21,127 @@ const headerProps = {
             url: '/'
         },
         {
-            text: ' / システム設定',
+            text: ' / 注文管理',
             isUrl: false,
             url: ''
         },
         {
-            text: ' / ユーザー管理',
+            text: ' / 出庫待ち注文',
             isUrl: false,
             url: ''
         }
     ]
 }
-
-// 定义 User 接口
-interface User {
-    eno: number
-    ename: string
-    dname: string
-    rname: string
-    tel: string
-    email: string
-}
-
-// table 参数
-const tableProps: TableProps = reactive({
-    data: [],
-    headers: [
-        {
-            name: "従業員番号",
-            type: "number"
-        },
-        {
-            name: "氏名",
-            type: "string"
-        },
-        {
-            name: "部署",
-            type: "type"
-        },
-        {
-            name: "職位",
-            type: "type"
-        },
-        {
-            name: "電話番号",
-            type: "string"
-        },
-        {
-            name: "email",
-            type: "string"
-        }
-    ],
-    actions: [
-        {
-            name: "edit",
-            all: true,
-            ids: []
-        },
-        {
-            name: "delete",
-            all: true,
-            ids: []
-        },
-        {
-            name: "reset",
-            all: true,
-            ids: []
-        }
-    ]
-})
-
 // 调用后端接口 获取表格信息
-onBeforeMount(async () => {
-    await Get('/api/users').then((rsp) => {
+onBeforeMount(() => {
+    Get("/api/order-all").then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
             throw new Error(rsp.message)
         } else {
-            return rsp.data as User[]
+            return rsp.data as any[]
         }
     }).then((data) => {
         tableProps.data.push(...data)
-    }).catch((error) => console.log(error))
-
-    emit('loaded')
+        emit('loaded')
+    }).catch((error) => console.error(error))
+})
+// table 参数
+const tableProps: TableProps = reactive({
+    data: [],
+    headers: [
+        {
+            name: "ID",
+            type: "number"
+        },
+        {
+            name: "件名",
+            type: "string"
+        },
+        {
+            name: "作成日",
+            type: "date"
+        },
+        {
+            name: "合計金額（税込み）",
+            type: "number",
+            decimal: true
+        },
+        {
+            name: "顧客名称",
+            type: "string"
+        },
+        {
+            name: "状態",
+            type: "type"
+        },
+        {
+            name: "作成者",
+            type: "string"
+        }
+    ],
+    actions: [
+        {
+            name: "export",
+            all: true,
+            ids: []
+        },
+        {
+            name: "view",
+            all: true,
+            ids: []
+        },
+        {
+            name: "orderOut",
+            all: true,
+            ids: []
+        }
+    ]
 })
 
-// 删除单个用户
-function deleteItem(id: number) {
+function view(id: number) {
+    router.push({name: 'order-out-detail', params: {id: id}})
+}
+
+function exportExcel(ids: number[]) {
+    fetch("/api/quote-stock-export", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ids)
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error("HTTP status " + response.status)
+        }
+        return response.blob()
+    }).then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const fileLink = document.createElement('a');
+        fileLink.href = url;
+        fileLink.download = '注文エクスポート.xlsx'
+        document.body.appendChild(fileLink)
+        fileLink.click()
+        fileLink.remove()
+    }).catch((error) => {
+        $q.dialog({
+            title: 'エラー',
+            message: error.toString(),
+            cancel: false,
+            persistent: false
+        })
+    })
+}
+
+function orderOut(id: number) {
     $q.dialog({
         title: '確認',
-        message: '当該ユーザーを削除します。よろしいですか？',
+        message: '当該注文の製品を出庫します。よろしいですか？',
         cancel: true,
         persistent: false
     }).onOk(() => {
-        Delete('/api/user/' + id).then((rsp) => {
+        Post('/api/quote-stock-ex/' + id).then((rsp) => {
             if (rsp instanceof Error) {
                 throw rsp
             } else if (!rsp.success) {
@@ -134,42 +160,14 @@ function deleteItem(id: number) {
     })
 }
 
-// 删除多个用户
-function deleteAll(ids: number[]) {
+function orderOutAll(ids: number[]) {
     $q.dialog({
         title: '確認',
-        message: ids.length + '人のユーザーを削除します。よろしいですか？',
+        message: ids.length + '件の出庫を行います。よろしいですか？',
         cancel: true,
         persistent: false
     }).onOk(() => {
-        Post('/api/users-del', ids).then((rsp) => {
-            if (rsp instanceof Error) {
-                throw rsp
-            } else if (!rsp.success) {
-                throw new Error(rsp.message)
-            } else {
-                emit('reload')
-            }
-        }).catch((error) => {
-            $q.dialog({
-                title: 'エラー',
-                message: error.toString(),
-                cancel: false,
-                persistent: false
-            })
-        })
-    })
-}
-
-// 重置用户
-function reset(id: number) {
-    $q.dialog({
-        title: '確認',
-        message: '当該ユーザーのパスワードをリセットします。よろしいですか？',
-        cancel: true,
-        persistent: false
-    }).onOk(() => {
-        Put('/api/user-reset/' + id).then((rsp) => {
+        Post('/api/quote-stock-ex', ids).then((rsp) => {
             if (rsp instanceof Error) {
                 throw rsp
             } else if (!rsp.success) {
@@ -189,17 +187,14 @@ function reset(id: number) {
 }
 
 </script>
-
 <template>
     <div class="tableCon">
         <MainViewHeader v-bind="headerProps"></MainViewHeader>
-        <CommonTable
-            @edit="(id) => $router.push({ name: 'system-user-edit', params: { id: id } })"
-            @deleteAll="deleteAll" @delete="deleteItem" @reset="reset" v-bind="tableProps"></CommonTable>
+        <CommonTable @exportExcel="exportExcel" @view="view" @orderOutAll="orderOutAll" @orderOut="orderOut"
+                     v-bind="tableProps"></CommonTable>
     </div>
 </template>
-
 <style lang="sass" scoped>
 div.tableCon
-    max-width: 1200px
+    max-width: 1400px
 </style>

@@ -70,7 +70,7 @@ interface DetailPropsDataOfData {
 // 调用后端接口 获取信息 修改 detailProps
 onBeforeMount(async () => {
     const id = route.params.id
-    await Get('/api/customer/' + id).then((rsp) => {
+    await Get((Permission.CustomerViewAll ? '/api/customer-all/' : '/api/customer-personal/') + id).then((rsp) => {
         if (rsp instanceof Error) {
             throw rsp
         } else if (!rsp.success) {
@@ -125,8 +125,22 @@ onBeforeMount(async () => {
         })
     }).catch((error) => console.log(error))
 
-    if (Permission.CustomerEdit) {
+    if (Permission.CustomerEditAll) {
         detailProps.action.push('edit')
+    } else if (Permission.CustomerEditSelf) {
+        await Get("/api/customer-able").then((rsp) => {
+            if (rsp instanceof Error) {
+                throw rsp
+            } else if (!rsp.success) {
+                throw new Error(rsp.message)
+            } else {
+                return rsp.data as number[]
+            }
+        }).then(data => {
+            if (data.some(value => value == Number(id))) {
+                detailProps.action.push('edit')
+            }
+        }).catch((error) => console.log(error))
     }
 
     emit('loaded')

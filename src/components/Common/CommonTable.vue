@@ -20,8 +20,58 @@ const deleteAction = computed(() => {
         ids: actions[0].ids
     }
 })
+
+const printAction = computed(() => {
+    const actions = props.actions.filter(action => action.name === 'print')
+    if (actions.length === 0) {
+        return {
+            all: false,
+            ids: []
+        }
+    }
+    return {
+        all: actions[0].all,
+        ids: actions[0].ids
+    }
+})
+
+const editAction = computed(() => {
+    const actions = props.actions.filter(action => action.name === 'edit')
+    return {
+        all: actions[0].all,
+        ids: actions[0].ids
+    }
+})
+
+const emailAction = computed(() => {
+    const actions = props.actions.filter(action => action.name === 'email')
+    if (actions.length === 0) {
+        return {
+            all: false,
+            ids: []
+        }
+    }
+    return {
+        all: actions[0].all,
+        ids: actions[0].ids
+    }
+})
+
+const changeStateAction = computed(() => {
+    const actions = props.actions.filter(action => action.name === 'changeState')
+    if (actions.length === 0) {
+        return {
+            all: false,
+            ids: []
+        }
+    }
+    return {
+        all: actions[0].all,
+        ids: actions[0].ids
+    }
+})
 // 声明触发的事件
-const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel', 'reset', 'stockIn', 'stockOut'])
+const emit = defineEmits(['delete', 'deleteAll', 'view', 'edit', 'exportExcel', 'reset', 'stockIn', 'stockOut', 'print', 'printAll', 'orderOut', 'orderOutAll', 'pass', 'passAll', 'deny', 'denyAll', 'changeState', 'email'])
 
 
 const table = reactive({
@@ -278,6 +328,26 @@ const isDeleteAble = computed(() => {
         }
     }
 })
+// 判断是否可打印
+const isPrintAble = computed(() => {
+    let result = true
+    if (!props.actions.some(action => action.name === "print")) {
+        return false
+    } else if (props.actions.some(action => action.name === "print" && action.all)) {
+        return iSAnySelected.value
+    } else {
+        if (!iSAnySelected.value) {
+            return false
+        } else {
+            selectMap.forEach((value, key) => {
+                if (value.value && !props.actions.some(action => action.name === "print" && action.ids.includes(key))) {
+                    result = false
+                }
+            })
+            return result
+        }
+    }
+})
 // 选择器数据
 const tableSelectData = computed(() => {
     let resultSet = []
@@ -359,6 +429,17 @@ function deleteAll() {
     emit("deleteAll", result)
 }
 
+// 打印多个
+function printAll() {
+    let result = new Array()
+    selectMap.forEach((value, key) => {
+        if (value.value) {
+            result.push(key)
+        }
+    })
+    emit("printAll", result)
+}
+
 // 导出 excel
 function exportExcel() {
     let result = new Array()
@@ -368,6 +449,39 @@ function exportExcel() {
         }
     })
     emit("exportExcel", result)
+}
+
+// 批量出库
+function orderOut() {
+    let result = new Array()
+    selectMap.forEach((value, key) => {
+        if (value.value) {
+            result.push(key)
+        }
+    })
+    emit("orderOutAll", result)
+}
+
+// 批量通过
+function passAll() {
+    let result = new Array()
+    selectMap.forEach((value, key) => {
+        if (value.value) {
+            result.push(key)
+        }
+    })
+    emit("passAll", result)
+}
+
+// 批量拒绝
+function denyAll() {
+    let result = new Array()
+    selectMap.forEach((value, key) => {
+        if (value.value) {
+            result.push(key)
+        }
+    })
+    emit("denyAll", result)
 }
 
 // 各个类型的筛选模式
@@ -453,12 +567,12 @@ function filterTypes(t) {
 
 // 是否需要多选
 const hasCheckBox = computed(() => {
-    return props.actions.some(action => action.name === 'delete' || action.name === 'export')
+    return props.actions.some(action => action.name === 'delete' || action.name === 'export' || action.name === 'print' || action.name === 'orderOut' || action.name === 'quoteAudit')
 })
 
 // 是否需要操作行
 const hasAction = computed(() => {
-    return props.actions.some(action => action.name === 'view' || action.name === 'edit' || action.name === 'delete' || action.name === 'reset' || action.name === 'stock')
+    return props.actions.some(action => action.name === 'view' || action.name === 'edit' || action.name === 'delete' || action.name === 'reset' || action.name === 'stock' || action.name === 'print' || action.name === 'orderOut' || action.name === 'quoteAudit')
 })
 </script>
 
@@ -468,8 +582,17 @@ const hasAction = computed(() => {
             <q-btn color="red" label="削除" v-if="props.actions.some(action => action.name === 'delete')"
                    :disabled="!isDeleteAble"
                    class="del" @click="deleteAll"/>
+            <q-btn color="red" label="プリント" v-if="props.actions.some(action => action.name === 'print')"
+                   :disabled="!isPrintAble"
+                   class="del" @click="printAll"/>
             <q-btn color="primary" v-if="props.actions.some(action => action.name === 'export')" label="エクスポート"
                    :disabled="!iSAnySelected" @click="exportExcel"/>
+            <q-btn color="amber" v-if="props.actions.some(action => action.name === 'orderOut')" label="出庫"
+                   :disabled="!iSAnySelected" @click="orderOut"/>
+            <q-btn color="secondary" v-if="props.actions.some(action => action.name === 'quoteAudit')" label="承認"
+                   :disabled="!iSAnySelected" @click="passAll"/>
+            <q-btn color="deep-orange" v-if="props.actions.some(action => action.name === 'quoteAudit')" label="却下"
+                   :disabled="!iSAnySelected" @click="denyAll"/>
         </div>
         <div class="countCon">
             <p>表示件数</p>
@@ -594,12 +717,21 @@ const hasAction = computed(() => {
                                @click="$emit('view', product[Object.keys(product)[0]])" round color="primary"
                                icon="r_visibility" size="10px"/>
                         <q-btn v-if="props.actions.some(action => action.name === 'edit')"
+                               :disabled="editAction.all === false && !editAction.ids.includes(product[Object.keys(product)[0]])"
                                @click="$emit('edit', product[Object.keys(product)[0]])" round color="secondary"
                                icon="r_edit" size="10px"/>
+                        <q-btn
+                            v-if="emailAction.all === true || emailAction.ids.includes(product[Object.keys(product)[0]])"
+                            @click="$emit('email', product[Object.keys(product)[0]])" round color="green"
+                            icon="r_email" size="10px"/>
                         <q-btn v-if="props.actions.some(action => action.name === 'delete')"
                                :disable="deleteAction.all === false && !deleteAction.ids.includes(product[Object.keys(product)[0]])"
                                @click="$emit('delete', product[Object.keys(product)[0]])" round color="red"
                                icon="r_delete" size="10px"/>
+                        <q-btn
+                            v-if="printAction.all === true || printAction.ids.includes(product[Object.keys(product)[0]])"
+                            @click="$emit('print', product[Object.keys(product)[0]])" round color="grey"
+                            icon="r_print" size="10px"/>
                         <q-btn v-if="props.actions.some(action => action.name === 'reset')"
                                @click="$emit('reset', product[Object.keys(product)[0]])" round color="warning"
                                icon="r_replay" size="10px"/>
@@ -608,6 +740,20 @@ const hasAction = computed(() => {
                                style="margin-right: 5px;"/>
                         <q-btn v-if="props.actions.some(action => action.name === 'stock')" color="secondary"
                                @click="$emit('stockOut', product)" label="出庫" size="13px"/>
+                        <q-btn v-if="props.actions.some(action => action.name === 'orderOut')" color="amber"
+                               @click="$emit('orderOut', product[Object.keys(product)[0]])" label="出庫" size="13px"
+                               style="margin-left: 5px;"/>
+                        <q-btn v-if="props.actions.some(action => action.name === 'quoteAudit')" color="secondary"
+                               @click="$emit('pass', product)" label="承認" size="13px"
+                               style="margin-left: 5px;"/>
+                        <q-btn v-if="props.actions.some(action => action.name === 'quoteAudit')" color="deep-orange"
+                               @click="$emit('deny', product)" label="却下" size="13px"
+                               style="margin-left: 5px;"/>
+                        <q-btn
+                            v-if="changeStateAction.all === true || changeStateAction.ids.includes(product[Object.keys(product)[0]])"
+                            color="grey"
+                            @click="$emit('changeState', product)" label="状態変更" size="13px"
+                            style="margin-left: 5px;"/>
                     </td>
                 </tr>
                 </tbody>

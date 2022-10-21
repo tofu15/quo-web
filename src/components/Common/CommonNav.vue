@@ -71,7 +71,7 @@ const items = computed<item[]>(() => {
         haveSub: true,
         subs: []
     }
-    if (Permission.CustomerView) {
+    if (Permission.CustomerViewAll || Permission.CustomerViewSelf) {
         customer.subs?.push({name: '顧客一覧', url: '/list'})
     }
     if (Permission.CustomerAdd) {
@@ -81,27 +81,45 @@ const items = computed<item[]>(() => {
         items.push(customer)
     }
 
+    // 报价单
+    let quote: item = {
+        moduleName: '見積管理',
+        url: '/quote',
+        haveSub: true,
+        subs: []
+    }
+    if (Permission.QuoteSelf || Permission.QuoteView) {
+        quote.subs?.push({name: '見積一覧', url: '/list'})
+    }
+    if (Permission.QuoteAuditFirst || Permission.QuoteAuditSecond) {
+        quote.subs?.push({name: '承認待ち見積書', url: '/audit'})
+    }
+    if (Permission.QuoteSelf) {
+        quote.subs?.push({name: '見積作成', url: '/add'})
+    }
+    if (quote.subs?.length != 0) {
+        items.push(quote)
+    }
+
+    // 订单
+    let order: item = {
+        moduleName: '注文管理',
+        url: '/order',
+        haveSub: true,
+        subs: []
+    }
+    if (Permission.QuoteSelf || Permission.OrderView) {
+        order.subs?.push({name: '注文一覧', url: '/list'})
+    }
+    if (Permission.OrderOut) {
+        order.subs?.push({name: '出庫待ち注文', url: '/out'})
+    }
+    if (order.subs?.length != 0) {
+        items.push(order)
+    }
+
     // todo
     // items.push(
-    // {
-    //     moduleName: '見積管理',
-    //     url: '/estimate',
-    //     haveSub: true,
-    //     subs: [
-    //         {name: '見積書一覧', url: '/list'},
-    //         {name: '見積書作成', url: '/add'},
-    //         {name: '承認待ち見積書', url: '/verify'}
-    //     ]
-    // },
-    // {
-    //     moduleName: '注文管理',
-    //     url: '/order',
-    //     haveSub: true,
-    //     subs: [
-    //         {name: '注文一覧', url: '/list'},
-    //         {name: '出庫待ち注文', url: '/verify'}
-    //     ]
-    // },
     // {
     //     moduleName: 'データ分析',
     //     url: '/analysis',

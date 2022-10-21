@@ -98,17 +98,49 @@ onBeforeMount(async () => {
         if (data.mids.includes(13)) {
             Permission.StockAction = true
         }
-        //顧客閲覧
+        //顧客閲覧（全部）
         if (data.mids.includes(14)) {
-            Permission.CustomerView = true
+            Permission.CustomerViewAll = true
         }
-        //顧客編集
+        //顧客閲覧（个人）
         if (data.mids.includes(15)) {
-            Permission.CustomerEdit = true
+            Permission.CustomerViewSelf = true
+        }
+        //顧客編集（全部）
+        if (data.mids.includes(16)) {
+            Permission.CustomerEditAll = true
+        }
+        //顧客編集（个人）
+        if (data.mids.includes(17)) {
+            Permission.CustomerEditSelf = true
         }
         //顧客新規
-        if (data.mids.includes(16)) {
+        if (data.mids.includes(18)) {
             Permission.CustomerAdd = true
+        }
+        // 出庫権限
+        if (data.mids.includes(19)) {
+            Permission.OrderOut = true
+        }
+        // 課長審査
+        if (data.mids.includes(20)) {
+            Permission.QuoteAuditFirst = true
+        }
+        // 部長審査
+        if (data.mids.includes(21)) {
+            Permission.QuoteAuditSecond = true
+        }
+        // 見積書閲覧(全部)
+        if (data.mids.includes(22)) {
+            Permission.QuoteView = true
+        }
+        // 注文閲覧（全部）
+        if (data.mids.includes(23)) {
+            Permission.OrderView = true
+        }
+        // 見積書（个人）
+        if (data.mids.includes(24)) {
+            Permission.QuoteSelf = true
         }
         // システム設定
         if (data.mids.includes(10)) {
